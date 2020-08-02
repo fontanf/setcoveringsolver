@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <thread>
 
 using namespace setcoveringsolver;
 
@@ -30,6 +31,9 @@ Instance::Instance(std::string filepath, std::string format):
         std::cerr << "\033[31m" << "ERROR, unknown instance format: \"" << format << "\"" << "\033[0m" << std::endl;
         assert(false);
     }
+
+    fixed_sets_     = optimizationtools::IndexedSet(set_number());
+    fixed_elements_ = optimizationtools::IndexedSet(element_number());
 }
 
 Instance::Instance(SetId set_number, ElementId element_number):
@@ -55,8 +59,6 @@ void Instance::add_arc(SetId s, ElementId e)
 void Instance::fix_identical(Info& info)
 {
     VER(info, "Fix redundant elements and sets..." << std::endl);
-    fixed_sets_     = optimizationtools::IndexedSet(set_number());
-    fixed_elements_ = optimizationtools::IndexedSet(element_number());
     optimizationtools::IndexedSet elements_to_remove(element_number());
     optimizationtools::IndexedSet sets_to_remove(set_number());
 
@@ -179,11 +181,23 @@ void Instance::fix_dominated(Info& info)
             << std::endl);
 }
 
-void Instance::compute_set_neighbors(Info& info)
+void Instance::compute_set_neighbors(Counter thread_number, Info& info)
 {
     VER(info, "Compute set neighbors..." << std::endl);
+    std::vector<std::thread> threads;
+    for (Counter thread_id = 0; thread_id < thread_number; ++thread_id)
+        threads.push_back(std::thread(&Instance::compute_set_neighbors_worker,
+                    this,
+                    thread_id       * set_number() / thread_number,
+                    (thread_id + 1) * set_number() / thread_number));
+    for (Counter thread_id = 0; thread_id < thread_number; ++thread_id)
+        threads[thread_id].join();
+}
+
+void Instance::compute_set_neighbors_worker(SetId s_start, SetId s_end)
+{
     optimizationtools::IndexedSet neighbors(set_number());
-    for (SetId s1 = 0; s1 < set_number(); ++s1) {
+    for (SetId s1 = s_start; s1 < s_end; ++s1) {
         neighbors.clear();
         for (ElementId e: set(s1).elements)
             for (SetId s2: element(e).sets)
@@ -206,7 +220,6 @@ void Instance::compute_element_neighbors(Info& info)
                     neighbors.add(e2);
         for (ElementId e2: neighbors)
             elements_[e1].neighbors.push_back(e2);
-        //std::cout << "e " << e1 << " n " << elements_[e1].neighbors.size() << std::endl;
     }
 }
 
@@ -245,7 +258,10 @@ void Instance::compute_components(Info& info)
         components_[element(*it).component].elements.push_back(*it);
     for (auto it = fixed_sets_.out_begin(); it != fixed_sets_.out_end(); ++it)
         components_[set(*it).component].sets.push_back(*it);
-    VER(info, "* Component number: " << component_number() << std::endl);
+    VER(info, "* Components:");
+    for (ComponentId c = 0; c < component_number(); ++c)
+        VER(info, " " << c << "/" << component(c).elements.size() << "/" << component(c).sets.size());
+    VER(info, std::endl);
 }
 
 void Instance::remove_elements(const optimizationtools::IndexedSet& elements)

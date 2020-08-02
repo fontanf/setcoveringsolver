@@ -54,7 +54,9 @@ void localsearch_worker(
         Counter thread_id)
 {
     std::mt19937_64 generator(seed);
+    parameters.info.output->mutex_sol.lock();
     Solution solution = output.solution;
+    parameters.info.output->mutex_sol.unlock();
 
     // Initialize local search structures.
     std::uniform_real_distribution<double> d(0, 1);
@@ -63,8 +65,8 @@ void localsearch_worker(
         sets[s].last_addition = 0;
     std::vector<LocalSearchComponent> components(instance.component_number());
     for (ComponentId c = 0; c < instance.component_number(); ++c)
-        components[c].iteration_max = ((c == 0)? 0:
-                components[c - 1].iteration_max) + instance.component(c).elements.size();
+        components[c].iteration_max = ((c == 0)? 0: components[c - 1].iteration_max)
+            + instance.component(c).elements.size();
 
     ComponentId c = 0;
     for (Counter iterations = 1; parameters.info.check_time(); ++iterations) {
@@ -89,7 +91,7 @@ void localsearch_worker(
                     << " (" << component.iterations_without_improvment << ")";
                 output.update_solution(solution, c, ss, parameters.info);
             }
-            // Update component goal
+            // Update statistics
             if (component.iterations_without_improvment > 0) {
                 component.x += component.iterations_without_improvment;
                 component.y++;
@@ -244,7 +246,7 @@ LocalSearchOutput setcoveringsolver::localsearch(
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
-    instance.compute_set_neighbors(parameters.info);
+    instance.compute_set_neighbors(parameters.thread_number, parameters.info);
     instance.compute_components(parameters.info);
 
     // Compute initial greedy solution.
