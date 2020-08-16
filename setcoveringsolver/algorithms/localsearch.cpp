@@ -4,6 +4,7 @@
 
 #include "optimizationtools/indexed_set.hpp"
 #include "optimizationtools/indexed_binary_heap.hpp"
+#include "optimizationtools/utils.hpp"
 
 #include <thread>
 
@@ -20,7 +21,7 @@ LocalSearchOutput& LocalSearchOutput::algorithm_end(Info& info)
 struct LocalSearchComponent
 {
     /** Last set added to the current solution. */
-    SetId s_last_added   = -1;
+    SetId s_last_added = -1;
     /** Last set removed from the current solution. */
     SetId s_last_removed = -1;
     /** Number of iterations. */
@@ -29,13 +30,6 @@ struct LocalSearchComponent
     Counter iterations_without_improvment = 0;
     /** When to start optimizing next component. */
     Counter iteration_max;
-    /** Number of improvments. */
-    Counter y = 0;
-    /**
-     * Sum of the number of iterations for each improvment.
-     * x / y is the average number of iterations of an improvment.
-     */
-    Counter x = 0;
 };
 
 struct LocalSearchSet
@@ -92,11 +86,8 @@ void localsearch_worker(
                 output.update_solution(solution, c, ss, parameters.info);
             }
             // Update statistics
-            if (component.iterations_without_improvment > 0) {
-                component.x += component.iterations_without_improvment;
-                component.y++;
+            if (component.iterations_without_improvment > 0)
                 component.iterations_without_improvment = 0;
-            }
 
             // Find the best shift move.
             SetId s_best = -1;
@@ -151,7 +142,7 @@ void localsearch_worker(
         // For each set s1 covering element e which is not part of the solution
         // and which is not the last set removed.
         for (SetId s1: instance.element(e).sets) {
-            if (solution.contains(s1) || s1 == component.s_last_removed)
+            if (s1 == component.s_last_removed)
                 continue;
             solution.add(s1);
             if (p_best == -1 || solution.penalty() <= p_best) {
@@ -194,7 +185,7 @@ void localsearch_worker(
         // Update tabu
         component.s_last_added   = s1_best;
         component.s_last_removed = s2_best;
-        //std::cout << "it " << output.iterations
+        //std::cout << "it " << component.iterations
             //<< " s1_best " << s1_best
             //<< " s2_best " << s2_best
             //<< " p " << solution.penalty()
@@ -223,20 +214,6 @@ void localsearch_worker(
     }
 }
 
-std::vector<Seed> bob_floyd(Seed sample_size, Seed upper_bound, std::mt19937_64& generator)
-{
-    std::vector<Seed> samples;
-    for (Seed d = upper_bound - sample_size; d < upper_bound; d++) {
-        Seed t = std::uniform_int_distribution<>(0, d)(generator);
-        if (std::find(samples.begin(), samples.end(), t) == samples.end()) {
-            samples.push_back(t);
-        } else {
-            samples.push_back(d);
-        }
-    }
-    return samples;
-}
-
 LocalSearchOutput setcoveringsolver::localsearch(
         Instance& instance,
         std::mt19937_64& generator,
@@ -256,7 +233,7 @@ LocalSearchOutput setcoveringsolver::localsearch(
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);
 
-    auto seeds = bob_floyd(parameters.thread_number, std::numeric_limits<Seed>::max(), generator);
+    auto seeds = optimizationtools::bob_floyd(parameters.thread_number, std::numeric_limits<Seed>::max(), generator);
     std::vector<std::thread> threads;
     for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
         threads.push_back(std::thread(localsearch_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));

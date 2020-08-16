@@ -257,7 +257,8 @@ void Instance::compute_components(Info& info)
     for (auto it = fixed_elements_.out_begin(); it != fixed_elements_.out_end(); ++it)
         components_[element(*it).component].elements.push_back(*it);
     for (auto it = fixed_sets_.out_begin(); it != fixed_sets_.out_end(); ++it)
-        components_[set(*it).component].sets.push_back(*it);
+        if (set(*it).component != -1)
+            components_[set(*it).component].sets.push_back(*it);
     VER(info, "* Components:");
     for (ComponentId c = 0; c < component_number(); ++c)
         VER(info, " " << c << "/" << component(c).elements.size() << "/" << component(c).sets.size());

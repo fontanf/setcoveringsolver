@@ -185,7 +185,7 @@ void Output::update_solution(
         info.output->sol_number++;
         double t = round(info.elapsed_time() * 10000) / 10000;
         std::string sol_str = "Solution" + std::to_string(info.output->sol_number);
-        PUT(info, sol_str, "Cost", solution.cost());
+        PUT(info, sol_str, "Value", solution.cost());
         PUT(info, sol_str, "Time", t);
         PUT(info, sol_str, "String", s.str());
         if (!info.output->onlywriteattheend) {

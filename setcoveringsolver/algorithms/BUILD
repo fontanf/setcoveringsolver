@@ -16,6 +16,7 @@ cc_library(
         ],
         deps = [
                 "//setcoveringsolver:setcoveringsolver",
+                "@optimizationtools//optimizationtools:utils",
                 "@gurobi//:gurobi",
         ],
         visibility = ["//visibility:public"],
