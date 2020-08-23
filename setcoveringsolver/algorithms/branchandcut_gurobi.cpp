@@ -1,10 +1,10 @@
-#include "setcoveringsolver/algorithms/branchandcut.hpp"
+#include "setcoveringsolver/algorithms/branchandcut_gurobi.hpp"
 
 #include "gurobi_c++.h"
 
 using namespace setcoveringsolver;
 
-BranchAndCutOutput& BranchAndCutOutput::algorithm_end(Info& info)
+BranchAndCutGurobiOutput& BranchAndCutGurobiOutput::algorithm_end(Info& info)
 {
     //PUT(info, "Algorithm", "Iterations", it);
     Output::algorithm_end(info);
@@ -12,15 +12,15 @@ BranchAndCutOutput& BranchAndCutOutput::algorithm_end(Info& info)
     return *this;
 }
 
-class BranchAndCutCallback: public GRBCallback
+class BranchAndCutGurobiCallback: public GRBCallback
 {
 
 public:
 
-    BranchAndCutCallback(
+    BranchAndCutGurobiCallback(
             const Instance& ins,
-            BranchAndCutOptionalParameters& p,
-            BranchAndCutOutput& output,
+            BranchAndCutGurobiOptionalParameters& p,
+            BranchAndCutGurobiOutput& output,
             GRBVar* x):
         instance_(ins), p_(p), output_(output), x_(x) { }
 
@@ -48,19 +48,19 @@ protected:
 private:
 
     const Instance& instance_;
-    BranchAndCutOptionalParameters& p_;
-    BranchAndCutOutput& output_;
+    BranchAndCutGurobiOptionalParameters& p_;
+    BranchAndCutGurobiOutput& output_;
     GRBVar* x_;
 
 };
 
-BranchAndCutOutput setcoveringsolver::branchandcut(
-        const Instance& instance, BranchAndCutOptionalParameters p)
+BranchAndCutGurobiOutput setcoveringsolver::branchandcut_gurobi(
+        const Instance& instance, BranchAndCutGurobiOptionalParameters p)
 {
     GRBEnv env;
-    VER(p.info, "*** branchandcut ***" << std::endl);
+    VER(p.info, "*** branchandcut_gurobi ***" << std::endl);
 
-    BranchAndCutOutput output(instance, p.info);
+    BranchAndCutGurobiOutput output(instance, p.info);
 
     GRBModel model(env);
 
@@ -97,7 +97,7 @@ BranchAndCutOutput setcoveringsolver::branchandcut(
         model.set(GRB_DoubleParam_TimeLimit, p.info.timelimit);
 
     // Callback
-    BranchAndCutCallback cb = BranchAndCutCallback(instance, p, output, x);
+    BranchAndCutGurobiCallback cb = BranchAndCutGurobiCallback(instance, p, output, x);
     model.setCallback(&cb);
 
     // Optimize

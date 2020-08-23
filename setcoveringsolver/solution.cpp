@@ -170,7 +170,13 @@ void Output::update_solution(
 
     if (ok) {
         if (c == -1) {
-            solution = solution_new;
+            for (SetId s = 0; s < solution.instance().set_number(); ++s) {
+                if (solution.contains(s) && !solution_new.contains(s)) {
+                    solution.remove(s);
+                } else if (!solution.contains(s) && solution_new.contains(s)) {
+                    solution.add(s);
+                }
+            }
         } else {
             for (SetId s: solution.instance().component(c).sets) {
                 if (solution.contains(s) && !solution_new.contains(s)) {

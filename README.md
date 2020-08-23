@@ -4,11 +4,14 @@ A solver for the (Unicost) Set Covering Problem.
 
 ## Implemented algorithms
 
-* Greedy `-a greedy`
-* Greedy based on the one from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a greedy_lin`
-* Dual greedy `-a greedy_dual`
-* Branch-and-cut with Gurobi `-a branchandcut`
-* Row weighting local search (unicost only) based on "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a "localsearch --threads 4"`
+* Greedy
+  * Greedy `-a greedy`
+  * based on the one from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a greedy_lin`
+  * Dual greedy `-a greedy_dual`
+* Branch-and-cut (Gurobi) `-a branchandcut_gurobi`
+* Row weighting local search (unicost only)
+ * based on "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a "localsearch --threads 4"`
+ * based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015) `-a "localsearch_2 --threads 4"`
 * Large neighborhood search: fast, simple and minimum memory requirement, but lower quality solutions `-a largeneighborhoodsearch`
 
 ## Usage (command line)

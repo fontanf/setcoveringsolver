@@ -10,8 +10,8 @@ Output setcoveringsolver::greedy(const Instance& instance, Info info)
     Output output(instance, info);
     Solution solution(instance);
 
-    auto f = [&instance](SetId s) { return -1.0 * (double)instance.set(s).elements.size() / instance.set(s).cost; };
-    optimizationtools::IndexedBinaryHeap<double> heap(instance.set_number(), f);
+    auto f = [&instance](SetId s) { return std::pair<double, SetId>{-1.0 * (double)instance.set(s).elements.size() / instance.set(s).cost, s}; };
+    optimizationtools::IndexedBinaryHeap<std::pair<double, SetId>> heap(instance.set_number(), f);
 
     while (!solution.feasible()) {
         auto p = heap.top();
@@ -23,11 +23,11 @@ Output setcoveringsolver::greedy(const Instance& instance, Info info)
         //std::cout << "n " << solution.set_number()
             //<< " m " << solution.element_number()
             //<< " s " << p.first << " v_old " << p.second << " v_new " << val << std::endl;
-        if (val <= p.second + TOL) {
+        if (val <= p.second.first + TOL) {
             solution.add(p.first);
             heap.pop();
         } else {
-            heap.update_key(p.first, val);
+            heap.update_key(p.first, {val, p.first});
         }
     }
 

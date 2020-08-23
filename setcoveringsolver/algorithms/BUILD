@@ -2,14 +2,14 @@ cc_library(
         name = "algorithms",
         hdrs = [
                 "greedy.hpp",
-                "branchandcut.hpp",
+                "branchandcut_gurobi.hpp",
                 "localsearch.hpp",
                 "largeneighborhoodsearch.hpp",
                 "algorithms.hpp",
         ],
         srcs = [
                 "greedy.cpp",
-                "branchandcut.cpp",
+                "branchandcut_gurobi.cpp",
                 "localsearch.cpp",
                 "largeneighborhoodsearch.cpp",
                 "algorithms.cpp",

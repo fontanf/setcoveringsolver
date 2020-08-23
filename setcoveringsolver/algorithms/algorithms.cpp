@@ -23,6 +23,24 @@ LocalSearchOptionalParameters read_localsearch_args(const std::vector<char*>& ar
     return parameters;
 }
 
+LocalSearch2OptionalParameters read_localsearch_2_args(const std::vector<char*>& argv)
+{
+    LocalSearch2OptionalParameters parameters;
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("threads,t", po::value<Counter>(&parameters.thread_number), "")
+        ;
+    po::variables_map vm;
+    po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
+    try {
+        po::notify(vm);
+    } catch (po::required_option e) {
+        std::cout << desc << std::endl;;
+        throw "";
+    }
+    return parameters;
+}
+
 Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt19937_64& generator, Info info)
 {
     std::vector<std::string> algorithm_args = po::split_unix(algorithm);
@@ -43,15 +61,19 @@ Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt
     } else if (algorithm_args[0] == "greedy_dual") {
         instance.compute_components(info);
         return greedy_dual(instance, info);
-    } else if (algorithm_args[0] == "branchandcut") {
+    } else if (algorithm_args[0] == "branchandcut_gurobi") {
         instance.compute_components(info);
-        BranchAndCutOptionalParameters parameters;
+        BranchAndCutGurobiOptionalParameters parameters;
         parameters.info = info;
-        return branchandcut(instance, parameters);
+        return branchandcut_gurobi(instance, parameters);
     } else if (algorithm_args[0] == "localsearch") {
         auto parameters = read_localsearch_args(algorithm_argv);
         parameters.info = info;
         return localsearch(instance, generator, parameters);
+    } else if (algorithm_args[0] == "localsearch_2") {
+        auto parameters = read_localsearch_2_args(algorithm_argv);
+        parameters.info = info;
+        return localsearch_2(instance, generator, parameters);
     } else if (algorithm_args[0] == "largeneighborhoodsearch") {
         LargeNeighborhoodSearchOptionalParameters parameters;
         parameters.info = info;
