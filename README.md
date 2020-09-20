@@ -1,4 +1,4 @@
-# SetCoveringSolver
+# Set Covering Solver
 
 A solver for the (Unicost) Set Covering Problem.
 

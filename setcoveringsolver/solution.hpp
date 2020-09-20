@@ -45,7 +45,7 @@ public:
     void increment_penalty(ElementId e, Cost p = 1);
     void set_penalty(ElementId e, Cost p);
 
-    void write_cert(std::string filepath);
+    void write(std::string filepath);
 
 private:
 
