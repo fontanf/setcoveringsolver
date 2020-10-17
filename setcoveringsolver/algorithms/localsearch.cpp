@@ -379,7 +379,8 @@ void localsearch_2_worker(
         }
         // Update sets
         sets[s1_best].timestamp = iterations;
-        sets[s1_best].last_addition = iterations;
+        sets[s1_best].last_removal = iterations;
+        sets[s1_best].iterations += (iterations - sets[s1_best].last_addition);
         // Update tabu
         s_last_removed = s1_best;
         //std::cout << "it " << iterations
@@ -433,8 +434,7 @@ void localsearch_2_worker(
         }
         // Update sets
         sets[s2_best].timestamp = iterations;
-        sets[s2_best].last_removal  = iterations;
-        sets[s2_best].iterations += (iterations - sets[s2_best].last_addition);
+        sets[s2_best].last_addition = iterations;
         // Update tabu
         s_last_added = s2_best;
         //std::cout << "it " << iterations
