@@ -72,6 +72,10 @@ int main(int argc, char *argv[])
         //<< "," << instance.arc_number()
         //<< "," << coefficient_of_variation
         //<< std::endl;
+    //VER(info, "* Components:");
+    //for (ComponentId c = 0; c < component_number(); ++c)
+        //VER(info, " " << c << "/" << component(c).elements.size() << "/" << component(c).sets.size());
+    //VER(info, std::endl);
 
     Info info = Info()
         .set_verbose(vm.count("verbose"))

@@ -223,7 +223,7 @@ LocalSearchOutput setcoveringsolver::localsearch(
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
     instance.compute_set_neighbors(parameters.thread_number, parameters.info);
-    instance.compute_components(parameters.info);
+    instance.compute_components();
 
     // Compute initial greedy solution.
     LocalSearchOutput output(instance, parameters.info);
@@ -464,7 +464,7 @@ LocalSearch2Output setcoveringsolver::localsearch_2(
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
     instance.compute_set_neighbors(parameters.thread_number, parameters.info);
-    instance.compute_components(parameters.info);
+    instance.compute_components();
 
     // Compute initial greedy solution.
     LocalSearch2Output output(instance, parameters.info);

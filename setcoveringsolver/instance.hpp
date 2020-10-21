@@ -91,6 +91,7 @@ public:
 
     Instance(SetId set_number, ElementId element_number);
     void add_arc(SetId s, ElementId e);
+    void compute_components();
 
     inline ElementId      element_number() const { return elements_.size(); }
     inline SetId              set_number() const { return sets_.size(); }
@@ -111,7 +112,6 @@ public:
     void fix_dominated(Info& info);
     void compute_set_neighbors(Counter thread_number, Info& info);
     void compute_element_neighbors(Info& info);
-    void compute_components(Info& info);
 
 private:
 

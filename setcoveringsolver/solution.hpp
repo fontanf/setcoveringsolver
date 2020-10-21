@@ -27,7 +27,7 @@ public:
     inline ElementId element_number(ComponentId c) const { return component_element_numbers_[c]; }
     inline ElementId uncovered_element_number() const { return instance().element_number() - element_number(); }
     inline SetId set_number() const { return sets_.size(); }
-    inline SetId cost(ComponentId c) const { return component_costs_[c]; }
+    inline Cost cost(ComponentId c) const { return component_costs_[c]; }
     inline Cost cost() const { return cost_; }
     inline Cost penalty() const { return penalty_; }
     inline Cost penalty(ElementId e) const { return penalties_[e]; }
@@ -54,7 +54,7 @@ private:
     optimizationtools::IndexedMap<SetPos> elements_;
     optimizationtools::IndexedSet sets_;
     std::vector<ElementPos> component_element_numbers_;
-    std::vector<SetPos> component_costs_;
+    std::vector<Cost> component_costs_;
     std::vector<Cost> penalties_;
     Cost cost_ = 0;
     Cost penalty_ = 0;

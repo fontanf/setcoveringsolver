@@ -53,16 +53,12 @@ Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt
         return Output(instance, info);
 
     } else if (algorithm_args[0] == "greedy") {
-        instance.compute_components(info);
         return greedy(instance, info);
     } else if (algorithm_args[0] == "greedy_lin") {
-        instance.compute_components(info);
         return greedy_lin(instance, info);
     } else if (algorithm_args[0] == "greedy_dual") {
-        instance.compute_components(info);
         return greedy_dual(instance, info);
     } else if (algorithm_args[0] == "branchandcut_gurobi") {
-        instance.compute_components(info);
         BranchAndCutGurobiOptionalParameters parameters;
         parameters.info = info;
         return branchandcut_gurobi(instance, parameters);

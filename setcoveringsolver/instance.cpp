@@ -34,6 +34,8 @@ Instance::Instance(std::string filepath, std::string format):
 
     fixed_sets_     = optimizationtools::IndexedSet(set_number());
     fixed_elements_ = optimizationtools::IndexedSet(element_number());
+
+    compute_components();
 }
 
 Instance::Instance(SetId set_number, ElementId element_number):
@@ -223,9 +225,14 @@ void Instance::compute_element_neighbors(Info& info)
     }
 }
 
-void Instance::compute_components(Info& info)
+void Instance::compute_components()
 {
-    VER(info, "Compute components..." << std::endl);
+    components_.clear();
+    for (ElementId e = 0; e < element_number(); ++e)
+        elements_[e].component = -1;
+    for (SetId s = 0; s < set_number(); ++s)
+        sets_[s].component = -1;
+
     for (ComponentId c = 0;; ++c) {
         ElementId e = 0;
         while (e < element_number()
@@ -259,10 +266,6 @@ void Instance::compute_components(Info& info)
     for (auto it = fixed_sets_.out_begin(); it != fixed_sets_.out_end(); ++it)
         if (set(*it).component != -1)
             components_[set(*it).component].sets.push_back(*it);
-    VER(info, "* Components:");
-    for (ComponentId c = 0; c < component_number(); ++c)
-        VER(info, " " << c << "/" << component(c).elements.size() << "/" << component(c).sets.size());
-    VER(info, std::endl);
 }
 
 void Instance::remove_elements(const optimizationtools::IndexedSet& elements)
