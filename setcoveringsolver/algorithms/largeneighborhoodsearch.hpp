@@ -8,6 +8,9 @@ namespace setcoveringsolver
 struct LargeNeighborhoodSearchOptionalParameters
 {
     Info info = Info();
+
+    Counter iteration_limit = -1;
+    Counter iteration_without_improvment_limit = -1;
 };
 
 struct LargeNeighborhoodSearchOutput: Output
@@ -24,5 +27,4 @@ LargeNeighborhoodSearchOutput largeneighborhoodsearch(
         LargeNeighborhoodSearchOptionalParameters parameters = {});
 
 }
-
 

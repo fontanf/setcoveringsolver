@@ -31,6 +31,23 @@ Output setcoveringsolver::greedy(const Instance& instance, Info info)
         }
     }
 
+    // Remove redundant sets.
+    for (auto it_s = solution.sets().begin(); it_s != solution.sets().end();) {
+        SetId s = *it_s;
+        bool remove = true;
+        for (ElementId e: instance.set(s).elements) {
+            if (solution.covers(e) == 1) {
+                remove = false;
+                break;
+            }
+        }
+        if (remove) {
+            solution.remove(s);
+        } else {
+            it_s++;
+        }
+    }
+
     output.update_solution(solution, std::stringstream(), info);
     return output.algorithm_end(info);
 }
@@ -59,6 +76,23 @@ Output setcoveringsolver::greedy_lin(const Instance& instance, Info info)
             heap.pop();
         } else {
             heap.update_key(p.first, val);
+        }
+    }
+
+    // Remove redundant sets.
+    for (auto it_s = solution.sets().begin(); it_s != solution.sets().end();) {
+        SetId s = *it_s;
+        bool remove = true;
+        for (ElementId e: instance.set(s).elements) {
+            if (solution.covers(e) == 1) {
+                remove = false;
+                break;
+            }
+        }
+        if (remove) {
+            solution.remove(s);
+        } else {
+            it_s++;
         }
     }
 
@@ -92,6 +126,23 @@ Output setcoveringsolver::greedy_dual(const Instance& instance, Info info)
             }
         }
         solution.add(s_best);
+    }
+
+    // Remove redundant sets.
+    for (auto it_s = solution.sets().begin(); it_s != solution.sets().end();) {
+        SetId s = *it_s;
+        bool remove = true;
+        for (ElementId e: instance.set(s).elements) {
+            if (solution.covers(e) == 1) {
+                remove = false;
+                break;
+            }
+        }
+        if (remove) {
+            solution.remove(s);
+        } else {
+            it_s++;
+        }
     }
 
     output.update_solution(solution, std::stringstream(), info);

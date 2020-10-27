@@ -12,7 +12,7 @@ A solver for the (Unicost) Set Covering Problem.
 * Row weighting local search (unicost only)
   * based on "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a "localsearch --threads 4"`
   * based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015) `-a "localsearch_2 --threads 4"`
-* Large neighborhood search: fast, simple and minimum memory requirement, but lower quality solutions `-a largeneighborhoodsearch`
+* Large neighborhood search: fast, simple and minimum memory requirement, but lower quality solutions `-a largeneighborhoodsearch --iteration-limit 100000 --iteration-without-improvment-limit 10000`
 
 ## Usage (command line)
 

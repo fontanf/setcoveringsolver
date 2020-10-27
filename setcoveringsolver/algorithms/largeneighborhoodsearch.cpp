@@ -35,7 +35,16 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
     std::vector<SetId> sets_removed;
     optimizationtools::IndexedSet sets_candidates(instance.set_number());
     optimizationtools::IndexedBinaryHeap<double> heap(instance.set_number());
-    for (output.iterations = 1; parameters.info.check_time(); ++output.iterations) {
+    Counter iterations_without_improvment = 0;
+    for (output.iterations = 1; parameters.info.check_time(); ++output.iterations, ++iterations_without_improvment) {
+        // Check stop criteria.
+        if (parameters.iteration_limit != -1
+                && output.iterations > parameters.iteration_limit)
+            break;
+        if (parameters.iteration_without_improvment_limit != -1
+                && iterations_without_improvment > parameters.iteration_without_improvment_limit)
+            break;
+
         sets_added.clear();
         sets_removed.clear();
         sets_candidates.clear();
@@ -94,10 +103,10 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
             std::stringstream ss;
             ss << "iteration " << output.iterations;
             output.update_solution(solution, ss, parameters.info);
+            iterations_without_improvment = 0;
         }
     }
 
     return output.algorithm_end(parameters.info);
 }
-
 
