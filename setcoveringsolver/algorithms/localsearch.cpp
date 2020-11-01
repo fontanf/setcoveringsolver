@@ -48,9 +48,17 @@ void localsearch_worker(
         Counter thread_id)
 {
     std::mt19937_64 generator(seed);
-    parameters.info.output->mutex_sol.lock();
-    Solution solution = output.solution;
-    parameters.info.output->mutex_sol.unlock();
+
+    // Compute initial greedy solution.
+    Solution solution(instance);
+    if (thread_id % 2 == 0) {
+        solution = greedy(instance).solution;
+    } else {
+        solution = greedy_lin(instance).solution;
+    }
+    std::stringstream ss;
+    ss << "initial solution";
+    output.update_solution(solution, ss, parameters.info);
 
     // Initialize local search structures.
     std::vector<LocalSearchSet> sets(instance.set_number());
@@ -225,12 +233,7 @@ LocalSearchOutput setcoveringsolver::localsearch(
     instance.compute_set_neighbors(parameters.thread_number, parameters.info);
     instance.compute_components();
 
-    // Compute initial greedy solution.
     LocalSearchOutput output(instance, parameters.info);
-    Solution solution = greedy(instance).solution;
-    std::stringstream ss;
-    ss << "initial solution";
-    output.update_solution(solution, ss, parameters.info);
 
     auto seeds = optimizationtools::bob_floyd(parameters.thread_number, std::numeric_limits<Seed>::max(), generator);
     std::vector<std::thread> threads;
@@ -270,9 +273,17 @@ void localsearch_2_worker(
         Counter thread_id)
 {
     std::mt19937_64 generator(seed);
-    parameters.info.output->mutex_sol.lock();
-    Solution solution = output.solution;
-    parameters.info.output->mutex_sol.unlock();
+
+    // Compute initial greedy solution.
+    Solution solution(instance);
+    if (thread_id % 2 == 0) {
+        solution = greedy(instance).solution;
+    } else {
+        solution = greedy_lin(instance).solution;
+    }
+    std::stringstream ss;
+    ss << "initial solution";
+    output.update_solution(solution, ss, parameters.info);
 
     // Initialize local search structures.
     std::vector<LocalSearch2Set> sets(instance.set_number());
@@ -466,12 +477,7 @@ LocalSearch2Output setcoveringsolver::localsearch_2(
     instance.compute_set_neighbors(parameters.thread_number, parameters.info);
     instance.compute_components();
 
-    // Compute initial greedy solution.
     LocalSearch2Output output(instance, parameters.info);
-    Solution solution = greedy(instance).solution;
-    std::stringstream ss;
-    ss << "initial solution";
-    output.update_solution(solution, ss, parameters.info);
 
     auto seeds = optimizationtools::bob_floyd(parameters.thread_number, std::numeric_limits<Seed>::max(), generator);
     std::vector<std::thread> threads;

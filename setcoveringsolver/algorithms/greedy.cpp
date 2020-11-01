@@ -64,7 +64,7 @@ Output setcoveringsolver::greedy_lin(const Instance& instance, Info info)
         for (ElementId e: instance.set(s).elements)
             if (solution.covers(e) == 0)
                 val += 1.0 / instance.element(e).sets.size();
-        return - val;
+        return - val / instance.set(s).cost;
     };
     optimizationtools::IndexedBinaryHeap<double> heap(instance.set_number(), f);
 

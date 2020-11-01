@@ -32,8 +32,9 @@ Run:
 
 Benchmarks:
 ```shell
-bazel build -- //...
-python3 setcoveringsolver/bench.py balas1980_unicost greedy
-python3 setcoveringsolver/bench.py balas1980_unicost localsearch 60
+python3 ../optimizationtools/optimizationtools/bench_run.py --algorithms "greedy"
+python3 ../optimizationtools/optimizationtools/bench_run.py --algorithms "greedy_lin"
+python3 ../optimizationtools/optimizationtools/bench_run.py --algorithms "greedy_dual"
+python3 ../optimizationtools/optimizationtools/bench_process.py --benchmark heuristicshort --timelimit 1 --labels "greedy" "greedy_lin" "greedy_dual"
 ```
 
