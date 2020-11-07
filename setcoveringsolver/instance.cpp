@@ -73,7 +73,7 @@ void Instance::fix_identical(Info& info)
         for (SetPos s_pos = 0; s_pos < (SetPos)element(e1).sets.size(); ++s_pos)
             if (element(e1).sets[s_pos] != element(e2).sets[s_pos])
                 return (element(e1).sets[s_pos] < element(e2).sets[s_pos]);
-        return false;
+        return e2 < e1;
     });
     ElementId e_prec = -1;
     for (ElementId e: elements_sorted) {
@@ -98,7 +98,7 @@ void Instance::fix_identical(Info& info)
         for (ElementPos e_pos = 0; e_pos < (ElementPos)set(s1).elements.size(); ++e_pos)
             if (set(s1).elements[e_pos] != set(s2).elements[e_pos])
                 return (set(s1).elements[e_pos] < set(s2).elements[e_pos]);
-        return false;
+        return set(s1).cost > set(s2).cost;
     });
     SetId s_prec = -1;
     for (SetId s: sets_sorted) {
@@ -107,7 +107,8 @@ void Instance::fix_identical(Info& info)
             continue;
         }
         if (s_prec != -1) {
-            if (set(s_prec).elements == set(s).elements)
+            if (set(s_prec).cost >= set(s).cost
+                    && set(s_prec).elements == set(s).elements)
                 sets_to_remove.add(s_prec);
         }
         s_prec = s;
@@ -163,7 +164,9 @@ void Instance::fix_dominated(Info& info)
             covered_elements.add(e);
         for (auto it2 = fixed_sets_.out_begin(); it2 != fixed_sets_.out_end(); ++it2) {
             SetId s2 = *it2;
-            if (s2 == s1 || set(s1).elements.size() < set(s2).elements.size())
+            if (s2 == s1
+                    || set(s1).elements.size() < set(s2).elements.size()
+                    || set(s1).cost > set(s2).cost)
                 continue;
             // Check if s1 dominates s2
             bool dominates = true;

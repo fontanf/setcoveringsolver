@@ -22,7 +22,7 @@ Output setcoveringsolver::greedy(const Instance& instance, Info info)
         double val = (double)e_total / instance.set(p.first).cost;
         //std::cout << "n " << solution.set_number()
             //<< " m " << solution.element_number()
-            //<< " s " << p.first << " v_old " << p.second << " v_new " << val << std::endl;
+            //<< " s " << p.first << " v_old " << p.second.first << " v_new " << val << std::endl;
         if (val <= p.second.first + TOL) {
             solution.add(p.first);
             heap.pop();
