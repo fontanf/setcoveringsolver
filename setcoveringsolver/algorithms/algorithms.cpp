@@ -96,10 +96,12 @@ Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt
         return greedy_lin(instance, info);
     } else if (algorithm_args[0] == "greedy_dual") {
         return greedy_dual(instance, info);
+#if GUROBI_FOUND
     } else if (algorithm_args[0] == "branchandcut_gurobi") {
         BranchAndCutGurobiOptionalParameters parameters;
         parameters.info = info;
         return branchandcut_gurobi(instance, parameters);
+#endif
     } else if (algorithm_args[0] == "localsearch") {
         auto parameters = read_localsearch_args(algorithm_argv);
         parameters.info = info;
@@ -118,7 +120,7 @@ Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt
         return largeneighborhoodsearch_2(instance, parameters);
 
     } else {
-        std::cerr << "\033[31m" << "ERROR, unknown algorithm: " << algorithm_args[0] << "\033[0m" << std::endl;
+        std::cerr << "\033[31m" << "ERROR, unknown algorithm: '" << algorithm_args[0] << "'\033[0m" << std::endl;
         assert(false);
         return Output(instance, info);
     }

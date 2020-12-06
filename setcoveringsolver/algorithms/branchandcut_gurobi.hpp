@@ -1,5 +1,7 @@
 #pragma once
 
+#if GUROBI_FOUND
+
 #include "setcoveringsolver/solution.hpp"
 
 namespace setcoveringsolver
@@ -23,3 +25,4 @@ BranchAndCutGurobiOutput branchandcut_gurobi(
 
 }
 
+#endif

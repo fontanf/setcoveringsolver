@@ -1,3 +1,5 @@
+#if GUROBI_FOUND
+
 #include "setcoveringsolver/algorithms/branchandcut_gurobi.hpp"
 
 #include "gurobi_c++.h"
@@ -129,3 +131,4 @@ BranchAndCutGurobiOutput setcoveringsolver::branchandcut_gurobi(
     return output.algorithm_end(p.info);
 }
 
+#endif

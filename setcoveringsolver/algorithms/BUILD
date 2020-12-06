@@ -1,3 +1,7 @@
+load("//setcoveringsolver:variables.bzl", "STDCPP",
+         "CPLEX_COPTS", "CPLEX_DEP",
+         "GUROBI_COPTS", "GUROBI_DEP")
+
 cc_library(
         name = "algorithms",
         hdrs = [
@@ -17,8 +21,8 @@ cc_library(
         deps = [
                 "//setcoveringsolver:setcoveringsolver",
                 "@optimizationtools//optimizationtools:utils",
-                "@gurobi//:gurobi",
-        ],
+        ] + CPLEX_DEP + GUROBI_DEP,
+        copts = CPLEX_COPTS + GUROBI_COPTS,
         visibility = ["//visibility:public"],
 )
 

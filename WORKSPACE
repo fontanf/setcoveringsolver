@@ -67,3 +67,40 @@ cc_library(
 """,
 )
 
+new_local_repository(
+    name = "cplex",
+    path = "/opt/ibm/ILOG/CPLEX_Studio129/",
+    build_file_content = """
+cc_library(
+    name = "concert",
+    hdrs = glob(["concert/include/ilconcert/**/*.h"], exclude_directories = 0),
+    strip_include_prefix = "concert/include/",
+    srcs = ["concert/lib/x86-64_linux/static_pic/libconcert.a"],
+    linkopts = [
+            "-lm",
+            "-lpthread",
+            "-ldl",
+    ],
+    visibility = ["//visibility:public"],
+)
+cc_library(
+    name = "cplex",
+    hdrs = glob(["cplex/include/ilcplex/*.h"]),
+    strip_include_prefix = "cplex/include/",
+    srcs = [
+            "cplex/lib/x86-64_linux/static_pic/libilocplex.a",
+            "cplex/lib/x86-64_linux/static_pic/libcplex.a",
+    ],
+    deps = [":concert"],
+    visibility = ["//visibility:public"],
+)
+cc_library(
+    name = "cpoptimizer",
+    hdrs = glob(["cpoptimizer/include/ilcp/*.h"]),
+    strip_include_prefix = "cpoptimizer/include/",
+    srcs = ["cpoptimizer/lib/x86-64_linux/static_pic/libcp.a"],
+    deps = [":cplex"],
+    visibility = ["//visibility:public"],
+)
+""",
+)
