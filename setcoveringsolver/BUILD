@@ -26,7 +26,6 @@ cc_binary(
         srcs = ["main.cpp"],
         deps = [
                 "//setcoveringsolver/algorithms:algorithms",
-                "@boost//:program_options",
         ],
         linkopts = select({
                     "@bazel_tools//src/conditions:windows": [],

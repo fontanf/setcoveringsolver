@@ -16,7 +16,7 @@ LocalSearchOptionalParameters read_localsearch_args(const std::vector<char*>& ar
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
     try {
         po::notify(vm);
-    } catch (po::required_option e) {
+    } catch (const po::required_option& e) {
         std::cout << desc << std::endl;;
         throw "";
     }
@@ -34,7 +34,7 @@ LocalSearch2OptionalParameters read_localsearch_2_args(const std::vector<char*>&
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
     try {
         po::notify(vm);
-    } catch (po::required_option e) {
+    } catch (const po::required_option& e) {
         std::cout << desc << std::endl;;
         throw "";
     }
@@ -53,7 +53,7 @@ LargeNeighborhoodSearchOptionalParameters read_largeneighborhoodsearch_args(cons
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
     try {
         po::notify(vm);
-    } catch (po::required_option e) {
+    } catch (const po::required_option& e) {
         std::cout << desc << std::endl;;
         throw "";
     }
@@ -72,7 +72,7 @@ LargeNeighborhoodSearch2OptionalParameters read_largeneighborhoodsearch_2_args(c
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
     try {
         po::notify(vm);
-    } catch (po::required_option e) {
+    } catch (const po::required_option& e) {
         std::cout << desc << std::endl;;
         throw "";
     }

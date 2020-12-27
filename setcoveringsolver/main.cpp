@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     }
     try {
         po::notify(vm);
-    } catch (po::required_option e) {
+    } catch (const po::required_option& e) {
         std::cout << desc << std::endl;;
         return 1;
     }

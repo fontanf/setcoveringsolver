@@ -21,6 +21,7 @@ cc_library(
         deps = [
                 "//setcoveringsolver:setcoveringsolver",
                 "@optimizationtools//optimizationtools:utils",
+                "@boost//:program_options",
         ] + CPLEX_DEP + GUROBI_DEP,
         copts = CPLEX_COPTS + GUROBI_COPTS,
         visibility = ["//visibility:public"],
