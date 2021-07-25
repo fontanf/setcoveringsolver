@@ -5,9 +5,9 @@
 using namespace setcoveringsolver;
 namespace po = boost::program_options;
 
-LocalSearchOptionalParameters read_localsearch_args(const std::vector<char*>& argv)
+LocalSearchRowWeightingOptionalParameters read_localsearch_rowweighting_args(const std::vector<char*>& argv)
 {
-    LocalSearchOptionalParameters parameters;
+    LocalSearchRowWeightingOptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
         ("threads,t", po::value<Counter>(&parameters.thread_number), "")
@@ -23,9 +23,9 @@ LocalSearchOptionalParameters read_localsearch_args(const std::vector<char*>& ar
     return parameters;
 }
 
-LocalSearch2OptionalParameters read_localsearch_2_args(const std::vector<char*>& argv)
+LocalSearchRowWeighting2OptionalParameters read_localsearch_rowweighting_2_args(const std::vector<char*>& argv)
 {
-    LocalSearch2OptionalParameters parameters;
+    LocalSearchRowWeighting2OptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
         ("threads,t", po::value<Counter>(&parameters.thread_number), "")
@@ -97,19 +97,19 @@ Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt
     } else if (algorithm_args[0] == "greedy_dual") {
         return greedy_dual(instance, info);
 #if GUROBI_FOUND
-    } else if (algorithm_args[0] == "branchandcut_gurobi") {
-        BranchAndCutGurobiOptionalParameters parameters;
+    } else if (algorithm_args[0] == "milp_gurobi") {
+        MilpGurobiOptionalParameters parameters;
         parameters.info = info;
-        return branchandcut_gurobi(instance, parameters);
+        return milp_gurobi(instance, parameters);
 #endif
-    } else if (algorithm_args[0] == "localsearch") {
-        auto parameters = read_localsearch_args(algorithm_argv);
+    } else if (algorithm_args[0] == "localsearch_rowweighting") {
+        auto parameters = read_localsearch_rowweighting_args(algorithm_argv);
         parameters.info = info;
-        return localsearch(instance, generator, parameters);
-    } else if (algorithm_args[0] == "localsearch_2") {
-        auto parameters = read_localsearch_2_args(algorithm_argv);
+        return localsearch_rowweighting(instance, generator, parameters);
+    } else if (algorithm_args[0] == "localsearch_rowweighting_2") {
+        auto parameters = read_localsearch_rowweighting_2_args(algorithm_argv);
         parameters.info = info;
-        return localsearch_2(instance, generator, parameters);
+        return localsearch_rowweighting_2(instance, generator, parameters);
     } else if (algorithm_args[0] == "largeneighborhoodsearch") {
         auto parameters = read_largeneighborhoodsearch_args(algorithm_argv);
         parameters.info = info;

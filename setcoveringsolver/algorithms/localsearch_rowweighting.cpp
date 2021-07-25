@@ -1,4 +1,4 @@
-#include "setcoveringsolver/algorithms/localsearch.hpp"
+#include "setcoveringsolver/algorithms/localsearch_rowweighting.hpp"
 
 #include "setcoveringsolver/algorithms/greedy.hpp"
 
@@ -10,7 +10,7 @@
 
 using namespace setcoveringsolver;
 
-LocalSearchOutput& LocalSearchOutput::algorithm_end(Info& info)
+LocalSearchRowWeightingOutput& LocalSearchRowWeightingOutput::algorithm_end(Info& info)
 {
     //PUT(info, "Algorithm", "Iterations", iterations);
     Output::algorithm_end(info);
@@ -18,7 +18,7 @@ LocalSearchOutput& LocalSearchOutput::algorithm_end(Info& info)
     return *this;
 }
 
-struct LocalSearchComponent
+struct LocalSearchRowWeightingComponent
 {
     /** Last set added to the current solution. */
     SetId s_last_added = -1;
@@ -32,7 +32,7 @@ struct LocalSearchComponent
     Counter iteration_max;
 };
 
-struct LocalSearchSet
+struct LocalSearchRowWeightingSet
 {
     Counter timestamp = -1;
     Counter last_addition = -1;
@@ -40,11 +40,11 @@ struct LocalSearchSet
     Counter iterations = 0;
 };
 
-void localsearch_worker(
+void localsearch_rowweighting_worker(
         const Instance& instance,
         Seed seed,
-        LocalSearchOptionalParameters parameters,
-        LocalSearchOutput& output,
+        LocalSearchRowWeightingOptionalParameters parameters,
+        LocalSearchRowWeightingOutput& output,
         Counter thread_id)
 {
     std::mt19937_64 generator(seed);
@@ -61,10 +61,10 @@ void localsearch_worker(
     output.update_solution(solution, ss, parameters.info);
 
     // Initialize local search structures.
-    std::vector<LocalSearchSet> sets(instance.set_number());
+    std::vector<LocalSearchRowWeightingSet> sets(instance.set_number());
     for (SetId s: solution.sets())
         sets[s].last_addition = 0;
-    std::vector<LocalSearchComponent> components(instance.component_number());
+    std::vector<LocalSearchRowWeightingComponent> components(instance.component_number());
     for (ComponentId c = 0; c < instance.component_number(); ++c)
         components[c].iteration_max = ((c == 0)? 0: components[c - 1].iteration_max)
             + instance.component(c).elements.size();
@@ -79,7 +79,7 @@ void localsearch_worker(
                 //<< " s " << instance.component(c).sets.size()
                 //<< std::endl;
         }
-        LocalSearchComponent& component = components[c];
+        LocalSearchRowWeightingComponent& component = components[c];
 
         while (solution.feasible(c)) {
             // New best solution
@@ -221,24 +221,24 @@ void localsearch_worker(
     }
 }
 
-LocalSearchOutput setcoveringsolver::localsearch(
+LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
         Instance& instance,
         std::mt19937_64& generator,
-        LocalSearchOptionalParameters parameters)
+        LocalSearchRowWeightingOptionalParameters parameters)
 {
-    VER(parameters.info, "*** localsearch ***" << std::endl);
+    VER(parameters.info, "*** localsearch_rowweighting ***" << std::endl);
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
     instance.compute_set_neighbors(parameters.thread_number, parameters.info);
     instance.compute_components();
 
-    LocalSearchOutput output(instance, parameters.info);
+    LocalSearchRowWeightingOutput output(instance, parameters.info);
 
     auto seeds = optimizationtools::bob_floyd(parameters.thread_number, std::numeric_limits<Seed>::max(), generator);
     std::vector<std::thread> threads;
     for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
-        threads.push_back(std::thread(localsearch_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));
+        threads.push_back(std::thread(localsearch_rowweighting_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));
 
     for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
         threads[thread_id].join();
@@ -248,7 +248,7 @@ LocalSearchOutput setcoveringsolver::localsearch(
 
 /******************************************************************************/
 
-LocalSearch2Output& LocalSearch2Output::algorithm_end(Info& info)
+LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(Info& info)
 {
     //PUT(info, "Algorithm", "Iterations", iterations);
     Output::algorithm_end(info);
@@ -256,7 +256,7 @@ LocalSearch2Output& LocalSearch2Output::algorithm_end(Info& info)
     return *this;
 }
 
-struct LocalSearch2Set
+struct LocalSearchRowWeighting2Set
 {
     Counter timestamp = -1;
     Counter last_addition = -1;
@@ -265,11 +265,11 @@ struct LocalSearch2Set
     Cost    score = 0;
 };
 
-void localsearch_2_worker(
+void localsearch_rowweighting_2_worker(
         const Instance& instance,
         Seed seed,
-        LocalSearch2OptionalParameters parameters,
-        LocalSearch2Output& output,
+        LocalSearchRowWeighting2OptionalParameters parameters,
+        LocalSearchRowWeighting2Output& output,
         Counter thread_id)
 {
     std::mt19937_64 generator(seed);
@@ -286,7 +286,7 @@ void localsearch_2_worker(
     output.update_solution(solution, ss, parameters.info);
 
     // Initialize local search structures.
-    std::vector<LocalSearch2Set> sets(instance.set_number());
+    std::vector<LocalSearchRowWeighting2Set> sets(instance.set_number());
     for (ElementId e = 0; e < instance.element_number(); ++e)
         if (solution.covers(e) == 1)
             for (SetId s: instance.element(e).sets)
@@ -465,24 +465,24 @@ void localsearch_2_worker(
     }
 }
 
-LocalSearch2Output setcoveringsolver::localsearch_2(
+LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         Instance& instance,
         std::mt19937_64& generator,
-        LocalSearch2OptionalParameters parameters)
+        LocalSearchRowWeighting2OptionalParameters parameters)
 {
-    VER(parameters.info, "*** localsearch_2 ***" << std::endl);
+    VER(parameters.info, "*** localsearch_rowweighting_2 ***" << std::endl);
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
     instance.compute_set_neighbors(parameters.thread_number, parameters.info);
     instance.compute_components();
 
-    LocalSearch2Output output(instance, parameters.info);
+    LocalSearchRowWeighting2Output output(instance, parameters.info);
 
     auto seeds = optimizationtools::bob_floyd(parameters.thread_number, std::numeric_limits<Seed>::max(), generator);
     std::vector<std::thread> threads;
     for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
-        threads.push_back(std::thread(localsearch_2_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));
+        threads.push_back(std::thread(localsearch_rowweighting_2_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));
 
     for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
         threads[thread_id].join();

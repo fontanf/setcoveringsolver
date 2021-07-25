@@ -3,8 +3,8 @@
 #include "setcoveringsolver/solution.hpp"
 
 #include "setcoveringsolver/algorithms/greedy.hpp"
-#include "setcoveringsolver/algorithms/branchandcut_gurobi.hpp"
-#include "setcoveringsolver/algorithms/localsearch.hpp"
+#include "setcoveringsolver/algorithms/milp_gurobi.hpp"
+#include "setcoveringsolver/algorithms/localsearch_rowweighting.hpp"
 #include "setcoveringsolver/algorithms/largeneighborhoodsearch.hpp"
 
 namespace setcoveringsolver

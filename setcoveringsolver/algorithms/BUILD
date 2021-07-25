@@ -3,27 +3,58 @@ load("//setcoveringsolver:variables.bzl", "STDCPP",
          "GUROBI_COPTS", "GUROBI_DEP")
 
 cc_library(
-        name = "algorithms",
-        hdrs = [
-                "greedy.hpp",
-                "branchandcut_gurobi.hpp",
-                "localsearch.hpp",
-                "largeneighborhoodsearch.hpp",
-                "algorithms.hpp",
-        ],
-        srcs = [
-                "greedy.cpp",
-                "branchandcut_gurobi.cpp",
-                "localsearch.cpp",
-                "largeneighborhoodsearch.cpp",
-                "algorithms.cpp",
-        ],
+        name = "greedy",
+        hdrs = ["greedy.hpp"],
+        srcs = ["greedy.cpp"],
+        deps = ["//setcoveringsolver:setcoveringsolver"],
+        visibility = ["//visibility:public"],
+)
+
+cc_library(
+        name = "milp_gurobi",
+        hdrs = ["milp_gurobi.hpp"],
+        srcs = ["milp_gurobi.cpp"],
         deps = [
                 "//setcoveringsolver:setcoveringsolver",
+        ] + GUROBI_DEP,
+        copts = GUROBI_COPTS,
+        visibility = ["//visibility:public"],
+)
+
+cc_library(
+        name = "localsearch_rowweighting",
+        hdrs = ["localsearch_rowweighting.hpp"],
+        srcs = ["localsearch_rowweighting.cpp"],
+        deps = [
+                ":greedy",
+                "//setcoveringsolver:setcoveringsolver",
                 "@optimizationtools//optimizationtools:utils",
+        ],
+        visibility = ["//visibility:public"],
+)
+
+cc_library(
+        name = "largeneighborhoodsearch",
+        hdrs = ["largeneighborhoodsearch.hpp"],
+        srcs = ["largeneighborhoodsearch.cpp"],
+        deps = [
+                ":greedy",
+                "//setcoveringsolver:setcoveringsolver",
+        ],
+        visibility = ["//visibility:public"],
+)
+
+cc_library(
+        name = "algorithms",
+        hdrs = ["algorithms.hpp"],
+        srcs = ["algorithms.cpp"],
+        deps = [
+                ":greedy",
+                ":milp_gurobi",
+                ":localsearch_rowweighting",
+                ":largeneighborhoodsearch",
                 "@boost//:program_options",
-        ] + CPLEX_DEP + GUROBI_DEP,
-        copts = CPLEX_COPTS + GUROBI_COPTS,
+        ],
         visibility = ["//visibility:public"],
 )
 

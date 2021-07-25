@@ -4,17 +4,20 @@ A solver for the (Unicost) Set Covering Problem.
 
 ## Implemented algorithms
 
-* Greedy
-  * Greedy `-a greedy`
-  * based on the one from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a greedy_lin`
-  * Dual greedy `-a greedy_dual`
-* Branch-and-cut (Gurobi) `-a branchandcut_gurobi`
-* Row weighting local search (unicost only)
-  * based on "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a "localsearch --threads 4"`
-  * based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015) `-a "localsearch_2 --threads 4"`
-* Large neighborhood search based on "Note: A local‐search heuristic for large set‐covering problems" (Jacobs et Brusco, 1995). A move consists in removing some sets and then filing the solution until it becomes feasible again.
-  * Sets are removed to uncover a randomly selected element. This implementation is fast, simple and robust, but returns lower quality solutions `-a "largeneighborhoodsearch --iteration-limit 100000 --iteration-without-improvment-limit 10000"`
-  * Sets are removed and added following a scoring scheme similar to the one from "NuMWVC: A novel local search for minimum weighted vertex cover problem" (Li et al., 2020). This implementation has decent performances on literature benchmarks except on the  `gecco2020` benchmark. `-a "largeneighborhoodsearch_2 --iteration-limit 100000 --iteration-without-improvment-limit 10000"`
+Greedy
+* Greedy `-a greedy`
+* based on the one from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a greedy_lin`
+* Dual greedy `-a greedy_dual`
+
+Mixed-Integer Linear Program (Gurobi) `-a branchandcut_gurobi`
+
+Row weighting local search (unicost only)
+* based on "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a "localsearch --threads 4"`
+* based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015) `-a "localsearch_2 --threads 4"`
+
+Large neighborhood search based on "Note: A local‐search heuristic for large set‐covering problems" (Jacobs et Brusco, 1995). A move consists in removing some sets and then filing the solution until it becomes feasible again.
+* Sets are removed to uncover a randomly selected element. This implementation is fast, simple and robust, but returns lower quality solutions `-a "largeneighborhoodsearch --iteration-limit 100000 --iteration-without-improvment-limit 10000"`
+* Sets are removed and added following a scoring scheme similar to the one from "NuMWVC: A novel local search for minimum weighted vertex cover problem" (Li et al., 2020). This implementation has decent performances on literature benchmarks except on the  `gecco2020` benchmark. `-a "largeneighborhoodsearch_2 --iteration-limit 100000 --iteration-without-improvment-limit 10000"`
 
 ## Usage (command line)
 
