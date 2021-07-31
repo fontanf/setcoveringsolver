@@ -23,18 +23,18 @@ public:
     bool operator==(const Solution& solution);
 
     inline const Instance& instance() const { return instance_; }
-    inline ElementId element_number() const { return elements_.size(); }
-    inline ElementId element_number(ComponentId c) const { return component_element_numbers_[c]; }
-    inline ElementId uncovered_element_number() const { return instance().element_number() - element_number(); }
-    inline SetId set_number() const { return sets_.size(); }
+    inline ElementId number_of_elements() const { return elements_.size(); }
+    inline ElementId number_of_elements(ComponentId c) const { return number_of_components_of_elementss_[c]; }
+    inline ElementId number_of_uncovered_elements() const { return instance().number_of_elements() - number_of_elements(); }
+    inline SetId number_of_sets() const { return sets_.size(); }
     inline Cost cost(ComponentId c) const { return component_costs_[c]; }
     inline Cost cost() const { return cost_; }
     inline Cost penalty() const { return penalty_; }
     inline Cost penalty(ElementId e) const { return penalties_[e]; }
     inline SetId covers(ElementId e) const { return elements_[e]; }
-    inline bool contains(SetId s) const { assert(s >= 0); assert(s < instance().set_number()); return sets_.contains(s); }
-    inline bool feasible() const { return element_number() == instance().element_number(); }
-    inline bool feasible(ComponentId c) const { return element_number(c) == instance().element_number(c); }
+    inline bool contains(SetId s) const { assert(s >= 0); assert(s < instance().number_of_sets()); return sets_.contains(s); }
+    inline bool feasible() const { return number_of_elements() == instance().number_of_elements(); }
+    inline bool feasible(ComponentId c) const { return number_of_elements(c) == instance().number_of_elements(c); }
 
     const optimizationtools::IndexedMap<SetPos>& elements() const { return elements_; };
     const optimizationtools::IndexedSet& sets() const { return sets_; };
@@ -53,7 +53,7 @@ private:
 
     optimizationtools::IndexedMap<SetPos> elements_;
     optimizationtools::IndexedSet sets_;
-    std::vector<ElementPos> component_element_numbers_;
+    std::vector<ElementPos> number_of_components_of_elementss_;
     std::vector<Cost> component_costs_;
     std::vector<Cost> penalties_;
     Cost cost_ = 0;
@@ -64,13 +64,13 @@ private:
 void Solution::add(SetId s)
 {
     assert(s >= 0);
-    assert(s < instance().set_number());
+    assert(s < instance().number_of_sets());
     assert(!contains(s));
     ComponentId c = instance().set(s).component;
     for (ElementId e: instance().set(s).elements) {
         if (covers(e) == 0) {
             penalty_ -= penalties_[e];
-            component_element_numbers_[c]++;
+            number_of_components_of_elementss_[c]++;
         }
         elements_.set(e, elements_[e] + 1);
     }
@@ -82,14 +82,14 @@ void Solution::add(SetId s)
 void Solution::remove(SetId s)
 {
     assert(s >= 0);
-    assert(s < instance().set_number());
+    assert(s < instance().number_of_sets());
     assert(contains(s));
     ComponentId c = instance().set(s).component;
     for (ElementId e: instance().set(s).elements) {
         elements_.set(e, elements_[e] - 1);
         if (covers(e) == 0) {
             penalty_ += penalties_[e];
-            component_element_numbers_[c]--;
+            number_of_components_of_elementss_[c]--;
         }
     }
     sets_.remove(s);

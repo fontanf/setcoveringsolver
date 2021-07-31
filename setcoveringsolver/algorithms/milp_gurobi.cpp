@@ -38,8 +38,8 @@ protected:
 
         if (!output_.solution.feasible() || output_.solution.cost() > getDoubleInfo(GRB_CB_MIPSOL_OBJ) + 0.5) {
             Solution solution(instance_);
-            double* x = getSolution(x_, instance_.set_number());
-            for (SetId s = 0; s < instance_.set_number(); ++s)
+            double* x = getSolution(x_, instance_.number_of_sets());
+            for (SetId s = 0; s < instance_.number_of_sets(); ++s)
                 if (x[s] > 0.5)
                     solution.add(s);
             std::stringstream ss;
@@ -67,15 +67,15 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
     GRBModel model(env);
 
     // Variables
-    GRBVar* x = model.addVars(instance.set_number(), GRB_BINARY);
+    GRBVar* x = model.addVars(instance.number_of_sets(), GRB_BINARY);
 
     // Objective
-    for (SetId s = 0; s < instance.set_number(); ++s)
+    for (SetId s = 0; s < instance.number_of_sets(); ++s)
         x[s].set(GRB_DoubleAttr_Obj, instance.set(s).cost);
     model.set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
 
     // Constraint
-    for (ElementId e = 0; e < instance.element_number(); ++e) {
+    for (ElementId e = 0; e < instance.number_of_elements(); ++e) {
         GRBLinExpr expr;
         for (SetId s: instance.element(e).sets)
             expr += x[s];
@@ -84,7 +84,7 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
 
     // Initial solution
     if (p.initial_solution != NULL && p.initial_solution->feasible())
-        for (SetId s = 0; s < instance.set_number(); ++s)
+        for (SetId s = 0; s < instance.number_of_sets(); ++s)
             x[s].set(GRB_DoubleAttr_Start, (p.initial_solution->contains(s))? 1: 0);
 
     // Redirect standard output to log file
@@ -95,8 +95,8 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
     //model.set(GRB_IntParam_Method, 1); // Dual simplex
 
     // Time limit
-    if (p.info.timelimit != std::numeric_limits<double>::infinity())
-        model.set(GRB_DoubleParam_TimeLimit, p.info.timelimit);
+    if (p.info.time_limit != std::numeric_limits<double>::infinity())
+        model.set(GRB_DoubleParam_TimeLimit, p.info.time_limit);
 
     // Callback
     MilpGurobiCallback cb = MilpGurobiCallback(instance, p, output, x);
@@ -110,14 +110,14 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
         output.update_lower_bound(instance.total_cost() + 1, std::stringstream(""), p.info);
     } else if (optimstatus == GRB_OPTIMAL) {
         Solution solution(instance);
-        for (SetId s = 0; s < instance.set_number(); ++s)
+        for (SetId s = 0; s < instance.number_of_sets(); ++s)
             if (x[s].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(s);
         output.update_solution(solution, std::stringstream(""), p.info);
         output.update_lower_bound(solution.cost(), std::stringstream(""), p.info);
     } else if (model.get(GRB_IntAttr_SolCount) > 0) {
         Solution solution(instance);
-        for (SetId s = 0; s < instance.set_number(); ++s)
+        for (SetId s = 0; s < instance.number_of_sets(); ++s)
             if (x[s].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(s);
         output.update_solution(solution, std::stringstream(""), p.info);

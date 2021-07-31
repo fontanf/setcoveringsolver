@@ -87,28 +87,28 @@ public:
     void set_unicost();
     void write(std::string filepath, std::string format);
 
-    Instance(SetId set_number, ElementId element_number);
+    Instance(SetId number_of_sets, ElementId number_of_elements);
     void add_arc(SetId s, ElementId e);
     void compute_components();
 
-    inline ElementId      element_number() const { return elements_.size(); }
-    inline SetId              set_number() const { return sets_.size(); }
-    inline ElementPos         arc_number() const { return arc_number_; }
-    inline ComponentId  component_number() const { return components_.size(); }
+    inline ElementId      number_of_elements() const { return elements_.size(); }
+    inline SetId              number_of_sets() const { return sets_.size(); }
+    inline ElementPos         number_of_arcs() const { return number_of_arcs_; }
+    inline ComponentId  number_of_components() const { return components_.size(); }
     inline Cost               total_cost() const { return total_cost_; }
 
     inline const Element& element(ElementId id) const { return elements_[id]; }
     inline const Set& set(SetId id) const { return sets_[id]; }
     inline const Component& component(ComponentId c) const { return components_[c]; }
 
-    inline ElementId unfixed_element_number() const { return elements_.size() - fixed_elements_.size(); }
-    inline SetId unfixed_set_number() const { return sets_.size() - fixed_sets_.size(); }
+    inline ElementId number_of_unfixed_elements() const { return elements_.size() - fixed_elements_.size(); }
+    inline SetId number_of_unfixed_sets() const { return sets_.size() - fixed_sets_.size(); }
     inline const optimizationtools::IndexedSet& fixed_elements() const { return fixed_elements_; }
-    inline ElementId element_number(ComponentId c) const { return components_[c].elements.size(); }
+    inline ElementId number_of_elements(ComponentId c) const { return components_[c].elements.size(); }
 
     void fix_identical(Info& info);
     void fix_dominated(Info& info);
-    void compute_set_neighbors(Counter thread_number, Info& info);
+    void compute_set_neighbors(Counter number_of_threads, Info& info);
     void compute_element_neighbors(Info& info);
 
 private:
@@ -120,7 +120,7 @@ private:
     std::vector<Element> elements_;
     std::vector<Set> sets_;
     Cost total_cost_ = 0;
-    ElementPos arc_number_ = 0;
+    ElementPos number_of_arcs_ = 0;
 
     optimizationtools::IndexedSet fixed_sets_;
     optimizationtools::IndexedSet fixed_elements_;

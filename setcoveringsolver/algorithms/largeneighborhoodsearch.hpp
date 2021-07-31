@@ -32,7 +32,7 @@ struct LargeNeighborhoodSearch2OptionalParameters
 {
     Info info = Info();
 
-    Counter thread_number = 3;
+    Counter number_of_threads = 3;
     Counter iteration_limit = -1;
     Counter iteration_without_improvment_limit = -1;
 };

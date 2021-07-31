@@ -10,7 +10,7 @@ LocalSearchRowWeightingOptionalParameters read_localsearch_rowweighting_args(con
     LocalSearchRowWeightingOptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
-        ("threads,t", po::value<Counter>(&parameters.thread_number), "")
+        ("threads,t", po::value<Counter>(&parameters.number_of_threads), "")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
@@ -28,7 +28,7 @@ LocalSearchRowWeighting2OptionalParameters read_localsearch_rowweighting_2_args(
     LocalSearchRowWeighting2OptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
-        ("threads,t", po::value<Counter>(&parameters.thread_number), "")
+        ("threads,t", po::value<Counter>(&parameters.number_of_threads), "")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);

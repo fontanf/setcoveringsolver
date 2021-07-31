@@ -11,7 +11,7 @@ Output setcoveringsolver::greedy(const Instance& instance, Info info)
     Solution solution(instance);
 
     auto f = [&instance](SetId s) { return std::pair<double, SetId>{-1.0 * (double)instance.set(s).elements.size() / instance.set(s).cost, s}; };
-    optimizationtools::IndexedBinaryHeap<std::pair<double, SetId>> heap(instance.set_number(), f);
+    optimizationtools::IndexedBinaryHeap<std::pair<double, SetId>> heap(instance.number_of_sets(), f);
 
     while (!solution.feasible()) {
         auto p = heap.top();
@@ -20,9 +20,9 @@ Output setcoveringsolver::greedy(const Instance& instance, Info info)
             if (solution.covers(e) == 0)
                 e_total--;
         double val = (double)e_total / instance.set(p.first).cost;
-        //std::cout << "s " << solution.set_number()
+        //std::cout << "s " << solution.number_of_sets()
             //<< " c " << solution.cost()
-            //<< " e " << solution.element_number() << " / " << instance.element_number()
+            //<< " e " << solution.number_of_elements() << " / " << instance.number_of_elements()
             //<< " s " << p.first << " v_old " << p.second.first << " v_new " << val << std::endl;
         if (val <= p.second.first + TOL) {
             solution.add(p.first);
@@ -67,7 +67,7 @@ Output setcoveringsolver::greedy_lin(const Instance& instance, Info info)
                 val += 1.0 / instance.element(e).sets.size();
         return - val / instance.set(s).cost;
     };
-    optimizationtools::IndexedBinaryHeap<double> heap(instance.set_number(), f);
+    optimizationtools::IndexedBinaryHeap<double> heap(instance.number_of_sets(), f);
 
     while (!solution.feasible()) {
         auto p = heap.top();
@@ -107,7 +107,7 @@ Output setcoveringsolver::greedy_dual(const Instance& instance, Info info)
     Output output(instance, info);
     Solution solution(instance);
 
-    for (ElementId e = 0; e < instance.element_number(); ++e) {
+    for (ElementId e = 0; e < instance.number_of_elements(); ++e) {
         if (solution.covers(e) != 0)
             continue;
 

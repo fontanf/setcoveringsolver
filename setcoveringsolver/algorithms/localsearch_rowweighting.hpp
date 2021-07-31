@@ -7,7 +7,7 @@ namespace setcoveringsolver
 
 struct LocalSearchRowWeightingOptionalParameters
 {
-    Counter thread_number = 3;
+    Counter number_of_threads = 3;
     Info info = Info();
 };
 
@@ -26,7 +26,7 @@ LocalSearchRowWeightingOutput localsearch_rowweighting(
 
 struct LocalSearchRowWeighting2OptionalParameters
 {
-    Counter thread_number = 3;
+    Counter number_of_threads = 3;
     Info info = Info();
 };
 

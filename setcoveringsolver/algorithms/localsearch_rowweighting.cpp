@@ -61,11 +61,11 @@ void localsearch_rowweighting_worker(
     output.update_solution(solution, ss, parameters.info);
 
     // Initialize local search structures.
-    std::vector<LocalSearchRowWeightingSet> sets(instance.set_number());
+    std::vector<LocalSearchRowWeightingSet> sets(instance.number_of_sets());
     for (SetId s: solution.sets())
         sets[s].last_addition = 0;
-    std::vector<LocalSearchRowWeightingComponent> components(instance.component_number());
-    for (ComponentId c = 0; c < instance.component_number(); ++c)
+    std::vector<LocalSearchRowWeightingComponent> components(instance.number_of_components());
+    for (ComponentId c = 0; c < instance.number_of_components(); ++c)
         components[c].iteration_max = ((c == 0)? 0: components[c - 1].iteration_max)
             + instance.component(c).elements.size();
 
@@ -73,7 +73,7 @@ void localsearch_rowweighting_worker(
     for (Counter iterations = 1; parameters.info.check_time(); ++iterations) {
         // Compute component
         if (iterations % (components.back().iteration_max + 1) >= components[c].iteration_max) {
-            c = (c + 1) % instance.component_number();
+            c = (c + 1) % instance.number_of_components();
             //std::cout << "c " << c << " " << components[c].iteration_max
                 //<< " e " << instance.component(c).elements.size()
                 //<< " s " << instance.component(c).sets.size()
@@ -128,14 +128,14 @@ void localsearch_rowweighting_worker(
             //std::cout << "it " << output.iterations
                 //<< " s_best " << s_best
                 //<< " p " << solution.penalty()
-                //<< " e " << instance.element_number() - solution.element_number() << "/" << instance.element_number()
-                //<< " s " << solution.set_number()
+                //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
+                //<< " s " << solution.number_of_sets()
                 //<< std::endl;
         }
 
         // Draw randomly an uncovered element e.
         std::uniform_int_distribution<ElementId> d_e(
-                0, solution.uncovered_element_number() - 1);
+                0, solution.number_of_uncovered_elements() - 1);
         ElementId e = (solution.elements().out_begin() + d_e(generator))->first;
         //std::cout << "it " << output.iterations
             //<< " e " << e
@@ -196,8 +196,8 @@ void localsearch_rowweighting_worker(
             //<< " s1_best " << s1_best
             //<< " s2_best " << s2_best
             //<< " p " << solution.penalty()
-            //<< " e " << instance.element_number() - solution.element_number() << "/" << instance.element_number()
-            //<< " s " << solution.set_number()
+            //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
+            //<< " s " << solution.number_of_sets()
             //<< std::endl;
 
         // Update penalties: we increment the penalty of each uncovered element.
@@ -206,12 +206,12 @@ void localsearch_rowweighting_worker(
         bool reduce = false;
         for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it) {
             solution.increment_penalty(it->first);
-            if (solution.penalty(it->first) > std::numeric_limits<Cost>::max() / instance.unfixed_element_number())
+            if (solution.penalty(it->first) > std::numeric_limits<Cost>::max() / instance.number_of_unfixed_elements())
                 reduce = true;
         }
         if (reduce) {
             //std::cout << "reduce" << std::endl;
-            for (ElementId e = 0; e < instance.element_number(); ++e)
+            for (ElementId e = 0; e < instance.number_of_elements(); ++e)
                 solution.set_penalty(e, (solution.penalty(e) - 1) / 2 + 1);
         }
 
@@ -230,17 +230,17 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
-    instance.compute_set_neighbors(parameters.thread_number, parameters.info);
+    instance.compute_set_neighbors(parameters.number_of_threads, parameters.info);
     instance.compute_components();
 
     LocalSearchRowWeightingOutput output(instance, parameters.info);
 
-    auto seeds = optimizationtools::bob_floyd(parameters.thread_number, std::numeric_limits<Seed>::max(), generator);
+    auto seeds = optimizationtools::bob_floyd(parameters.number_of_threads, std::numeric_limits<Seed>::max(), generator);
     std::vector<std::thread> threads;
-    for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
+    for (Counter thread_id = 0; thread_id < parameters.number_of_threads; ++thread_id)
         threads.push_back(std::thread(localsearch_rowweighting_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));
 
-    for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
+    for (Counter thread_id = 0; thread_id < parameters.number_of_threads; ++thread_id)
         threads[thread_id].join();
 
     return output.algorithm_end(parameters.info);
@@ -286,8 +286,8 @@ void localsearch_rowweighting_2_worker(
     output.update_solution(solution, ss, parameters.info);
 
     // Initialize local search structures.
-    std::vector<LocalSearchRowWeighting2Set> sets(instance.set_number());
-    for (ElementId e = 0; e < instance.element_number(); ++e)
+    std::vector<LocalSearchRowWeighting2Set> sets(instance.number_of_sets());
+    for (ElementId e = 0; e < instance.number_of_elements(); ++e)
         if (solution.covers(e) == 1)
             for (SetId s: instance.element(e).sets)
                 if (solution.contains(s))
@@ -352,8 +352,8 @@ void localsearch_rowweighting_2_worker(
             //std::cout << "it " << output.iterations
                 //<< " s_best " << s_best
                 //<< " p " << solution.penalty()
-                //<< " e " << instance.element_number() - solution.element_number() << "/" << instance.element_number()
-                //<< " s " << solution.set_number()
+                //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
+                //<< " s " << solution.number_of_sets()
                 //<< std::endl;
         }
 
@@ -398,13 +398,13 @@ void localsearch_rowweighting_2_worker(
             //<< " s1_best " << s1_best
             //<< " score " << score1_best
             //<< " p " << solution.penalty()
-            //<< " e " << instance.element_number() - solution.element_number() << "/" << instance.element_number()
-            //<< " s " << solution.set_number()
+            //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
+            //<< " s " << solution.number_of_sets()
             //<< std::endl;
 
         // Draw randomly an uncovered element e.
         std::uniform_int_distribution<ElementId> d_e(
-                0, solution.uncovered_element_number() - 1);
+                0, solution.number_of_uncovered_elements() - 1);
         ElementId e = (solution.elements().out_begin() + d_e(generator))->first;
         //std::cout << "it " << output.iterations
             //<< " e " << e
@@ -452,8 +452,8 @@ void localsearch_rowweighting_2_worker(
             //<< " s2_best " << s2_best
             //<< " score " << score2_best
             //<< " p " << solution.penalty()
-            //<< " e " << instance.element_number() - solution.element_number() << "/" << instance.element_number()
-            //<< " s " << solution.set_number()
+            //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
+            //<< " s " << solution.number_of_sets()
             //<< std::endl;
 
         // Update penalties: we increment the penalty of each uncovered element.
@@ -474,17 +474,17 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
-    instance.compute_set_neighbors(parameters.thread_number, parameters.info);
+    instance.compute_set_neighbors(parameters.number_of_threads, parameters.info);
     instance.compute_components();
 
     LocalSearchRowWeighting2Output output(instance, parameters.info);
 
-    auto seeds = optimizationtools::bob_floyd(parameters.thread_number, std::numeric_limits<Seed>::max(), generator);
+    auto seeds = optimizationtools::bob_floyd(parameters.number_of_threads, std::numeric_limits<Seed>::max(), generator);
     std::vector<std::thread> threads;
-    for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
+    for (Counter thread_id = 0; thread_id < parameters.number_of_threads; ++thread_id)
         threads.push_back(std::thread(localsearch_rowweighting_2_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));
 
-    for (Counter thread_id = 0; thread_id < parameters.thread_number; ++thread_id)
+    for (Counter thread_id = 0; thread_id < parameters.number_of_threads; ++thread_id)
         threads[thread_id].join();
 
     return output.algorithm_end(parameters.info);

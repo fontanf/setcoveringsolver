@@ -30,13 +30,13 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);
 
-    std::vector<Counter> last_iteration(instance.set_number(), 0);
-    std::uniform_int_distribution<ElementId> distribution_elements(0, instance.element_number() - 1);
+    std::vector<Counter> last_iteration(instance.number_of_sets(), 0);
+    std::uniform_int_distribution<ElementId> distribution_elements(0, instance.number_of_elements() - 1);
     std::uniform_real_distribution<double> d01(0, 1);
     std::vector<SetId> sets_added;
     std::vector<SetId> sets_removed;
-    optimizationtools::IndexedSet sets_candidates(instance.set_number());
-    optimizationtools::IndexedBinaryHeap<double> heap(instance.set_number());
+    optimizationtools::IndexedSet sets_candidates(instance.number_of_sets());
+    optimizationtools::IndexedBinaryHeap<double> heap(instance.number_of_sets());
     Counter iterations_without_improvment = 0;
     for (output.iterations = 1; parameters.info.check_time(); ++output.iterations, ++iterations_without_improvment) {
         // Check stop criteria.
@@ -147,18 +147,18 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
     output.update_solution(solution, ss, parameters.info);
 
     // Initialize local search structures.
-    std::vector<LargeNeighborhoodSearch2Set> sets(instance.set_number());
+    std::vector<LargeNeighborhoodSearch2Set> sets(instance.number_of_sets());
     for (SetId s: solution.sets())
         for (ElementId e: instance.set(s).elements)
             if (solution.covers(e) == 1)
                 sets[s].score += solution.penalty(e);
-    optimizationtools::IndexedBinaryHeap<std::pair<double, Counter>> scores_in(instance.set_number());
-    optimizationtools::IndexedBinaryHeap<std::pair<double, Counter>> scores_out(instance.set_number());
+    optimizationtools::IndexedBinaryHeap<std::pair<double, Counter>> scores_in(instance.number_of_sets());
+    optimizationtools::IndexedBinaryHeap<std::pair<double, Counter>> scores_out(instance.number_of_sets());
     for (SetId s: solution.sets())
         scores_in.update_key(s, {(double)sets[s].score / instance.set(s).cost, 0});
 
-    optimizationtools::IndexedSet sets_in_to_update(instance.set_number());
-    optimizationtools::IndexedSet sets_out_to_update(instance.set_number());
+    optimizationtools::IndexedSet sets_in_to_update(instance.number_of_sets());
+    optimizationtools::IndexedSet sets_out_to_update(instance.number_of_sets());
     Counter iterations_without_improvment = 0;
     for (output.iterations = 1; parameters.info.check_time(); ++output.iterations, ++iterations_without_improvment) {
         // Check stop criteria.
@@ -170,18 +170,18 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
             break;
         //std::cout
             //<< "cost " << solution.cost()
-            //<< " s " << solution.set_number()
+            //<< " s " << solution.number_of_sets()
             //<< " f " << solution.feasible()
             //<< std::endl;
 
         // Remove sets.
-        SetPos removed_set_number = sqrt(solution.set_number());
+        SetPos number_of_removed_sets = sqrt(solution.number_of_sets());
         sets_out_to_update.clear();
-        for (SetPos s_tmp = 0; s_tmp < removed_set_number && !scores_in.empty(); ++s_tmp) {
+        for (SetPos s_tmp = 0; s_tmp < number_of_removed_sets && !scores_in.empty(); ++s_tmp) {
             auto p = scores_in.top();
             scores_in.pop();
             SetId s = p.first;
-            //std::cout << "remove " << s << " score " << p.second << " cost " << instance.set(s).cost << " e " << solution.element_number() << std::endl;
+            //std::cout << "remove " << s << " score " << p.second << " cost " << instance.set(s).cost << " e " << solution.number_of_elements() << std::endl;
             solution.remove(s);
             sets[s].last_removal = output.iterations;
             sets_out_to_update.add(s);
@@ -229,7 +229,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
             scores_out.pop();
             SetId s = p.first;
             solution.add(s);
-            //std::cout << "add " << s << " score " << p.second << " cost " << instance.set(s).cost << " e " << solution.element_number() << std::endl;
+            //std::cout << "add " << s << " score " << p.second << " cost " << instance.set(s).cost << " e " << solution.number_of_elements() << std::endl;
             assert(p.second.first < 0);
             sets[s].last_addition = output.iterations;
             sets_in_to_update.add(s);
@@ -259,7 +259,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
                     if (solution.contains(s2) && sets[s2].score == 0) {
                         solution.remove(s2);
                         sets[s2].last_removal = output.iterations;
-                        //std::cout << "> remove " << s2 << " score " << sets[s2].score << " cost " << instance.set(s2).cost << " e " << solution.element_number() << " / " << instance.element_number() << std::endl;
+                        //std::cout << "> remove " << s2 << " score " << sets[s2].score << " cost " << instance.set(s2).cost << " e " << solution.number_of_elements() << " / " << instance.number_of_elements() << std::endl;
                         for (ElementId e2: instance.set(s2).elements) {
                             if (solution.covers(e2) == 1) {
                                 for (SetId s3: instance.element(e2).sets) {

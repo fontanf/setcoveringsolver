@@ -58,34 +58,34 @@ int main(int argc, char *argv[])
         instance.set_unicost();
     //Cost cost_sum = 0;
     //Cost cost_sum_2 = 0;
-    //for (SetId s = 0; s < instance.set_number(); ++s) {
+    //for (SetId s = 0; s < instance.number_of_sets(); ++s) {
         //cost_sum += instance.set(s).cost;
         //cost_sum_2 += instance.set(s).cost * instance.set(s).cost;
     //}
-    //double mean = (double)cost_sum / instance.set_number();
-    //double v    = (double)cost_sum_2 / instance.set_number();
+    //double mean = (double)cost_sum / instance.number_of_sets();
+    //double v    = (double)cost_sum_2 / instance.number_of_sets();
     //double std_dev = std::sqrt(std::abs(mean * mean - v));
     //double coefficient_of_variation = std_dev / mean * 100;
     //std::cout << instance_path
-        //<< "," << instance.element_number()
-        //<< "," << instance.set_number()
-        //<< "," << instance.arc_number()
+        //<< "," << instance.number_of_elements()
+        //<< "," << instance.number_of_sets()
+        //<< "," << instance.number_of_arcs()
         //<< "," << coefficient_of_variation
         //<< std::endl;
     //VER(info, "* Components:");
-    //for (ComponentId c = 0; c < component_number(); ++c)
+    //for (ComponentId c = 0; c < number_of_components(); ++c)
         //VER(info, " " << c << "/" << component(c).elements.size() << "/" << component(c).sets.size());
     //VER(info, std::endl);
 
     Info info = Info()
         .set_verbose(vm.count("verbose"))
-        .set_timelimit(time_limit)
-        .set_certfile(certificate_path)
-        .set_outputfile(output_path)
-        .set_onlywriteattheend(false)
-        .set_logfile(log_path)
+        .set_time_limit(time_limit)
+        .set_certificate_path(certificate_path)
+        .set_json_output_path(output_path)
+        .set_only_write_at_the_end(false)
+        .set_log_path(log_path)
         .set_log2stderr(vm.count("log2stderr"))
-        .set_loglevelmax(loglevelmax)
+        .set_maximum_log_level(loglevelmax)
         ;
 
     std::mt19937_64 generator(seed);
