@@ -6,7 +6,8 @@
 
 using namespace setcoveringsolver;
 
-MilpGurobiOutput& MilpGurobiOutput::algorithm_end(Info& info)
+MilpGurobiOutput& MilpGurobiOutput::algorithm_end(
+        optimizationtools::Info& info)
 {
     //PUT(info, "Algorithm", "Iterations", it);
     Output::algorithm_end(info);

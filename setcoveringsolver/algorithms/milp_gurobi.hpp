@@ -9,19 +9,24 @@ namespace setcoveringsolver
 
 struct MilpGurobiOptionalParameters
 {
-    Info info = Info();
+    optimizationtools::Info info = optimizationtools::Info();
 
     const Solution* initial_solution = NULL;
 };
 
 struct MilpGurobiOutput: Output
 {
-    MilpGurobiOutput(const Instance& instance, Info& info): Output(instance, info) { }
-    MilpGurobiOutput& algorithm_end(Info& info);
+    MilpGurobiOutput(
+            const Instance& instance,
+            optimizationtools::Info& info):
+        Output(instance, info) { }
+
+    MilpGurobiOutput& algorithm_end(optimizationtools::Info& info);
 };
 
 MilpGurobiOutput milp_gurobi(
-        const Instance& instance, MilpGurobiOptionalParameters p = {});
+        const Instance& instance,
+        MilpGurobiOptionalParameters p = {});
 
 }
 

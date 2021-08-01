@@ -4,7 +4,9 @@
 
 using namespace setcoveringsolver;
 
-Output setcoveringsolver::greedy(const Instance& instance, Info info)
+Output setcoveringsolver::greedy(
+        const Instance& instance,
+        optimizationtools::Info info)
 {
     VER(info, "*** greedy ***" << std::endl);
     Output output(instance, info);
@@ -53,7 +55,9 @@ Output setcoveringsolver::greedy(const Instance& instance, Info info)
     return output.algorithm_end(info);
 }
 
-Output setcoveringsolver::greedy_lin(const Instance& instance, Info info)
+Output setcoveringsolver::greedy_lin(
+        const Instance& instance,
+        optimizationtools::Info info)
 {
     VER(info, "*** greedy_lin ***" << std::endl);
     Output output(instance, info);
@@ -101,7 +105,9 @@ Output setcoveringsolver::greedy_lin(const Instance& instance, Info info)
     return output.algorithm_end(info);
 }
 
-Output setcoveringsolver::greedy_dual(const Instance& instance, Info info)
+Output setcoveringsolver::greedy_dual(
+        const Instance& instance,
+        optimizationtools::Info info)
 {
     VER(info, "*** greedy_dual ***" << std::endl);
     Output output(instance, info);

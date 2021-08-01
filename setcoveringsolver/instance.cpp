@@ -56,7 +56,7 @@ void Instance::add_arc(SetId s, ElementId e)
     number_of_arcs_++;
 }
 
-void Instance::fix_identical(Info& info)
+void Instance::fix_identical(optimizationtools::Info& info)
 {
     VER(info, "Fix redundant elements and sets..." << std::endl);
     optimizationtools::IndexedSet elements_to_remove(number_of_elements());
@@ -117,7 +117,7 @@ void Instance::fix_identical(Info& info)
             << std::endl);
 }
 
-void Instance::fix_dominated(Info& info)
+void Instance::fix_dominated(optimizationtools::Info& info)
 {
     VER(info, "Fix dominated elements and sets..." << std::endl);
     optimizationtools::IndexedSet elements_to_remove(number_of_elements());
@@ -184,7 +184,9 @@ void Instance::fix_dominated(Info& info)
             << std::endl);
 }
 
-void Instance::compute_set_neighbors(Counter number_of_threads, Info& info)
+void Instance::compute_set_neighbors(
+        Counter number_of_threads,
+        optimizationtools::Info& info)
 {
     VER(info, "Compute set neighbors..." << std::endl);
     std::vector<std::thread> threads;
@@ -211,7 +213,7 @@ void Instance::compute_set_neighbors_worker(SetId s_start, SetId s_end)
     }
 }
 
-void Instance::compute_element_neighbors(Info& info)
+void Instance::compute_element_neighbors(optimizationtools::Info& info)
 {
     VER(info, "Compute element neighbors..." << std::endl);
     optimizationtools::IndexedSet neighbors(number_of_elements());

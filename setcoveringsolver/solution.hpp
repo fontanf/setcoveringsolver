@@ -28,21 +28,34 @@ public:
     /** Equality operator. */
     bool operator==(const Solution& solution);
 
+    /** Get the instance. */
     inline const Instance& instance() const { return instance_; }
+    /** Get the number of covered elements. */
     inline ElementId number_of_elements() const { return elements_.size(); }
-    inline ElementId number_of_elements(ComponentId c) const { return number_of_components_of_elementss_[c]; }
+    /** Get the number of covered elements in component 'c'. */
+    inline ElementId number_of_elements(ComponentId c) const { return component_number_of_elements_[c]; }
+    /** Get the number of uncovered elements. */
     inline ElementId number_of_uncovered_elements() const { return instance().number_of_elements() - number_of_elements(); }
+    /** Get the number of sets in the solution. */
     inline SetId number_of_sets() const { return sets_.size(); }
+    /** Get the total cost of the sets of component 'c'. */
     inline Cost cost(ComponentId c) const { return component_costs_[c]; }
+    /** Get the total cost of the solution. */
     inline Cost cost() const { return cost_; }
     inline Cost penalty() const { return penalty_; }
     inline Cost penalty(ElementId e) const { return penalties_[e]; }
+    /** Return 'true' iff element 'e' is covered in the solution. */
     inline SetId covers(ElementId e) const { return elements_[e]; }
+    /** Return 'true' iff the solution contains set 's'. */
     inline bool contains(SetId s) const { assert(s >= 0); assert(s < instance().number_of_sets()); return sets_.contains(s); }
+    /** Return 'true' iff the solution is feasible. */
     inline bool feasible() const { return number_of_elements() == instance().number_of_elements(); }
+    /** Return 'true' iff the solution is feasible for component 'c'. */
     inline bool feasible(ComponentId c) const { return number_of_elements(c) == instance().number_of_elements(c); }
 
+    /** Get the set of elements of the solution. */
     const optimizationtools::IndexedMap<SetPos>& elements() const { return elements_; };
+    /** Get the set of sets of the solution. */
     const optimizationtools::IndexedSet& sets() const { return sets_; };
 
     /** Add set 's' to the solution. */
@@ -53,17 +66,22 @@ public:
     void increment_penalty(ElementId e, Cost p = 1);
     void set_penalty(ElementId e, Cost p);
 
+    /** Write the solution to a file. */
     void write(std::string certificate_path);
 
 private:
 
+    /** Instance. */
     const Instance& instance_;
 
+    /** Elements. */
     optimizationtools::IndexedMap<SetPos> elements_;
+    /** Sets. */
     optimizationtools::IndexedSet sets_;
-    std::vector<ElementPos> number_of_components_of_elementss_;
+    std::vector<ElementPos> component_number_of_elements_;
     std::vector<Cost> component_costs_;
     std::vector<Cost> penalties_;
+    /** Total cost of the solution. */
     Cost cost_ = 0;
     Cost penalty_ = 0;
 
@@ -82,7 +100,7 @@ void Solution::add(SetId s)
     for (ElementId e: instance().set(s).elements) {
         if (covers(e) == 0) {
             penalty_ -= penalties_[e];
-            number_of_components_of_elementss_[c]++;
+            component_number_of_elements_[c]++;
         }
         elements_.set(e, elements_[e] + 1);
     }
@@ -105,7 +123,7 @@ void Solution::remove(SetId s)
         elements_.set(e, elements_[e] - 1);
         if (covers(e) == 0) {
             penalty_ += penalties_[e];
-            number_of_components_of_elementss_[c]--;
+            component_number_of_elements_[c]--;
         }
     }
     sets_.remove(s);
@@ -119,7 +137,9 @@ std::ostream& operator<<(std::ostream& os, const Solution& solution);
 
 struct Output
 {
-    Output(const Instance& instance, Info& info);
+    Output(
+            const Instance& instance,
+            optimizationtools::Info& info);
     Solution solution;
     Cost lower_bound = 0;
     double time = -1;
@@ -127,16 +147,35 @@ struct Output
     bool optimal() const { return solution.feasible() && solution.cost() == lower_bound; }
     Cost upper_bound() const { return (solution.feasible())? solution.cost(): solution.instance().total_cost(); }
     double gap() const;
-    void print(Info& info, const std::stringstream& s) const;
+    void print(
+            optimizationtools::Info& info,
+            const std::stringstream& s) const;
 
-    void update_solution(const Solution& solution_new, const std::stringstream& s, Info& info) { update_solution(solution_new, -1, s, info); }
-    void update_solution(const Solution& solution_new, ComponentId c, const std::stringstream& s, Info& info);
-    void update_lower_bound(Cost lower_bound_new, const std::stringstream& s, Info& info);
+    void update_solution(
+            const Solution& solution_new,
+            const std::stringstream& s,
+            optimizationtools::Info& info)
+    {
+        update_solution(solution_new, -1, s, info);
+    }
 
-    Output& algorithm_end(Info& info);
+    void update_solution(
+            const Solution& solution_new,
+            ComponentId c,
+            const std::stringstream& s,
+            optimizationtools::Info& info);
+
+    void update_lower_bound(
+            Cost lower_bound_new,
+            const std::stringstream& s,
+            optimizationtools::Info& info);
+
+    Output& algorithm_end(optimizationtools::Info& info);
 };
 
-Cost algorithm_end(Cost lower_bound, Info& info);
+Cost algorithm_end(
+        Cost lower_bound,
+        optimizationtools::Info& info);
 
 }
 

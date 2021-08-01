@@ -7,7 +7,8 @@
 
 using namespace setcoveringsolver;
 
-LargeNeighborhoodSearchOutput& LargeNeighborhoodSearchOutput::algorithm_end(Info& info)
+LargeNeighborhoodSearchOutput& LargeNeighborhoodSearchOutput::algorithm_end(
+        optimizationtools::Info& info)
 {
     PUT(info, "Algorithm", "Iterations", iterations);
     Output::algorithm_end(info);
@@ -114,7 +115,8 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
 
 /******************************************************************************/
 
-LargeNeighborhoodSearch2Output& LargeNeighborhoodSearch2Output::algorithm_end(Info& info)
+LargeNeighborhoodSearch2Output& LargeNeighborhoodSearch2Output::algorithm_end(
+        optimizationtools::Info& info)
 {
     PUT(info, "Algorithm", "Iterations", iterations);
     Output::algorithm_end(info);

@@ -7,7 +7,7 @@ namespace setcoveringsolver
 
 struct LargeNeighborhoodSearchOptionalParameters
 {
-    Info info = Info();
+    optimizationtools::Info info = optimizationtools::Info();
 
     Counter iteration_limit = -1;
     Counter iteration_without_improvment_limit = -1;
@@ -15,8 +15,13 @@ struct LargeNeighborhoodSearchOptionalParameters
 
 struct LargeNeighborhoodSearchOutput: Output
 {
-    LargeNeighborhoodSearchOutput(const Instance& instance, Info& info): Output(instance, info) { }
-    LargeNeighborhoodSearchOutput& algorithm_end(Info& info);
+    LargeNeighborhoodSearchOutput(
+            const Instance& instance,
+            optimizationtools::Info& info):
+        Output(instance, info) { }
+
+    LargeNeighborhoodSearchOutput& algorithm_end(
+            optimizationtools::Info& info);
 
     Counter iterations = 0;
 };
@@ -30,7 +35,7 @@ LargeNeighborhoodSearchOutput largeneighborhoodsearch(
 
 struct LargeNeighborhoodSearch2OptionalParameters
 {
-    Info info = Info();
+    optimizationtools::Info info = optimizationtools::Info();
 
     Counter number_of_threads = 3;
     Counter iteration_limit = -1;
@@ -39,8 +44,13 @@ struct LargeNeighborhoodSearch2OptionalParameters
 
 struct LargeNeighborhoodSearch2Output: Output
 {
-    LargeNeighborhoodSearch2Output(const Instance& instance, Info& info): Output(instance, info) { }
-    LargeNeighborhoodSearch2Output& algorithm_end(Info& info);
+    LargeNeighborhoodSearch2Output(
+            const Instance& instance,
+            optimizationtools::Info& info):
+        Output(instance, info) { }
+
+    LargeNeighborhoodSearch2Output& algorithm_end(
+            optimizationtools::Info& info);
 
     Counter iterations = 0;
 };

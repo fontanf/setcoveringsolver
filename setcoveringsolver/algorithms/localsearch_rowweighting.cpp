@@ -10,7 +10,8 @@
 
 using namespace setcoveringsolver;
 
-LocalSearchRowWeightingOutput& LocalSearchRowWeightingOutput::algorithm_end(Info& info)
+LocalSearchRowWeightingOutput& LocalSearchRowWeightingOutput::algorithm_end(
+        optimizationtools::Info& info)
 {
     //PUT(info, "Algorithm", "Iterations", iterations);
     Output::algorithm_end(info);
@@ -248,7 +249,8 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
 
 /******************************************************************************/
 
-LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(Info& info)
+LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(
+        optimizationtools::Info& info)
 {
     //PUT(info, "Algorithm", "Iterations", iterations);
     Output::algorithm_end(info);

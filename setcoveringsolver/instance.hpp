@@ -10,8 +10,6 @@
 namespace setcoveringsolver
 {
 
-using optimizationtools::Info;
-
 typedef int64_t ElementId; // e
 typedef int64_t ElementPos; // e_pos
 typedef int64_t SetId; // s
@@ -129,23 +127,23 @@ public:
     void compute_components();
 
     /** Fix identical sets and elements. */
-    void fix_identical(Info& info);
+    void fix_identical(optimizationtools::Info& info);
     /** Fix dominanted sets and elements. */
-    void fix_dominated(Info& info);
+    void fix_dominated(optimizationtools::Info& info);
 
     /**
      * Compute the neighbors of the sets.
      *
      * They can then be retrieved with 'set(s).neighbors'.
      */
-    void compute_set_neighbors(Counter number_of_threads, Info& info);
+    void compute_set_neighbors(Counter number_of_threads, optimizationtools::Info& info);
 
     /**
      * Compute the neighbors of the elements.
      *
      * They can then be retrieved with 'element(e).neighbors'.
      */
-    void compute_element_neighbors(Info& info);
+    void compute_element_neighbors(optimizationtools::Info& info);
 
     /** Check if vertex index 'j' is within the correct range. */
     inline void check_set_index(SetId s) const
@@ -183,10 +181,15 @@ private:
      * Private methods.
      */
 
+    /** Read an instance file in 'fulkerson1974' format. */
     void read_fulkerson1974(std::ifstream& file);
+    /** Read an instance file in 'balas1980' format. */
     void read_balas1980(std::ifstream& file);
+    /** Read an instance file in 'balas1996' format. */
     void read_balas1996(std::ifstream& file);
+    /** Read an instance file in 'faster1994' format. */
     void read_faster1994(std::ifstream& file);
+    /** Read an instance file in 'geccod2020' format. */
     void read_geccod2020(std::ifstream& file);
 
     void compute_set_neighbors_worker(SetId s_start, SetId s_end);

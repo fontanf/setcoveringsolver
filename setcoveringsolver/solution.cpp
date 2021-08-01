@@ -8,7 +8,7 @@ Solution::Solution(const Instance& instance):
     instance_(instance),
     elements_(instance.number_of_elements(), 0),
     sets_(instance.number_of_sets()),
-    number_of_components_of_elementss_(instance.number_of_components(), 0),
+    component_number_of_elements_(instance.number_of_components(), 0),
     component_costs_(instance.number_of_components(), 0),
     penalties_(instance.number_of_elements(), 1),
     penalty_(instance.number_of_elements())
@@ -23,7 +23,7 @@ Solution::Solution(const Instance& instance, std::string certificate_path):
     instance_(instance),
     elements_(instance.number_of_elements(), 0),
     sets_(instance.number_of_sets()),
-    number_of_components_of_elementss_(instance.number_of_components(), 0),
+    component_number_of_elements_(instance.number_of_components(), 0),
     component_costs_(instance.number_of_components(), 0),
     penalties_(instance.number_of_elements(), 1),
     penalty_(instance.number_of_elements())
@@ -53,7 +53,7 @@ Solution::Solution(const Solution& solution):
     instance_(solution.instance_),
     elements_(solution.elements_),
     sets_(solution.sets_),
-    number_of_components_of_elementss_(solution.number_of_components_of_elementss_),
+    component_number_of_elements_(solution.component_number_of_elements_),
     component_costs_(solution.component_costs_),
     penalties_(solution.penalties_),
     cost_(solution.cost_),
@@ -64,13 +64,13 @@ Solution& Solution::operator=(const Solution& solution)
 {
     if (this != &solution) {
         assert(&instance_ == &solution.instance_);
-        elements_                  = solution.elements_;
-        sets_                      = solution.sets_;
-        number_of_components_of_elementss_ = solution.number_of_components_of_elementss_;
-        component_costs_           = solution.component_costs_;
-        penalties_                 = solution.penalties_;
-        cost_                      = solution.cost_;
-        penalty_                   = solution.penalty_;
+        elements_                     = solution.elements_;
+        sets_                         = solution.sets_;
+        component_number_of_elements_ = solution.component_number_of_elements_;
+        component_costs_              = solution.component_costs_;
+        penalties_                    = solution.penalties_;
+        cost_                         = solution.cost_;
+        penalty_                      = solution.penalty_;
     }
     return *this;
 }
@@ -118,7 +118,10 @@ std::ostream& setcoveringsolver::operator<<(std::ostream& os, const Solution& so
 
 /*********************************** Output ***********************************/
 
-Output::Output(const Instance& instance, Info& info): solution(instance)
+Output::Output(
+        const Instance& instance,
+        optimizationtools::Info& info):
+    solution(instance)
 {
     VER(info, std::left << std::setw(12) << "T (s)");
     VER(info, std::left << std::setw(12) << "UB");
@@ -130,7 +133,9 @@ Output::Output(const Instance& instance, Info& info): solution(instance)
     print(info, std::stringstream(""));
 }
 
-void Output::print(Info& info, const std::stringstream& s) const
+void Output::print(
+        optimizationtools::Info& info,
+        const std::stringstream& s) const
 {
     double gap = (lower_bound == 0)?
         std::numeric_limits<double>::infinity():
@@ -152,7 +157,7 @@ void Output::update_solution(
         const Solution& solution_new,
         ComponentId c,
         const std::stringstream& s,
-        Info& info)
+        optimizationtools::Info& info)
 {
     info.output->mutex_solutions.lock();
 
@@ -200,7 +205,10 @@ void Output::update_solution(
     info.output->mutex_solutions.unlock();
 }
 
-void Output::update_lower_bound(Cost lower_bound_new, const std::stringstream& s, Info& info)
+void Output::update_lower_bound(
+        Cost lower_bound_new,
+        const std::stringstream& s,
+        optimizationtools::Info& info)
 {
     if (lower_bound >= lower_bound_new)
         return;
@@ -224,7 +232,7 @@ void Output::update_lower_bound(Cost lower_bound_new, const std::stringstream& s
     info.output->mutex_solutions.unlock();
 }
 
-Output& Output::algorithm_end(Info& info)
+Output& Output::algorithm_end(optimizationtools::Info& info)
 {
     double t = round(info.elapsed_time() * 10000) / 10000;
     double gap = (lower_bound == 0)?
@@ -246,7 +254,9 @@ Output& Output::algorithm_end(Info& info)
     return *this;
 }
 
-Cost setcoveringsolver::algorithm_end(Cost lower_bound, Info& info)
+Cost setcoveringsolver::algorithm_end(
+        Cost lower_bound,
+        optimizationtools::Info& info)
 {
     double t = round(info.elapsed_time() * 10000) / 10000;
     PUT(info, "Bound", "Value", lower_bound);

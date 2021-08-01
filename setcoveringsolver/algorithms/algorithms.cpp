@@ -79,7 +79,11 @@ LargeNeighborhoodSearch2OptionalParameters read_largeneighborhoodsearch_2_args(c
     return parameters;
 }
 
-Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt19937_64& generator, Info info)
+Output setcoveringsolver::run(
+        std::string algorithm,
+        Instance& instance,
+        std::mt19937_64& generator,
+        optimizationtools::Info info)
 {
     std::vector<std::string> algorithm_args = po::split_unix(algorithm);
     std::vector<char*> algorithm_argv;
@@ -87,8 +91,7 @@ Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt
         algorithm_argv.push_back(const_cast<char*>(algorithm_args[i].c_str()));
 
     if (algorithm.empty() || algorithm_args[0].empty()) {
-        std::cerr << "\033[31m" << "ERROR, missing algorithm." << "\033[0m" << std::endl;
-        return Output(instance, info);
+        throw std::invalid_argument("Missing algorithm.");
 
     } else if (algorithm_args[0] == "greedy") {
         return greedy(instance, info);
@@ -120,9 +123,8 @@ Output setcoveringsolver::run(std::string algorithm, Instance& instance, std::mt
         return largeneighborhoodsearch_2(instance, parameters);
 
     } else {
-        std::cerr << "\033[31m" << "ERROR, unknown algorithm: '" << algorithm_args[0] << "'\033[0m" << std::endl;
-        assert(false);
-        return Output(instance, info);
+        throw std::invalid_argument(
+                "Unknown algorithm \"" + algorithm_args[0] + "\".");
     }
 }
 

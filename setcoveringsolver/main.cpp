@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
         //VER(info, " " << c << "/" << component(c).elements.size() << "/" << component(c).sets.size());
     //VER(info, std::endl);
 
-    Info info = Info()
+    optimizationtools::Info info = optimizationtools::Info()
         .set_verbose(vm.count("verbose"))
         .set_time_limit(time_limit)
         .set_certificate_path(certificate_path)
