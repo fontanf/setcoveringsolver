@@ -19,7 +19,7 @@ Solution::Solution(const Instance& instance):
     }
 }
 
-Solution::Solution(const Instance& instance, std::string filepath):
+Solution::Solution(const Instance& instance, std::string certificate_path):
     instance_(instance),
     elements_(instance.number_of_elements(), 0),
     sets_(instance.number_of_sets()),
@@ -28,13 +28,12 @@ Solution::Solution(const Instance& instance, std::string filepath):
     penalties_(instance.number_of_elements(), 1),
     penalty_(instance.number_of_elements())
 {
-    if (filepath.empty())
+    if (certificate_path.empty())
         return;
-    std::ifstream file(filepath);
-    if (!file.good()) {
-        std::cerr << "\033[31m" << "ERROR, unable to open file \"" << filepath << "\"" << "\033[0m" << std::endl;
-        return;
-    }
+    std::ifstream file(certificate_path);
+    if (!file.good())
+        throw std::runtime_error(
+                "Unable to open file \"" + certificate_path + "\".");
 
     for (ElementId e: instance.fixed_elements()) {
         elements_.set(e, 1);
@@ -92,22 +91,20 @@ void Solution::increment_penalty(ElementId e, Cost p)
         penalty_ += p;
 }
 
-void Solution::write(std::string filepath)
+void Solution::write(std::string certificate_path)
 {
-    if (filepath.empty())
+    if (certificate_path.empty())
         return;
-    std::ofstream cert(filepath);
-    if (!cert.good()) {
-        std::cerr << "\033[31m" << "ERROR, unable to open file \"" << filepath << "\"" << "\033[0m" << std::endl;
-        assert(false);
-        return;
-    }
+    std::ofstream file(certificate_path);
+    if (!file.good())
+        throw std::runtime_error(
+                "Unable to open file \"" + certificate_path + "\".");
 
-    cert << number_of_sets() << std::endl;
+    file << number_of_sets() << std::endl;
     for (SetId s = 0; s < instance().number_of_sets(); ++s)
         if (contains(s))
-            cert << s << " ";
-    cert.close();
+            file << s << " ";
+    file.close();
 }
 
 std::ostream& setcoveringsolver::operator<<(std::ostream& os, const Solution& solution)

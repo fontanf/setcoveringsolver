@@ -6,16 +6,14 @@
 
 using namespace setcoveringsolver;
 
-Instance::Instance(std::string filepath, std::string format):
+Instance::Instance(std::string instance_path, std::string format):
     fixed_sets_(0),
     fixed_elements_(0)
 {
-    std::ifstream file(filepath);
-    if (!file.good()) {
-        std::cerr << "\033[31m" << "ERROR, unable to open file \"" << filepath << "\"" << "\033[0m" << std::endl;
-        assert(false);
-        return;
-    }
+    std::ifstream file(instance_path);
+    if (!file.good())
+        throw std::runtime_error(
+                "Unable to open file \"" + instance_path + "\".");
 
     if (format == "gecco2020" || format == "gecco") {
         read_geccod2020(file);
@@ -28,8 +26,8 @@ Instance::Instance(std::string filepath, std::string format):
     } else if (format == "faster1994" || format == "faster" || format == "wedelin1995" || format == "wedelin") {
         read_faster1994(file);
     } else {
-        std::cerr << "\033[31m" << "ERROR, unknown instance format: \"" << format << "\"" << "\033[0m" << std::endl;
-        assert(false);
+        throw std::invalid_argument(
+                "Unknown instance format \"" + format + "\".");
     }
 
     fixed_sets_     = optimizationtools::IndexedSet(number_of_sets());

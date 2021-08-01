@@ -15,11 +15,17 @@ class Solution
 
 public:
 
+    /** Create an empty solution. */
     Solution(const Instance& instance);
-    Solution(const Instance& instance, std::string filepath);
+    /** Create a solution from a certificate file. */
+    Solution(const Instance& instance, std::string certificate_path);
+    /** Copy constructor. */
     Solution(const Solution& solution);
+    /** Copy assignment operator. */
     Solution& operator=(const Solution& solution);
+    /** Destructor. */
     ~Solution() { }
+    /** Equality operator. */
     bool operator==(const Solution& solution);
 
     inline const Instance& instance() const { return instance_; }
@@ -39,13 +45,15 @@ public:
     const optimizationtools::IndexedMap<SetPos>& elements() const { return elements_; };
     const optimizationtools::IndexedSet& sets() const { return sets_; };
 
+    /** Add set 's' to the solution. */
     inline void add(SetId s);
+    /** Remove set 's' from the solution. */
     inline void remove(SetId s);
 
     void increment_penalty(ElementId e, Cost p = 1);
     void set_penalty(ElementId e, Cost p);
 
-    void write(std::string filepath);
+    void write(std::string certificate_path);
 
 private:
 
@@ -63,9 +71,13 @@ private:
 
 void Solution::add(SetId s)
 {
-    assert(s >= 0);
-    assert(s < instance().number_of_sets());
-    assert(!contains(s));
+    // Checks.
+    instance().check_set_index(s);
+    if (contains(s))
+        throw std::invalid_argument(
+                "Cannot add set " + std::to_string(s)
+                + " which is already in the solution");
+
     ComponentId c = instance().set(s).component;
     for (ElementId e: instance().set(s).elements) {
         if (covers(e) == 0) {
@@ -81,9 +93,13 @@ void Solution::add(SetId s)
 
 void Solution::remove(SetId s)
 {
-    assert(s >= 0);
-    assert(s < instance().number_of_sets());
-    assert(contains(s));
+    // Checks.
+    instance().check_set_index(s);
+    if (!contains(s))
+        throw std::invalid_argument(
+                "Cannot remove set " + std::to_string(s)
+                + " which is not in the solution");
+
     ComponentId c = instance().set(s).component;
     for (ElementId e: instance().set(s).elements) {
         elements_.set(e, elements_[e] - 1);
