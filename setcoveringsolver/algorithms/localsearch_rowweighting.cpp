@@ -71,7 +71,7 @@ void localsearch_rowweighting_worker(
             + instance.component(c).elements.size();
 
     ComponentId c = 0;
-    for (Counter iterations = 1; parameters.info.check_time(); ++iterations) {
+    for (Counter iterations = 1; !parameters.info.needs_to_end(); ++iterations) {
         // Compute component
         if (iterations % (components.back().iteration_max + 1) >= components[c].iteration_max) {
             c = (c + 1) % instance.number_of_components();
@@ -298,7 +298,7 @@ void localsearch_rowweighting_2_worker(
     SetId s_last_added = -1;
 
     Counter iterations_without_improvment = 0;
-    for (Counter iterations = 1; parameters.info.check_time(); ++iterations, iterations_without_improvment++) {
+    for (Counter iterations = 1; !parameters.info.needs_to_end(); ++iterations, iterations_without_improvment++) {
 
         while (solution.feasible()) {
 

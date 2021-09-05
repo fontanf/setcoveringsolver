@@ -39,7 +39,7 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
     optimizationtools::IndexedSet sets_candidates(instance.number_of_sets());
     optimizationtools::IndexedBinaryHeap<double> heap(instance.number_of_sets());
     Counter iterations_without_improvment = 0;
-    for (output.iterations = 1; parameters.info.check_time(); ++output.iterations, ++iterations_without_improvment) {
+    for (output.iterations = 1; !parameters.info.needs_to_end(); ++output.iterations, ++iterations_without_improvment) {
         // Check stop criteria.
         if (parameters.iteration_limit != -1
                 && output.iterations > parameters.iteration_limit)
@@ -162,7 +162,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
     optimizationtools::IndexedSet sets_in_to_update(instance.number_of_sets());
     optimizationtools::IndexedSet sets_out_to_update(instance.number_of_sets());
     Counter iterations_without_improvment = 0;
-    for (output.iterations = 1; parameters.info.check_time(); ++output.iterations, ++iterations_without_improvment) {
+    for (output.iterations = 1; !parameters.info.needs_to_end(); ++output.iterations, ++iterations_without_improvment) {
         // Check stop criteria.
         if (parameters.iteration_limit != -1
                 && output.iterations > parameters.iteration_limit)
