@@ -81,6 +81,10 @@ class Instance
 
 public:
 
+    /*
+     * Constructors and destructor.
+     */
+
     /** Create an instance from a file. */
     Instance(std::string instance_path, std::string format);
 
@@ -92,8 +96,31 @@ public:
     /** Set the cost of all sets to 1. */
     void set_unicost();
 
-    /** Write the instance to a file. */
-    void write(std::string instance_path, std::string format);
+    /** Compute the connected components of the instance. */
+    void compute_components();
+
+    /** Fix identical sets and elements. */
+    void fix_identical(optimizationtools::Info& info);
+    /** Fix dominanted sets and elements. */
+    void fix_dominated(optimizationtools::Info& info);
+
+    /**
+     * Compute the neighbors of the sets.
+     *
+     * They can then be retrieved with 'set(s).neighbors'.
+     */
+    void compute_set_neighbors(Counter number_of_threads, optimizationtools::Info& info);
+
+    /**
+     * Compute the neighbors of the elements.
+     *
+     * They can then be retrieved with 'element(e).neighbors'.
+     */
+    void compute_element_neighbors(optimizationtools::Info& info);
+
+    /*
+     * Getters.
+     */
 
     /** Get the number of elements. */
     inline ElementId number_of_elements() const { return elements_.size(); }
@@ -122,30 +149,18 @@ public:
     /** Get the number of elements in component 'c'. */
     inline ElementId number_of_elements(ComponentId c) const { return components_[c].elements.size(); }
 
-
-    /** Compute the connected components of the instance. */
-    void compute_components();
-
-    /** Fix identical sets and elements. */
-    void fix_identical(optimizationtools::Info& info);
-    /** Fix dominanted sets and elements. */
-    void fix_dominated(optimizationtools::Info& info);
-
-    /**
-     * Compute the neighbors of the sets.
-     *
-     * They can then be retrieved with 'set(s).neighbors'.
+    /*
+     * Export.
      */
-    void compute_set_neighbors(Counter number_of_threads, optimizationtools::Info& info);
 
-    /**
-     * Compute the neighbors of the elements.
-     *
-     * They can then be retrieved with 'element(e).neighbors'.
+    /** Write the instance to a file. */
+    void write(std::string instance_path, std::string format);
+
+    /*
+     * Checkers.
      */
-    void compute_element_neighbors(optimizationtools::Info& info);
 
-    /** Check if vertex index 'j' is within the correct range. */
+    /** Check if set index 's' is within the correct range. */
     inline void check_set_index(SetId s) const
     {
         if (s < 0 || s >= number_of_sets())
