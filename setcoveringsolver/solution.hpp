@@ -15,6 +15,10 @@ class Solution
 
 public:
 
+    /*
+     * Constructors and destructor.
+     */
+
     /** Create an empty solution. */
     Solution(const Instance& instance);
     /** Create a solution from a certificate file. */
@@ -27,6 +31,10 @@ public:
     ~Solution() { }
     /** Equality operator. */
     bool operator==(const Solution& solution);
+
+    /*
+     * Getters.
+     */
 
     /** Get the instance. */
     inline const Instance& instance() const { return instance_; }
@@ -42,8 +50,6 @@ public:
     inline Cost cost(ComponentId c) const { return component_costs_[c]; }
     /** Get the total cost of the solution. */
     inline Cost cost() const { return cost_; }
-    inline Cost penalty() const { return penalty_; }
-    inline Cost penalty(ElementId e) const { return penalties_[e]; }
     /** Return 'true' iff element 'e' is covered in the solution. */
     inline SetId covers(ElementId e) const { return elements_[e]; }
     /** Return 'true' iff the solution contains set 's'. */
@@ -58,32 +64,40 @@ public:
     /** Get the set of sets of the solution. */
     const optimizationtools::IndexedSet& sets() const { return sets_; };
 
+    /*
+     * Setters.
+     */
+
     /** Add set 's' to the solution. */
     inline void add(SetId s);
     /** Remove set 's' from the solution. */
     inline void remove(SetId s);
 
-    void increment_penalty(ElementId e, Cost p = 1);
-    void set_penalty(ElementId e, Cost p);
+    /*
+     * Export.
+     */
 
     /** Write the solution to a file. */
     void write(std::string certificate_path);
 
 private:
 
+    /*
+     * Private attributes.
+     */
+
     /** Instance. */
     const Instance& instance_;
-
     /** Elements. */
     optimizationtools::IndexedMap<SetPos> elements_;
     /** Sets. */
     optimizationtools::IndexedSet sets_;
+    /** Number of elements in each component. */
     std::vector<ElementPos> component_number_of_elements_;
+    /** Cost of each component. */
     std::vector<Cost> component_costs_;
-    std::vector<Cost> penalties_;
     /** Total cost of the solution. */
     Cost cost_ = 0;
-    Cost penalty_ = 0;
 
 };
 
@@ -98,10 +112,8 @@ void Solution::add(SetId s)
 
     ComponentId c = instance().set(s).component;
     for (ElementId e: instance().set(s).elements) {
-        if (covers(e) == 0) {
-            penalty_ -= penalties_[e];
+        if (covers(e) == 0)
             component_number_of_elements_[c]++;
-        }
         elements_.set(e, elements_[e] + 1);
     }
     sets_.add(s);
@@ -121,10 +133,8 @@ void Solution::remove(SetId s)
     ComponentId c = instance().set(s).component;
     for (ElementId e: instance().set(s).elements) {
         elements_.set(e, elements_[e] - 1);
-        if (covers(e) == 0) {
-            penalty_ += penalties_[e];
+        if (covers(e) == 0)
             component_number_of_elements_[c]--;
-        }
     }
     sets_.remove(s);
     component_costs_[c] -= instance().set(s).cost;

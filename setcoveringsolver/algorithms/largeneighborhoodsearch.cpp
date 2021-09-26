@@ -150,10 +150,11 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
 
     // Initialize local search structures.
     std::vector<LargeNeighborhoodSearch2Set> sets(instance.number_of_sets());
+    std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
     for (SetId s: solution.sets())
         for (ElementId e: instance.set(s).elements)
             if (solution.covers(e) == 1)
-                sets[s].score += solution.penalty(e);
+                sets[s].score += solution_penalties[e];
     optimizationtools::IndexedBinaryHeap<std::pair<double, Counter>> scores_in(instance.number_of_sets());
     optimizationtools::IndexedBinaryHeap<std::pair<double, Counter>> scores_out(instance.number_of_sets());
     for (SetId s: solution.sets())
@@ -194,14 +195,14 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
                     for (SetId s2: instance.element(e).sets) {
                         if (s2 == s)
                             continue;
-                        sets[s2].score += solution.penalty(e);
+                        sets[s2].score += solution_penalties[e];
                         sets_out_to_update.add(s2);
                     }
                 } else if (solution.covers(e) == 1) {
                     for (SetId s2: instance.element(e).sets) {
                         if (!solution.contains(s2))
                             continue;
-                        sets[s2].score += solution.penalty(e);
+                        sets[s2].score += solution_penalties[e];
                         sets_in_to_update.add(s2);
                     }
                 }
@@ -215,7 +216,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
         // Update penalties: we increment the penalty of each uncovered element.
         sets_out_to_update.clear();
         for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it) {
-            solution.increment_penalty(it->first);
+            solution_penalties[it->first]++;
             for (SetId s: instance.element(it->first).sets) {
                 sets[s].score++;
                 sets_out_to_update.add(s);
@@ -242,14 +243,14 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
                     for (SetId s2: instance.element(e).sets) {
                         if (solution.contains(s2))
                             continue;
-                        sets[s2].score -= solution.penalty(e);
+                        sets[s2].score -= solution_penalties[e];
                         sets_out_to_update.add(s2);
                     }
                 } else if (solution.covers(e) == 2) {
                     for (SetId s2: instance.element(e).sets) {
                         if (s2 == s || !solution.contains(s2))
                             continue;
-                        sets[s2].score -= solution.penalty(e);
+                        sets[s2].score -= solution_penalties[e];
                         sets_in_to_update.add(s2);
                     }
                 }
@@ -267,7 +268,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
                                 for (SetId s3: instance.element(e2).sets) {
                                     if (!solution.contains(s3))
                                         continue;
-                                    sets[s3].score += solution.penalty(e2);
+                                    sets[s3].score += solution_penalties[e2];
                                     sets_in_to_update.add(s3);
                                 }
                             }

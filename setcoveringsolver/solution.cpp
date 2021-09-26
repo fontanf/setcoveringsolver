@@ -9,14 +9,10 @@ Solution::Solution(const Instance& instance):
     elements_(instance.number_of_elements(), 0),
     sets_(instance.number_of_sets()),
     component_number_of_elements_(instance.number_of_components(), 0),
-    component_costs_(instance.number_of_components(), 0),
-    penalties_(instance.number_of_elements(), 1),
-    penalty_(instance.number_of_elements())
+    component_costs_(instance.number_of_components(), 0)
 {
-    for (ElementId e: instance.fixed_elements()) {
+    for (ElementId e: instance.fixed_elements())
         elements_.set(e, 1);
-        penalty_--;
-    }
 }
 
 Solution::Solution(const Instance& instance, std::string certificate_path):
@@ -24,21 +20,18 @@ Solution::Solution(const Instance& instance, std::string certificate_path):
     elements_(instance.number_of_elements(), 0),
     sets_(instance.number_of_sets()),
     component_number_of_elements_(instance.number_of_components(), 0),
-    component_costs_(instance.number_of_components(), 0),
-    penalties_(instance.number_of_elements(), 1),
-    penalty_(instance.number_of_elements())
+    component_costs_(instance.number_of_components(), 0)
 {
     if (certificate_path.empty())
         return;
     std::ifstream file(certificate_path);
-    if (!file.good())
+    if (!file.good()) {
         throw std::runtime_error(
                 "Unable to open file \"" + certificate_path + "\".");
-
-    for (ElementId e: instance.fixed_elements()) {
-        elements_.set(e, 1);
-        penalty_--;
     }
+
+    for (ElementId e: instance.fixed_elements())
+        elements_.set(e, 1);
 
     SetId number_of_sets;
     SetId s;
@@ -55,9 +48,7 @@ Solution::Solution(const Solution& solution):
     sets_(solution.sets_),
     component_number_of_elements_(solution.component_number_of_elements_),
     component_costs_(solution.component_costs_),
-    penalties_(solution.penalties_),
-    cost_(solution.cost_),
-    penalty_(solution.penalty_)
+    cost_(solution.cost_)
 { }
 
 Solution& Solution::operator=(const Solution& solution)
@@ -68,27 +59,9 @@ Solution& Solution::operator=(const Solution& solution)
         sets_                         = solution.sets_;
         component_number_of_elements_ = solution.component_number_of_elements_;
         component_costs_              = solution.component_costs_;
-        penalties_                    = solution.penalties_;
         cost_                         = solution.cost_;
-        penalty_                      = solution.penalty_;
     }
     return *this;
-}
-
-void Solution::set_penalty(ElementId e, Cost p)
-{
-    if (covers(e) == 0)
-        penalty_ -= penalties_[e];
-    penalties_[e] = p;
-    if (covers(e) == 0)
-        penalty_ += penalties_[e];
-}
-
-void Solution::increment_penalty(ElementId e, Cost p)
-{
-    penalties_[e] += p;
-    if (covers(e) == 0)
-        penalty_ += p;
 }
 
 void Solution::write(std::string certificate_path)
@@ -96,9 +69,10 @@ void Solution::write(std::string certificate_path)
     if (certificate_path.empty())
         return;
     std::ofstream file(certificate_path);
-    if (!file.good())
+    if (!file.good()) {
         throw std::runtime_error(
                 "Unable to open file \"" + certificate_path + "\".");
+    }
 
     file << number_of_sets() << std::endl;
     for (SetId s = 0; s < instance().number_of_sets(); ++s)

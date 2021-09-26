@@ -69,6 +69,7 @@ void localsearch_rowweighting_worker(
     for (ComponentId c = 0; c < instance.number_of_components(); ++c)
         components[c].iteration_max = ((c == 0)? 0: components[c - 1].iteration_max)
             + instance.component(c).elements.size();
+    std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
 
     ComponentId c = 0;
     for (Counter iterations = 1; !parameters.info.needs_to_end(); ++iterations) {
@@ -105,18 +106,20 @@ void localsearch_rowweighting_worker(
             for (SetId s: solution.sets()) {
                 if (instance.set(s).component != c || instance.set(s).mandatory)
                     continue;
-                solution.remove(s);
+                Penalty p = 0;
+                for (ElementId e: instance.set(s).elements)
+                    if (solution.covers(e) == 1)
+                        p += solution_penalties[e];
                 // Update best move.
                 if (s_best == -1 // First move considered.
-                        || p_best > solution.penalty() // Strictly better.
+                        || p_best > p // Strictly better.
                         // Equivalent, but s has not been considered for a
                         // longer time.
-                        || (p_best == solution.penalty()
+                        || (p_best == p
                             && sets[s_best].timestamp > sets[s].timestamp)) {
                     s_best = s;
-                    p_best = solution.penalty();
+                    p_best = p;
                 }
-                solution.add(s);
             }
             // Apply best move
             solution.remove(s_best);
@@ -152,8 +155,12 @@ void localsearch_rowweighting_worker(
         for (SetId s1: instance.element(e).sets) {
             if (s1 == component.s_last_removed)
                 continue;
+            Penalty p0 = 0;
+            for (ElementId e2: instance.set(s1).elements)
+                if (solution.covers(e2) == 0)
+                    p0 -= solution_penalties[e2];
             solution.add(s1);
-            if (p_best == -1 || solution.penalty() <= p_best) {
+            if (p_best == -1 || p0 <= p_best) {
                 // For each neighbor s2 of s1 which is neither part of the
                 // solution, nor the last set added, nor mandatory.
                 for (SetId s2: instance.set(s1).neighbors) {
@@ -161,20 +168,22 @@ void localsearch_rowweighting_worker(
                             || instance.set(s2).mandatory
                             || !solution.contains(s2))
                         continue;
-                    solution.remove(s2);
+                    Penalty p = p0;
+                    for (ElementId e2: instance.set(s2).elements)
+                        if (solution.covers(e2) == 1)
+                            p += solution_penalties[e2];
                     // If the new solution is better, we update the best move.
                     if (s1_best == -1 // First move considered.
-                            || p_best > solution.penalty() // Strictly better.
+                            || p_best > p // Strictly better.
                             // Equivalent, but s1 and s2 have not been
                             // considered for a longer time.
-                            || (p_best == solution.penalty()
+                            || (p_best == p
                                 && sets[s1_best].timestamp + sets[s2_best].timestamp
                                 > sets[s1].timestamp + sets[s2].timestamp)) {
                         s1_best = s1;
                         s2_best = s2;
-                        p_best = solution.penalty();
+                        p_best = p;
                     }
-                    solution.add(s2);
                 }
             }
             solution.remove(s1);
@@ -206,14 +215,14 @@ void localsearch_rowweighting_worker(
         // integer overflow (this very rarely occur in practice).
         bool reduce = false;
         for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it) {
-            solution.increment_penalty(it->first);
-            if (solution.penalty(it->first) > std::numeric_limits<Cost>::max() / instance.number_of_unfixed_elements())
+            solution_penalties[it->first]++;
+            if (solution_penalties[it->first] > std::numeric_limits<Cost>::max() / 2)
                 reduce = true;
         }
         if (reduce) {
             //std::cout << "reduce" << std::endl;
             for (ElementId e = 0; e < instance.number_of_elements(); ++e)
-                solution.set_penalty(e, (solution.penalty(e) - 1) / 2 + 1);
+                solution_penalties[e] = (solution_penalties[e] - 1) / 2 + 1;
         }
 
         // Update component.iterations and component.iterations_without_improvment.
@@ -289,11 +298,12 @@ void localsearch_rowweighting_2_worker(
 
     // Initialize local search structures.
     std::vector<LocalSearchRowWeighting2Set> sets(instance.number_of_sets());
+    std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
     for (ElementId e = 0; e < instance.number_of_elements(); ++e)
         if (solution.covers(e) == 1)
             for (SetId s: instance.element(e).sets)
                 if (solution.contains(s))
-                    sets[s].score += solution.penalty(e);
+                    sets[s].score += solution_penalties[e];
     SetId s_last_removed = -1;
     SetId s_last_added = -1;
 
@@ -329,19 +339,17 @@ void localsearch_rowweighting_2_worker(
                 }
             }
             // Apply best move
-            Cost tmp = solution.penalty();
             solution.remove(s_best);
-            assert(solution.penalty() == tmp + score_best);
             // Update scores.
             for (ElementId e: instance.set(s_best).elements) {
                 if (solution.covers(e) == 0) {
                     for (SetId s: instance.element(e).sets)
                         if (s != s_best)
-                            sets[s].score += solution.penalty(e);
+                            sets[s].score += solution_penalties[e];
                 } else if (solution.covers(e) == 1) {
                     for (SetId s: instance.element(e).sets)
                         if (solution.contains(s))
-                            sets[s].score += solution.penalty(e);
+                            sets[s].score += solution_penalties[e];
                 }
             }
             // Update sets
@@ -375,19 +383,17 @@ void localsearch_rowweighting_2_worker(
             }
         }
         // Apply move
-        Cost tmp1 = solution.penalty();
         solution.remove(s1_best);
-        assert(solution.penalty() == tmp1 + score1_best);
         // Update scores.
         for (ElementId e: instance.set(s1_best).elements) {
             if (solution.covers(e) == 0) {
                 for (SetId s: instance.element(e).sets)
                     if (s != s1_best)
-                        sets[s].score += solution.penalty(e);
+                        sets[s].score += solution_penalties[e];
             } else if (solution.covers(e) == 1) {
                 for (SetId s: instance.element(e).sets)
                     if (solution.contains(s))
-                        sets[s].score += solution.penalty(e);
+                        sets[s].score += solution_penalties[e];
             }
         }
         // Update sets
@@ -430,19 +436,17 @@ void localsearch_rowweighting_2_worker(
         if (s2_best == -1)
             s2_best = s1_best;
         // Apply move
-        Cost tmp2 = solution.penalty();
         solution.add(s2_best);
-        assert(solution.penalty() == tmp2 - score2_best);
         // Update scores.
         for (ElementId e: instance.set(s2_best).elements) {
             if (solution.covers(e) == 1) {
                 for (SetId s: instance.element(e).sets)
                     if (!solution.contains(s))
-                        sets[s].score -= solution.penalty(e);
+                        sets[s].score -= solution_penalties[e];
             } else if (solution.covers(e) == 2) {
                 for (SetId s: instance.element(e).sets)
                     if (s != s2_best && solution.contains(s))
-                        sets[s].score -= solution.penalty(e);
+                        sets[s].score -= solution_penalties[e];
             }
         }
         // Update sets
@@ -460,7 +464,7 @@ void localsearch_rowweighting_2_worker(
 
         // Update penalties: we increment the penalty of each uncovered element.
         for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it) {
-            solution.increment_penalty(it->first);
+            solution_penalties[it->first]++;
             for (SetId s: instance.element(it->first).sets)
                 sets[s].score++;
         }

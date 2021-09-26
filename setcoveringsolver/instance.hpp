@@ -16,6 +16,7 @@ typedef int64_t SetId; // s
 typedef int64_t SetPos; // s_pos
 typedef int64_t ComponentId; // c
 typedef int64_t Cost;
+typedef int64_t Penalty;
 typedef int64_t Counter;
 typedef int64_t Seed;
 
