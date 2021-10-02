@@ -13,9 +13,9 @@ using namespace setcoveringsolver;
 LocalSearchRowWeightingOutput& LocalSearchRowWeightingOutput::algorithm_end(
         optimizationtools::Info& info)
 {
-    //PUT(info, "Algorithm", "Iterations", iterations);
+    PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    //VER(info, "Iterations: " << iterations << std::endl);
+    VER(info, "Number of iterations: " << number_of_iterations << std::endl);
     return *this;
 }
 
@@ -41,22 +41,22 @@ struct LocalSearchRowWeightingSet
     Counter iterations = 0;
 };
 
-void localsearch_rowweighting_worker(
-        const Instance& instance,
-        Seed seed,
-        LocalSearchRowWeightingOptionalParameters parameters,
-        LocalSearchRowWeightingOutput& output,
-        Counter thread_id)
+LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
+        Instance& instance,
+        std::mt19937_64& generator,
+        LocalSearchRowWeightingOptionalParameters parameters)
 {
-    std::mt19937_64 generator(seed);
+    VER(parameters.info, "*** localsearch_rowweighting ***" << std::endl);
+
+    // Instance pre-processing.
+    instance.fix_identical(parameters.info);
+    instance.compute_set_neighbors(6, parameters.info);
+    instance.compute_components();
+
+    LocalSearchRowWeightingOutput output(instance, parameters.info);
 
     // Compute initial greedy solution.
-    Solution solution(instance);
-    if (thread_id % 2 == 0) {
-        solution = greedy(instance).solution;
-    } else {
-        solution = greedy_lin(instance).solution;
-    }
+    Solution solution = greedy(instance).solution;
     std::stringstream ss;
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);
@@ -72,9 +72,9 @@ void localsearch_rowweighting_worker(
     std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
 
     ComponentId c = 0;
-    for (Counter iterations = 1; !parameters.info.needs_to_end(); ++iterations) {
+    for (output.number_of_iterations = 1; !parameters.info.needs_to_end(); ++output.number_of_iterations) {
         // Compute component
-        if (iterations % (components.back().iteration_max + 1) >= components[c].iteration_max) {
+        if (output.number_of_iterations % (components.back().iteration_max + 1) >= components[c].iteration_max) {
             c = (c + 1) % instance.number_of_components();
             //std::cout << "c " << c << " " << components[c].iteration_max
                 //<< " e " << instance.component(c).elements.size()
@@ -88,10 +88,8 @@ void localsearch_rowweighting_worker(
             if (output.solution.cost(c) > solution.cost(c)) {
                 // Update best solution
                 std::stringstream ss;
-                ss << "thread " << thread_id
-                    << ", it " << iterations
-                    << ", comp " << c
-                    << " (" << component.iterations_without_improvment << ")";
+                ss << "iteration " << output.number_of_iterations
+                    << ", component " << c;
                 output.update_solution(solution, c, ss, parameters.info);
             }
             // Update statistics
@@ -124,7 +122,7 @@ void localsearch_rowweighting_worker(
             // Apply best move
             solution.remove(s_best);
             // Update sets
-            sets[s_best].timestamp = iterations;
+            sets[s_best].timestamp = output.number_of_iterations;
             sets[s_best].iterations += (component.iterations - sets[s_best].last_addition);
             sets[s_best].last_removal = component.iterations;
             // Update tabu
@@ -193,14 +191,14 @@ void localsearch_rowweighting_worker(
             solution.add(s1_best);
             solution.remove(s2_best);
             // Update sets
-            sets[s1_best].timestamp = iterations;
-            sets[s2_best].timestamp = iterations;
+            sets[s1_best].timestamp = output.number_of_iterations;
+            sets[s2_best].timestamp = output.number_of_iterations;
             sets[s1_best].last_addition = component.iterations;
             sets[s2_best].last_removal  = component.iterations;
             sets[s2_best].iterations += (component.iterations - sets[s2_best].last_addition);
         }
         // Update tabu
-        component.s_last_added   = s1_best;
+        component.s_last_added = s1_best;
         component.s_last_removed = s2_best;
         //std::cout << "it " << component.iterations
             //<< " s1_best " << s1_best
@@ -210,14 +208,14 @@ void localsearch_rowweighting_worker(
             //<< " s " << solution.number_of_sets()
             //<< std::endl;
 
-        // Update penalties: we increment the penalty of each uncovered element.
-        // "reduce" becomes true if we divide by 2 all penalties to avoid
-        // integer overflow (this very rarely occur in practice).
+        // Update penalties.
         bool reduce = false;
-        for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it) {
-            solution_penalties[it->first]++;
-            if (solution_penalties[it->first] > std::numeric_limits<Cost>::max() / 2)
-                reduce = true;
+        for (ElementId e: instance.set(s2_best).elements) {
+            if (solution.covers(e) == 0) {
+                solution_penalties[e]++;
+                if (solution_penalties[e] > std::numeric_limits<Cost>::max() / 2)
+                    reduce = true;
+            }
         }
         if (reduce) {
             //std::cout << "reduce" << std::endl;
@@ -229,29 +227,6 @@ void localsearch_rowweighting_worker(
         component.iterations++;
         component.iterations_without_improvment++;
     }
-}
-
-LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
-        Instance& instance,
-        std::mt19937_64& generator,
-        LocalSearchRowWeightingOptionalParameters parameters)
-{
-    VER(parameters.info, "*** localsearch_rowweighting ***" << std::endl);
-
-    // Instance pre-processing.
-    instance.fix_identical(parameters.info);
-    instance.compute_set_neighbors(parameters.number_of_threads, parameters.info);
-    instance.compute_components();
-
-    LocalSearchRowWeightingOutput output(instance, parameters.info);
-
-    auto seeds = optimizationtools::bob_floyd(parameters.number_of_threads, std::numeric_limits<Seed>::max(), generator);
-    std::vector<std::thread> threads;
-    for (Counter thread_id = 0; thread_id < parameters.number_of_threads; ++thread_id)
-        threads.push_back(std::thread(localsearch_rowweighting_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));
-
-    for (Counter thread_id = 0; thread_id < parameters.number_of_threads; ++thread_id)
-        threads[thread_id].join();
 
     return output.algorithm_end(parameters.info);
 }
@@ -261,9 +236,9 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
 LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(
         optimizationtools::Info& info)
 {
-    //PUT(info, "Algorithm", "Iterations", iterations);
+    PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    //VER(info, "Iterations: " << iterations << std::endl);
+    VER(info, "Number of iterations: " << number_of_iterations << std::endl);
     return *this;
 }
 
@@ -273,25 +248,23 @@ struct LocalSearchRowWeighting2Set
     Counter last_addition = -1;
     Counter last_removal = -1;
     Counter iterations = 0;
-    Cost    score = 0;
+    Cost score = 0;
 };
 
-void localsearch_rowweighting_2_worker(
-        const Instance& instance,
-        Seed seed,
-        LocalSearchRowWeighting2OptionalParameters parameters,
-        LocalSearchRowWeighting2Output& output,
-        Counter thread_id)
+LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
+        Instance& instance,
+        std::mt19937_64& generator,
+        LocalSearchRowWeighting2OptionalParameters parameters)
 {
-    std::mt19937_64 generator(seed);
+    VER(parameters.info, "*** localsearch_rowweighting_2 ***" << std::endl);
+
+    // Instance pre-processing.
+    instance.fix_identical(parameters.info);
+
+    LocalSearchRowWeighting2Output output(instance, parameters.info);
 
     // Compute initial greedy solution.
-    Solution solution(instance);
-    if (thread_id % 2 == 0) {
-        solution = greedy(instance).solution;
-    } else {
-        solution = greedy_lin(instance).solution;
-    }
+    Solution solution = greedy(instance).solution;
     std::stringstream ss;
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);
@@ -308,16 +281,14 @@ void localsearch_rowweighting_2_worker(
     SetId s_last_added = -1;
 
     Counter iterations_without_improvment = 0;
-    for (Counter iterations = 1; !parameters.info.needs_to_end(); ++iterations, iterations_without_improvment++) {
+    for (output.number_of_iterations = 0; !parameters.info.needs_to_end(); ++output.number_of_iterations, iterations_without_improvment++) {
 
         while (solution.feasible()) {
 
             // Update best solution
             if (output.solution.cost() > solution.cost()) {
                 std::stringstream ss;
-                ss << "thread " << thread_id
-                    << ", it " << iterations
-                    << " (" << iterations_without_improvment << ")";
+                ss << "iteration " << output.number_of_iterations;
                 output.update_solution(solution, ss, parameters.info);
             }
 
@@ -325,7 +296,7 @@ void localsearch_rowweighting_2_worker(
             iterations_without_improvment = 0;
 
             // Find the best shift move.
-            SetId    s_best = -1;
+            SetId s_best = -1;
             Cost score_best = -1;
             for (SetId s: solution.sets()) {
                 if (instance.set(s).mandatory)
@@ -353,12 +324,20 @@ void localsearch_rowweighting_2_worker(
                 }
             }
             // Update sets
-            sets[s_best].timestamp = iterations;
-            sets[s_best].iterations += (iterations - sets[s_best].last_addition);
-            sets[s_best].last_removal = iterations;
+            sets[s_best].timestamp = output.number_of_iterations;
+            sets[s_best].iterations += (output.number_of_iterations - sets[s_best].last_addition);
+            sets[s_best].last_removal = output.number_of_iterations;
             // Update tabu
             s_last_removed = -1;
-            s_last_added   = -1;
+            s_last_added = -1;
+            // Update penalties.
+            for (ElementId e: instance.set(s_best).elements) {
+                if (solution.covers(e) == 0) {
+                    solution_penalties[e]++;
+                    for (SetId s: instance.element(e).sets)
+                        sets[s].score++;
+                }
+            }
             //std::cout << "it " << output.iterations
                 //<< " s_best " << s_best
                 //<< " p " << solution.penalty()
@@ -368,7 +347,7 @@ void localsearch_rowweighting_2_worker(
         }
 
         // Find the cheapest set to remove.
-        SetId    s1_best = -1;
+        SetId s1_best = -1;
         Cost score1_best = -1;
         for (SetId s: solution.sets()) {
             if (s == s_last_added
@@ -397,32 +376,39 @@ void localsearch_rowweighting_2_worker(
             }
         }
         // Update sets
-        sets[s1_best].timestamp = iterations;
-        sets[s1_best].last_removal = iterations;
-        sets[s1_best].iterations += (iterations - sets[s1_best].last_addition);
+        sets[s1_best].timestamp = output.number_of_iterations;
+        sets[s1_best].last_removal = output.number_of_iterations;
+        sets[s1_best].iterations += (output.number_of_iterations - sets[s1_best].last_addition);
         // Update tabu
         s_last_removed = s1_best;
-        //std::cout << "it " << iterations
-            //<< " s1_best " << s1_best
-            //<< " score " << score1_best
-            //<< " p " << solution.penalty()
-            //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
-            //<< " s " << solution.number_of_sets()
-            //<< std::endl;
+        // Update penalties.
+        for (ElementId e: instance.set(s1_best).elements) {
+            if (solution.covers(e) == 0) {
+                solution_penalties[e]++;
+                for (SetId s: instance.element(e).sets)
+                    sets[s].score++;
+            }
+        }
+        //std::cout << "it " << output.number_of_iterations
+        //    << " s1_best " << s1_best
+        //    << " score " << score1_best
+        //    << " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
+        //    << " s " << solution.number_of_sets()
+        //    << std::endl;
 
         // Draw randomly an uncovered element e.
         std::uniform_int_distribution<ElementId> d_e(
                 0, solution.number_of_uncovered_elements() - 1);
-        ElementId e = (solution.elements().out_begin() + d_e(generator))->first;
+        ElementId e_cur = (solution.elements().out_begin() + d_e(generator))->first;
         //std::cout << "it " << output.iterations
             //<< " e " << e
             //<< " s " << instance.element(e).sets.size()
             //<< std::endl;
 
         // Find the best set to add.
-        SetId    s2_best = -1;
+        SetId s2_best = -1;
         Cost score2_best = -1;
-        for (SetId s: instance.element(e).sets) {
+        for (SetId s: instance.element(e_cur).sets) {
             if (s == s_last_removed)
                 continue;
             if (s2_best == -1
@@ -450,48 +436,17 @@ void localsearch_rowweighting_2_worker(
             }
         }
         // Update sets
-        sets[s2_best].timestamp = iterations;
-        sets[s2_best].last_addition = iterations;
+        sets[s2_best].timestamp = output.number_of_iterations;
+        sets[s2_best].last_addition = output.number_of_iterations;
         // Update tabu
         s_last_added = s2_best;
-        //std::cout << "it " << iterations
-            //<< " s2_best " << s2_best
-            //<< " score " << score2_best
-            //<< " p " << solution.penalty()
-            //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
-            //<< " s " << solution.number_of_sets()
-            //<< std::endl;
-
-        // Update penalties: we increment the penalty of each uncovered element.
-        for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it) {
-            solution_penalties[it->first]++;
-            for (SetId s: instance.element(it->first).sets)
-                sets[s].score++;
-        }
+        //std::cout << "it " << output.number_of_iterations
+        //    << " s2_best " << s2_best
+        //    << " score " << score2_best
+        //    << " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
+        //    << " s " << solution.number_of_sets()
+        //    << std::endl;
     }
-}
-
-LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
-        Instance& instance,
-        std::mt19937_64& generator,
-        LocalSearchRowWeighting2OptionalParameters parameters)
-{
-    VER(parameters.info, "*** localsearch_rowweighting_2 ***" << std::endl);
-
-    // Instance pre-processing.
-    instance.fix_identical(parameters.info);
-    instance.compute_set_neighbors(parameters.number_of_threads, parameters.info);
-    instance.compute_components();
-
-    LocalSearchRowWeighting2Output output(instance, parameters.info);
-
-    auto seeds = optimizationtools::bob_floyd(parameters.number_of_threads, std::numeric_limits<Seed>::max(), generator);
-    std::vector<std::thread> threads;
-    for (Counter thread_id = 0; thread_id < parameters.number_of_threads; ++thread_id)
-        threads.push_back(std::thread(localsearch_rowweighting_2_worker, std::ref(instance), seeds[thread_id], parameters, std::ref(output), thread_id));
-
-    for (Counter thread_id = 0; thread_id < parameters.number_of_threads; ++thread_id)
-        threads[thread_id].join();
 
     return output.algorithm_end(parameters.info);
 }

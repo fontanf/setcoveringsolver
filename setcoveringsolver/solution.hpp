@@ -29,8 +29,6 @@ public:
     Solution& operator=(const Solution& solution);
     /** Destructor. */
     ~Solution() { }
-    /** Equality operator. */
-    bool operator==(const Solution& solution);
 
     /*
      * Getters.

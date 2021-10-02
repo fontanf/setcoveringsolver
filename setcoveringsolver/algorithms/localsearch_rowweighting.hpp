@@ -7,7 +7,7 @@ namespace setcoveringsolver
 
 struct LocalSearchRowWeightingOptionalParameters
 {
-    Counter number_of_threads = 3;
+    /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();
 };
 
@@ -20,6 +20,9 @@ struct LocalSearchRowWeightingOutput: Output
 
     LocalSearchRowWeightingOutput& algorithm_end(
             optimizationtools::Info& info);
+
+    /** Number of iterations. */
+    Counter number_of_iterations = 0;
 };
 
 LocalSearchRowWeightingOutput localsearch_rowweighting(
@@ -31,7 +34,7 @@ LocalSearchRowWeightingOutput localsearch_rowweighting(
 
 struct LocalSearchRowWeighting2OptionalParameters
 {
-    Counter number_of_threads = 3;
+    /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();
 };
 
@@ -44,6 +47,9 @@ struct LocalSearchRowWeighting2Output: Output
 
     LocalSearchRowWeighting2Output& algorithm_end(
             optimizationtools::Info& info);
+
+    /** Number of iterations. */
+    Counter number_of_iterations = 0;
 };
 
 LocalSearchRowWeighting2Output localsearch_rowweighting_2(
