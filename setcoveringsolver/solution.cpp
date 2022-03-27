@@ -90,20 +90,30 @@ std::ostream& setcoveringsolver::operator<<(std::ostream& os, const Solution& so
     return os;
 }
 
-/*********************************** Output ***********************************/
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// Output ////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 Output::Output(
         const Instance& instance,
         optimizationtools::Info& info):
     solution(instance)
 {
-    VER(info, std::left << std::setw(12) << "T (s)");
-    VER(info, std::left << std::setw(12) << "UB");
-    VER(info, std::left << std::setw(12) << "LB");
-    VER(info, std::left << std::setw(12) << "GAP");
-    VER(info, std::left << std::setw(12) << "GAP (%)");
-    VER(info, "");
-    VER(info, std::endl);
+    VER(info,
+               std::setw(12) << "T (s)"
+            << std::setw(12) << "UB"
+            << std::setw(12) << "LB"
+            << std::setw(12) << "GAP"
+            << std::setw(12) << "GAP (%)"
+            << std::setw(24) << "Comment"
+            << std::endl
+            << std::setw(12) << "-----"
+            << std::setw(12) << "--"
+            << std::setw(12) << "--"
+            << std::setw(12) << "---"
+            << std::setw(12) << "-------"
+            << std::setw(24) << "-------"
+            << std::endl);
     print(info, std::stringstream(""));
 }
 
@@ -116,12 +126,13 @@ void Output::print(
         (double)(upper_bound() - lower_bound) / lower_bound * 100;
     double t = round(info.elapsed_time() * 10000) / 10000;
 
-    VER(info, std::left << std::setw(12) << t);
-    VER(info, std::left << std::setw(12) << upper_bound());
-    VER(info, std::left << std::setw(12) << lower_bound);
-    VER(info, std::left << std::setw(12) << upper_bound() - lower_bound);
-    VER(info, std::left << std::setw(12) << gap);
-    VER(info, s.str() << std::endl);
+    VER(info,
+               std::setw(12) << t
+            << std::setw(12) << upper_bound()
+            << std::setw(12) << lower_bound
+            << std::setw(12) << upper_bound() - lower_bound
+            << std::setw(12) << gap
+            << std::setw(24) << s.str() << std::endl);
 
     if (!info.output->only_write_at_the_end)
         info.write_json_output();
@@ -216,12 +227,15 @@ Output& Output::algorithm_end(optimizationtools::Info& info)
     PUT(info, "Bound", "Value", lower_bound);
     PUT(info, "Solution", "Time", t);
     PUT(info, "Bound", "Time", t);
-    VER(info, "---" << std::endl
-            << "Value: " << upper_bound() << std::endl
-            << "Bound: " << lower_bound << std::endl
-            << "Gap: " << upper_bound() - lower_bound << std::endl
-            << "Gap (%): " << gap << std::endl
-            << "Time (s): " << t << std::endl);
+    VER(info,
+            std::endl
+            << "Final statistics" << std::endl
+            << "----------------" << std::endl
+            << "Value:                 " << upper_bound() << std::endl
+            << "Bound:                 " << lower_bound << std::endl
+            << "Gap:                   " << upper_bound() - lower_bound << std::endl
+            << "Gap (%):               " << gap << std::endl
+            << "Time (s):              " << t << std::endl);
 
     info.write_json_output();
     solution.write(info.output->certificate_path);
@@ -236,8 +250,8 @@ Cost setcoveringsolver::algorithm_end(
     PUT(info, "Bound", "Value", lower_bound);
     PUT(info, "Bound", "Time", t);
     VER(info, "---" << std::endl
-            << "Bound: " << lower_bound << std::endl
-            << "Time (s): " << t << std::endl);
+            << "Bound:                 " << lower_bound << std::endl
+            << "Time (s):              " << t << std::endl);
 
     info.write_json_output();
     return lower_bound;

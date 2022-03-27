@@ -8,7 +8,13 @@ Output setcoveringsolver::greedy(
         const Instance& instance,
         optimizationtools::Info info)
 {
-    VER(info, "*** greedy ***" << std::endl);
+    init_display(instance, info);
+    VER(info,
+               "Algorithm" << std::endl
+            << "---------" << std::endl
+            << "Greedy" << std::endl
+            << std::endl);
+
     Output output(instance, info);
     Solution solution(instance);
 
@@ -59,7 +65,13 @@ Output setcoveringsolver::greedy_lin(
         const Instance& instance,
         optimizationtools::Info info)
 {
-    VER(info, "*** greedy_lin ***" << std::endl);
+    init_display(instance, info);
+    VER(info,
+               "Algorithm" << std::endl
+            << "---------" << std::endl
+            << "Greedy Lin" << std::endl
+            << std::endl);
+
     Output output(instance, info);
     Solution solution(instance);
 
@@ -109,7 +121,13 @@ Output setcoveringsolver::greedy_dual(
         const Instance& instance,
         optimizationtools::Info info)
 {
-    VER(info, "*** greedy_dual ***" << std::endl);
+    init_display(instance, info);
+    VER(info,
+               "Algorithm" << std::endl
+            << "---------" << std::endl
+            << "Dual Greedy" << std::endl
+            << std::endl);
+
     Output output(instance, info);
     Solution solution(instance);
 

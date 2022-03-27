@@ -21,7 +21,12 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
         std::mt19937_64& generator,
         LargeNeighborhoodSearchOptionalParameters parameters)
 {
-    VER(parameters.info, "*** largeneighborhoodsearch ***" << std::endl);
+    init_display(instance, parameters.info);
+    VER(parameters.info,
+               "Algorithm" << std::endl
+            << "---------" << std::endl
+            << "Large Neighborhood Search" << std::endl
+            << std::endl);
 
     instance.fix_identical(parameters.info);
 
@@ -113,7 +118,9 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
     return output.algorithm_end(parameters.info);
 }
 
-/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 LargeNeighborhoodSearch2Output& LargeNeighborhoodSearch2Output::algorithm_end(
         optimizationtools::Info& info)
@@ -137,7 +144,12 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
         Instance& instance,
         LargeNeighborhoodSearch2OptionalParameters parameters)
 {
-    VER(parameters.info, "*** largeneighborhoodsearch_2 ***" << std::endl);
+    init_display(instance, parameters.info);
+    VER(parameters.info,
+               "Algorithm" << std::endl
+            << "---------" << std::endl
+            << "Large Neighborhood Search 2" << std::endl
+            << std::endl);
 
     instance.fix_identical(parameters.info);
     //instance.fix_dominated(parameters.info);

@@ -15,7 +15,7 @@ LocalSearchRowWeightingOutput& LocalSearchRowWeightingOutput::algorithm_end(
 {
     PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    VER(info, "Number of iterations: " << number_of_iterations << std::endl);
+    VER(info, "Number of iterations:  " << number_of_iterations << std::endl);
     return *this;
 }
 
@@ -46,7 +46,18 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
         std::mt19937_64& generator,
         LocalSearchRowWeightingOptionalParameters parameters)
 {
-    VER(parameters.info, "*** localsearch_rowweighting ***" << std::endl);
+    init_display(instance, parameters.info);
+    VER(parameters.info,
+               "Algorithm" << std::endl
+            << "---------" << std::endl
+            << "Row Weighting Local Search" << std::endl
+            //<< std::endl
+            //<< "Parameters" << std::endl
+            //<< "----------" << std::endl
+            //<< "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
+            //<< "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
+            //<< "Maximum number of improvements:                    " << parameters.maximum_number_of_improvements << std::endl
+            << std::endl);
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
@@ -88,8 +99,7 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
             if (output.solution.cost(c) > solution.cost(c)) {
                 // Update best solution
                 std::stringstream ss;
-                ss << "iteration " << output.number_of_iterations
-                    << ", component " << c;
+                ss << "it " << output.number_of_iterations << " comp " << c;
                 output.update_solution(solution, c, ss, parameters.info);
             }
             // Update statistics
@@ -196,6 +206,21 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
             sets[s1_best].last_addition = component.iterations;
             sets[s2_best].last_removal  = component.iterations;
             sets[s2_best].iterations += (component.iterations - sets[s2_best].last_addition);
+
+            // Update penalties.
+            bool reduce = false;
+            for (ElementId e: instance.set(s2_best).elements) {
+                if (solution.covers(e) == 0) {
+                    solution_penalties[e]++;
+                    if (solution_penalties[e] > std::numeric_limits<Cost>::max() / 2)
+                        reduce = true;
+                }
+            }
+            if (reduce) {
+                //std::cout << "reduce" << std::endl;
+                for (ElementId e = 0; e < instance.number_of_elements(); ++e)
+                    solution_penalties[e] = (solution_penalties[e] - 1) / 2 + 1;
+            }
         }
         // Update tabu
         component.s_last_added = s1_best;
@@ -208,21 +233,6 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
             //<< " s " << solution.number_of_sets()
             //<< std::endl;
 
-        // Update penalties.
-        bool reduce = false;
-        for (ElementId e: instance.set(s2_best).elements) {
-            if (solution.covers(e) == 0) {
-                solution_penalties[e]++;
-                if (solution_penalties[e] > std::numeric_limits<Cost>::max() / 2)
-                    reduce = true;
-            }
-        }
-        if (reduce) {
-            //std::cout << "reduce" << std::endl;
-            for (ElementId e = 0; e < instance.number_of_elements(); ++e)
-                solution_penalties[e] = (solution_penalties[e] - 1) / 2 + 1;
-        }
-
         // Update component.iterations and component.iterations_without_improvment.
         component.iterations++;
         component.iterations_without_improvment++;
@@ -231,14 +241,16 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
     return output.algorithm_end(parameters.info);
 }
 
-/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(
         optimizationtools::Info& info)
 {
     PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    VER(info, "Number of iterations: " << number_of_iterations << std::endl);
+    VER(info, "Number of iterations:  " << number_of_iterations << std::endl);
     return *this;
 }
 
@@ -256,7 +268,18 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         std::mt19937_64& generator,
         LocalSearchRowWeighting2OptionalParameters parameters)
 {
-    VER(parameters.info, "*** localsearch_rowweighting_2 ***" << std::endl);
+    init_display(instance, parameters.info);
+    VER(parameters.info,
+               "Algorithm" << std::endl
+            << "---------" << std::endl
+            << "Row Weighting Local Search 2" << std::endl
+            //<< std::endl
+            //<< "Parameters" << std::endl
+            //<< "----------" << std::endl
+            //<< "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
+            //<< "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
+            //<< "Maximum number of improvements:                    " << parameters.maximum_number_of_improvements << std::endl
+            << std::endl);
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
@@ -281,7 +304,9 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
     SetId s_last_added = -1;
 
     Counter iterations_without_improvment = 0;
-    for (output.number_of_iterations = 0; !parameters.info.needs_to_end(); ++output.number_of_iterations, iterations_without_improvment++) {
+    for (output.number_of_iterations = 0;
+            !parameters.info.needs_to_end();
+            ++output.number_of_iterations, iterations_without_improvment++) {
 
         while (solution.feasible()) {
 

@@ -61,7 +61,12 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
         const Instance& instance, MilpGurobiOptionalParameters p)
 {
     GRBEnv env;
-    VER(p.info, "*** milp_gurobi ***" << std::endl);
+    init_display(instance, parameters.info);
+    VER(parameters.info,
+               "Algorithm" << std::endl
+            << "---------" << std::endl
+            << "MILP (Gurobi)" << std::endl
+            << std::endl);
 
     MilpGurobiOutput output(instance, p.info);
 

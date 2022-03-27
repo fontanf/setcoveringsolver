@@ -1,289 +1,289 @@
-Path,Format,Options,Dataset,Unicost,Set number,Element number,Arc number,Coefficient of variation of cost,Arc number / Line number,Arc number / Set number,Density,Best known solution value,Optimum,Best known bound
-gecco2020/AC_01_cover.txt,gecco2020,,gecco2020_AC,1,605,2904,145188,0,240,50,8.26,7,7,7
-gecco2020/AC_02_cover.txt,gecco2020,,gecco2020_AC,1,2205,10584,1456440,0,661,138,6.24,4,4,4
-gecco2020/AC_03_cover.txt,gecco2020,,gecco2020_AC,1,4805,23064,6545420,0,1362,284,5.91,3,3,3
-gecco2020/AC_04_cover.txt,gecco2020,,gecco2020_AC,1,8405,40344,16858980,0,2006,418,4.97,5,5,5
-gecco2020/AC_05_cover.txt,gecco2020,,gecco2020_AC,1,13005,62424,31814340,0,2446,510,3.92,7,7,7
-gecco2020/AC_06_cover.txt,gecco2020,,gecco2020_AC,1,18605,89304,51402500,0,2763,576,3.09,10,,9
-gecco2020/AC_07_cover.txt,gecco2020,,gecco2020_AC,1,32805,157464,104477220,0,3185,663,2.02,17,,12
-gecco2020/AC_08_cover.txt,gecco2020,,gecco2020_AC,1,51005,244824,176083140,0,3452,719,1.41,25,,1
-gecco2020/AC_09_cover.txt,gecco2020,,gecco2020_AC,1,73205,351384,266220260,0,3637,758,1.03,36,,1
-gecco2020/AC_10_cover.txt,gecco2020,,gecco2020_AC,1,605,2904,93012,0,154,32,5.29,20,,18
-gecco2020/AC_11_cover.txt,gecco2020,,gecco2020_AC,1,2205,10584,412892,0,187,39,1.77,64,,54
-gecco2020/AC_12_cover.txt,gecco2020,,gecco2020_AC,1,4805,23064,960772,0,200,42,0.87,136,,1
-gecco2020/AC_13_cover.txt,gecco2020,,gecco2020_AC,1,8405,40344,1736652,0,207,43,0.51,232,,1
-gecco2020/AC_14_cover.txt,gecco2020,,gecco2020_AC,1,13005,62424,2740532,0,211,44,0.34,353,,1
-gecco2020/AC_15_cover.txt,gecco2020,,gecco2020_AC,1,18605,89304,3972412,0,214,44,0.24,501,,1
-gecco2020/AC_16_cover.txt,gecco2020,,gecco2020_AC,1,32805,157464,7120172,0,217,45,0.14,868,,1
-gecco2020/AC_17_cover.txt,gecco2020,,gecco2020_AC,1,51005,244824,11179932,0,219,46,0.09,1334,,1
-gecco2020/AC_18_cover.txt,gecco2020,,gecco2020_AC,1,73205,351384,16151692,0,221,46,0.06,1906,,1
-gecco2020/AC_19_cover.txt,gecco2020,,gecco2020_AC,1,99405,477144,22035452,0,222,46,0.05,2571,,1
-gecco2020/AC_20_cover.txt,gecco2020,,gecco2020_AC,1,129605,622104,28831212,0,222,46,0.04,3335,,1
-gecco2020/AC_21_cover.txt,gecco2020,,gecco2020_AC,1,163805,786264,36538972,0,223,46,0.03,4211,,1
-gecco2020/AC_22_cover.txt,gecco2020,,gecco2020_AC,1,202005,969624,45158732,0,224,47,0.02,5175,,1
-gecco2020/AC_23_cover.txt,gecco2020,,gecco2020_AC,1,244205,1172184,54690492,0,224,47,0.02,6237,,1
-gecco2020/AC_24_cover.txt,gecco2020,,gecco2020_AC,1,290405,1393944,65134252,0,224,47,0.02,7415,,1
-gecco2020/AC_25_cover.txt,gecco2020,,gecco2020_AC,1,340605,1634904,76490012,0,225,47,0.01,8686,,1
-gecco2020/AC_26_cover.txt,gecco2020,,gecco2020_AC,1,394805,1895064,88757772,0,225,47,0.01,10039,,1
-gecco2020/AC_27_cover.txt,gecco2020,,gecco2020_AC,1,453005,2174424,101937532,0,225,47,0.01,11520,,1
-gecco2020/AC_28_cover.txt,gecco2020,,gecco2020_AC,1,515205,2472984,116029292,0,225,47,0.01,13096,,1
-gecco2020/AC_29_cover.txt,gecco2020,,gecco2020_AC,1,581405,2790744,131033052,0,225,47,0.01,14740,,1
-gecco2020/AC_30_cover.txt,gecco2020,,gecco2020_AC,1,651605,3127704,146948812,0,226,47,0.01,16524,,1
-gecco2020/AC_31_cover.txt,gecco2020,,gecco2020_AC,1,725805,3483864,163776572,0,226,47,0.01,18400,,1
-gecco2020/AC_32_cover.txt,gecco2020,,gecco2020_AC,1,804005,3859224,181516332,0,226,47,0.01,20342,,1
-gecco2020/RW_01_cover.txt,gecco2020,,gecco2020_RW,1,153368,32430,9153546,0,60,282,0.18,664,,658
-gecco2020/RW_02_cover.txt,gecco2020,,gecco2020_RW,1,285698,56132,28374316,0,99,505,0.18,736,,728
-gecco2020/RW_03_cover.txt,gecco2020,,gecco2020_RW,1,161099,32040,9451992,0,59,295,0.18,745,,743
-gecco2020/RW_04_cover.txt,gecco2020,,gecco2020_RW,1,304655,59137,30753191,0,101,520,0.17,832,,826
-gecco2020/RW_05_cover.txt,gecco2020,,gecco2020_RW,1,206900,34568,10064379,0,49,291,0.14,934,934,934
-gecco2020/RW_06_cover.txt,gecco2020,,gecco2020_RW,1,380420,65691,33098232,0,87,504,0.13,938,,928
-gecco2020/RW_07_cover.txt,gecco2020,,gecco2020_RW,1,214889,42046,11649721,0,54,277,0.13,989,,984
-gecco2020/RW_08_cover.txt,gecco2020,,gecco2020_RW,1,382651,77986,37372050,0,98,479,0.13,1025,,1017
-gecco2020/RW_09_cover.txt,gecco2020,,gecco2020_RW,1,206816,39003,11027344,0,53,283,0.14,965,,962
-gecco2020/RW_10_cover.txt,gecco2020,,gecco2020_RW,1,368114,71323,34928530,0,95,490,0.13,1034,,1023
-gecco2020/RW_11_cover.txt,gecco2020,,gecco2020_RW,1,82437,15632,5051555,0,61,323,0.39,316,,314
-gecco2020/RW_12_cover.txt,gecco2020,,gecco2020_RW,1,136555,28109,15352218,0,112,546,0.4,320,,315
-gecco2020/RW_13_cover.txt,gecco2020,,gecco2020_RW,1,293138,61741,17260957,0,59,280,0.1,1299,,1290
-gecco2020/RW_14_cover.txt,gecco2020,,gecco2020_RW,1,81062,14916,4663155,0,58,313,0.39,337,,336
-gecco2020/RW_15_cover.txt,gecco2020,,gecco2020_RW,1,141309,27008,14642346,0,104,542,0.38,341,341,341
-gecco2020/RW_16_cover.txt,gecco2020,,gecco2020_RW,1,105829,21063,5255090,0,50,249,0.24,508,,506
-gecco2020/RW_17_cover.txt,gecco2020,,gecco2020_RW,1,180453,35635,14921112,0,83,419,0.23,516,,514
-gecco2020/RW_18_cover.txt,gecco2020,,gecco2020_RW,1,79947,14423,4449592,0,56,309,0.39,338,338,338
-gecco2020/RW_19_cover.txt,gecco2020,,gecco2020_RW,1,141114,26483,13664059,0,97,516,0.37,347,,345
-gecco2020/RW_20_cover.txt,gecco2020,,gecco2020_RW,1,332300,50284,15364999,0,46,306,0.09,1466,,1459
-gecco2020/RW_21_cover.txt,gecco2020,,gecco2020_RW,1,654068,90050,47381508,0,72,526,0.08,1580,,1568
-gecco2020/RW_22_cover.txt,gecco2020,,gecco2020_RW,1,83835,17203,4246199,0,51,247,0.29,398,398,398
-gecco2020/RW_23_cover.txt,gecco2020,,gecco2020_RW,1,142326,31038,12594607,0,88,406,0.29,417,,414
-gecco2020/RW_24_cover.txt,gecco2020,,gecco2020_RW,1,201967,33880,9870162,0,49,291,0.14,886,,880
-gecco2020/RW_25_cover.txt,gecco2020,,gecco2020_RW,1,375680,59851,29719129,0,79,497,0.13,950,,945
-gecco2020/RW_26_cover.txt,gecco2020,,gecco2020_RW,1,105566,18043,5089293,0,48,282,0.27,464,464,464
-gecco2020/RW_27_cover.txt,gecco2020,,gecco2020_RW,1,181090,32669,15037239,0,83,460,0.25,489,,488
-gecco2020/RW_28_cover.txt,gecco2020,,gecco2020_RW,1,136755,27838,7139876,0,52,256,0.19,648,,645
-gecco2020/RW_29_cover.txt,gecco2020,,gecco2020_RW,1,273964,49267,22836363,0,83,464,0.17,741,,738
-gecco2020/RW_30_cover.txt,gecco2020,,gecco2020_RW,1,263518,49354,15774385,0,60,320,0.12,1095,,1086
-gecco2020/RW_31_cover.txt,gecco2020,,gecco2020_RW,1,472660,87248,48428414,0,102,555,0.12,1198,,1186
-gecco2020/RW_32_cover.txt,gecco2020,,gecco2020_RW,1,124289,30189,6284592,0,51,208,0.17,651,,648
-gecco2020/RW_33_cover.txt,gecco2020,,gecco2020_RW,1,229231,55000,19624881,0,86,357,0.16,719,,712
-gecco2020/RW_34_cover.txt,gecco2020,,gecco2020_RW,1,134479,27329,7575103,0,56,277,0.21,609,,606
-gecco2020/RW_35_cover.txt,gecco2020,,gecco2020_RW,1,238546,47590,23342131,0,98,490,0.21,668,,663
-gecco2020/RW_36_cover.txt,gecco2020,,gecco2020_RW,1,135043,28162,7789603,0,58,277,0.2,609,,607
-gecco2020/RW_37_cover.txt,gecco2020,,gecco2020_RW,1,238492,50702,24109613,0,101,476,0.2,644,,640
-balas1980/scp41.txt,orlibrary,,balas1980,0,200,1000,4009,59.22,20,4,2,429,429,429
-balas1980/scp42.txt,orlibrary,,balas1980,0,200,1000,3982,57.29,20,4,1.99,512,512,512
-balas1980/scp43.txt,orlibrary,,balas1980,0,200,1000,3984,57.92,20,4,1.99,516,516,516
-balas1980/scp44.txt,orlibrary,,balas1980,0,200,1000,4009,58.39,20,4,2,494,494,494
-balas1980/scp45.txt,orlibrary,,balas1980,0,200,1000,3939,57.92,20,4,1.97,512,512,512
-balas1980/scp46.txt,orlibrary,,balas1980,0,200,1000,4083,56.07,20,4,2.04,560,560,560
-balas1980/scp47.txt,orlibrary,,balas1980,0,200,1000,3920,58.43,20,4,1.96,430,430,430
-balas1980/scp48.txt,orlibrary,,balas1980,0,200,1000,4017,55.29,20,4,2.01,492,492,492
-balas1980/scp49.txt,orlibrary,,balas1980,0,200,1000,3955,55.47,20,4,1.98,641,641,641
-balas1980/scp410.txt,orlibrary,,balas1980,0,200,1000,3905,58.06,20,4,1.95,514,514,514
-balas1980/scp51.txt,orlibrary,,balas1980,0,200,2000,7995,57.6,40,4,2,253,253,253
-balas1980/scp52.txt,orlibrary,,balas1980,0,200,2000,7997,56.11,40,4,2,302,302,302
-balas1980/scp53.txt,orlibrary,,balas1980,0,200,2000,8015,59.34,40,4,2,226,226,226
-balas1980/scp54.txt,orlibrary,,balas1980,0,200,2000,7935,59.35,40,4,1.98,242,242,242
-balas1980/scp55.txt,orlibrary,,balas1980,0,200,2000,7855,58.07,39,4,1.96,211,211,211
-balas1980/scp56.txt,orlibrary,,balas1980,0,200,2000,7995,56.87,40,4,2,213,213,213
-balas1980/scp57.txt,orlibrary,,balas1980,0,200,2000,8058,55.8,40,4,2.01,293,293,293
-balas1980/scp58.txt,orlibrary,,balas1980,0,200,2000,7921,56.58,40,4,1.98,288,288,288
-balas1980/scp59.txt,orlibrary,,balas1980,0,200,2000,7871,56.84,39,4,1.97,279,279,279
-balas1980/scp510.txt,orlibrary,,balas1980,0,200,2000,8001,56.58,40,4,2,265,265,265
-balas1980/scp61.txt,orlibrary,,balas1980,0,200,1000,9836,59.22,49,10,4.92,138,138,138
-balas1980/scp62.txt,orlibrary,,balas1980,0,200,1000,10002,57.29,50,10,5,146,146,146
-balas1980/scp63.txt,orlibrary,,balas1980,0,200,1000,9922,57.92,50,10,4.96,145,145,145
-balas1980/scp64.txt,orlibrary,,balas1980,0,200,1000,9857,58.39,49,10,4.93,131,131,131
-balas1980/scp65.txt,orlibrary,,balas1980,0,200,1000,9943,57.92,50,10,4.97,161,161,161
-beasley1987/scpa1.txt,orlibrary,,beasley1987,0,300,3000,18091,56.75,60,6,2.01,253,253,253
-beasley1987/scpa2.txt,orlibrary,,beasley1987,0,300,3000,18073,56.44,60,6,2.01,252,252,252
-beasley1987/scpa3.txt,orlibrary,,beasley1987,0,300,3000,18077,58.4,60,6,2.01,232,232,232
-beasley1987/scpa4.txt,orlibrary,,beasley1987,0,300,3000,18084,57.16,60,6,2.01,234,234,234
-beasley1987/scpa5.txt,orlibrary,,beasley1987,0,300,3000,18072,57.89,60,6,2.01,236,236,236
-beasley1987/scpb1.txt,orlibrary,,beasley1987,0,300,3000,44921,56.79,150,15,4.99,69,69,69
-beasley1987/scpb2.txt,orlibrary,,beasley1987,0,300,3000,44869,57.21,150,15,4.99,76,76,76
-beasley1987/scpb3.txt,orlibrary,,beasley1987,0,300,3000,44906,56.34,150,15,4.99,80,80,80
-beasley1987/scpb4.txt,orlibrary,,beasley1987,0,300,3000,44893,58.02,150,15,4.99,79,79,79
-beasley1987/scpb5.txt,orlibrary,,beasley1987,0,300,3000,44883,57.09,150,15,4.99,72,72,72
-beasley1987/scpc1.txt,orlibrary,,beasley1987,0,400,4000,32041,56.27,80,8,2,227,227,227
-beasley1987/scpc2.txt,orlibrary,,beasley1987,0,400,4000,31954,57.89,80,8,2,219,219,219
-beasley1987/scpc3.txt,orlibrary,,beasley1987,0,400,4000,31969,55.84,80,8,2,243,243,243
-beasley1987/scpc4.txt,orlibrary,,beasley1987,0,400,4000,31971,57.4,80,8,2,219,219,219
-beasley1987/scpc5.txt,orlibrary,,beasley1987,0,400,4000,31955,56.67,80,8,2,215,215,215
-beasley1987/scpd1.txt,orlibrary,,beasley1987,0,400,4000,80143,57.3,200,20,5.01,60,60,60
-beasley1987/scpd2.txt,orlibrary,,beasley1987,0,400,4000,80105,58.04,200,20,5.01,66,66,66
-beasley1987/scpd3.txt,orlibrary,,beasley1987,0,400,4000,80163,56.13,200,20,5.01,72,72,72
-beasley1987/scpd4.txt,orlibrary,,beasley1987,0,400,4000,80034,57.48,200,20,5,62,62,62
-beasley1987/scpd5.txt,orlibrary,,beasley1987,0,400,4000,80072,56.74,200,20,5,61,61,61
-beasley1987/scpe1.txt,orlibrary,,beasley1987,0,50,500,4914,0,98,10,19.66,5,5,5
-beasley1987/scpe2.txt,orlibrary,,beasley1987,0,50,500,5013,0,100,10,20.05,5,5,5
-beasley1987/scpe3.txt,orlibrary,,beasley1987,0,50,500,5040,0,101,10,20.16,5,5,5
-beasley1987/scpe4.txt,orlibrary,,beasley1987,0,50,500,4952,0,99,10,19.81,5,5,5
-beasley1987/scpe5.txt,orlibrary,,beasley1987,0,50,500,5017,0,100,10,20.07,5,5,5
-beasley1990/scpnre1.txt,orlibrary,,beasley1990,0,500,5000,249448,55.82,499,50,9.98,29,29,29
-beasley1990/scpnre2.txt,orlibrary,,beasley1990,0,500,5000,249367,57.3,499,50,9.97,30,,28
-beasley1990/scpnre3.txt,orlibrary,,beasley1990,0,500,5000,249371,57.34,499,50,9.97,27,27,27
-beasley1990/scpnre4.txt,orlibrary,,beasley1990,0,500,5000,249341,57.55,499,50,9.97,28,28,28
-beasley1990/scpnre5.txt,orlibrary,,beasley1990,0,500,5000,249393,57.74,499,50,9.98,28,28,28
-beasley1990/scpnrf1.txt,orlibrary,,beasley1990,0,500,5000,499314,58.12,999,100,19.97,14,14,14
-beasley1990/scpnrf2.txt,orlibrary,,beasley1990,0,500,5000,499275,56.99,999,100,19.97,15,15,15
-beasley1990/scpnrf3.txt,orlibrary,,beasley1990,0,500,5000,499250,57.45,999,100,19.97,14,14,14
-beasley1990/scpnrf4.txt,orlibrary,,beasley1990,0,500,5000,499302,57.05,999,100,19.97,14,14,14
-beasley1990/scpnrf5.txt,orlibrary,,beasley1990,0,500,5000,499336,56.11,999,100,19.97,13,13,13
-beasley1990/scpnrg1.txt,orlibrary,,beasley1990,0,1000,10000,199471,56.95,199,20,1.99,176,,165
-beasley1990/scpnrg2.txt,orlibrary,,beasley1990,0,1000,10000,199451,57.72,199,20,1.99,154,,147
-beasley1990/scpnrg3.txt,orlibrary,,beasley1990,0,1000,10000,199498,57.5,199,20,1.99,166,,153
-beasley1990/scpnrg4.txt,orlibrary,,beasley1990,0,1000,10000,199456,56.47,199,20,1.99,168,,154
-beasley1990/scpnrg5.txt,orlibrary,,beasley1990,0,1000,10000,199450,57.05,199,20,1.99,168,,153
-beasley1990/scpnrh1.txt,orlibrary,,beasley1990,0,1000,10000,499163,57.22,499,50,4.99,63,,52
-beasley1990/scpnrh2.txt,orlibrary,,beasley1990,0,1000,10000,499167,56.53,499,50,4.99,63,,52
-beasley1990/scpnrh3.txt,orlibrary,,beasley1990,0,1000,10000,499126,57.36,499,50,4.99,59,,48
-beasley1990/scpnrh4.txt,orlibrary,,beasley1990,0,1000,10000,499149,57.38,499,50,4.99,58,,47
-beasley1990/scpnrh5.txt,orlibrary,,beasley1990,0,1000,10000,499179,57.51,499,50,4.99,55,,46
-grossman1997/scpclr10.txt,orlibrary,,grossman1997_clr,1,511,210,13230,0,26,63,12.33,25,25,25
-grossman1997/scpclr11.txt,orlibrary,,grossman1997_clr,1,1023,330,41910,0,41,127,12.41,23,,1
-grossman1997/scpclr12.txt,orlibrary,,grossman1997_clr,1,2047,495,126225,0,62,255,12.46,23,,1
-grossman1997/scpclr13.txt,orlibrary,,grossman1997_clr,1,4095,715,365365,0,89,511,12.48,23,,1
-grossman1997/scpcyc06.txt,orlibrary,,grossman1997_cyc,1,240,192,960,0,4,5,2.08,60,,1
-grossman1997/scpcyc07.txt,orlibrary,,grossman1997_cyc,1,672,448,2688,0,4,6,0.89,144,,1
-grossman1997/scpcyc08.txt,orlibrary,,grossman1997_cyc,1,1792,1024,7168,0,4,7,0.39,342,,1
-grossman1997/scpcyc09.txt,orlibrary,,grossman1997_cyc,1,4608,2304,18432,0,4,8,0.17,772,,1
-grossman1997/scpcyc10.txt,orlibrary,,grossman1997_cyc,1,11520,5120,46080,0,4,9,0.08,1798,,1
-grossman1997/scpcyc11.txt,orlibrary,,grossman1997_cyc,1,28160,11264,112640,0,4,10,0.04,3968,,1
-faster1994/rail507.txt,faster1994,,faster1994,0,507,63009,409349,11.93,807,6,1.28,174,174,174
-faster1994/rail516.txt,faster1994,,faster1994,0,516,47311,314896,10.23,610,7,1.29,182,182,182
-faster1994/rail582.txt,faster1994,,faster1994,0,582,55515,401708,11.06,690,7,1.24,211,211,211
-faster1994/rail2536.txt,faster1994,,faster1994,0,2536,1081841,10993311,6.2,4335,10,0.4,691,,685
-faster1994/rail2586.txt,faster1994,,faster1994,0,2586,920683,8008776,10.5,3097,9,0.34,947,,937
-faster1994/rail4284.txt,faster1994,,faster1994,0,4284,1092610,11279748,12.28,2633,10,0.24,1065,,1051
-faster1994/rail4872.txt,faster1994,,faster1994,0,4872,968672,9244093,12.87,1897,10,0.2,1534,,1509
-balas1996/bus1.inp,balas1996,,balas1996,0,454,2241,19193,12.97,42,9,1.89,27947,27947,27947
-balas1996/bus2.inp,balas1996,,balas1996,0,681,9524,32763,11.47,48,3,0.51,67760,67760,67760
-balas1996/aa03.inp,balas1996,,balas1996,0,106,8661,37253,25.8,351,4,4.06,33155,33155,33155
-balas1996/aa04.inp,balas1996,,balas1996,0,106,8002,34390,25.92,324,4,4.05,34573,34573,34573
-balas1996/aa05.inp,balas1996,,balas1996,0,105,7435,31984,26.39,305,4,4.1,31623,31623,31623
-balas1996/aa06.inp,balas1996,,balas1996,0,105,6951,30056,26.1,286,4,4.12,37464,37464,37464
-balas1996/aa11.inp,balas1996,,balas1996,0,271,4413,30343,26.95,112,7,2.54,35384,35384,35384
-balas1996/aa12.inp,balas1996,,balas1996,0,272,4208,28947,27.16,106,7,2.53,30809,30809,30809
-balas1996/aa13.inp,balas1996,,balas1996,0,265,4025,27773,27.79,105,7,2.6,33211,33211,33211
-balas1996/aa14.inp,balas1996,,balas1996,0,266,3868,26664,27.34,100,7,2.59,33219,33219,33219
-balas1996/aa15.inp,balas1996,,balas1996,0,267,3701,25587,26.9,96,7,2.59,34409,34409,34409
-balas1996/aa16.inp,balas1996,,balas1996,0,265,3558,24821,26.56,94,7,2.63,32752,32752,32752
-balas1996/aa17.inp,balas1996,,balas1996,0,264,3425,23653,27.85,90,7,2.62,31612,31612,31612
-balas1996/aa18.inp,balas1996,,balas1996,0,271,3314,22924,28.16,85,7,2.55,36782,36782,36782
-balas1996/aa19.inp,balas1996,,balas1996,0,263,3202,22178,28.01,84,7,2.63,32317,32317,32317
-balas1996/aa20.inp,balas1996,,balas1996,0,269,3095,21534,26.78,80,7,2.59,34912,34912,34912
-fulkerson1974/data.9,sts,,fulkerson1974,1,12,9,36,0,3,4,33.33,12,,1
-fulkerson1974/data.15,sts,,fulkerson1974,1,35,15,105,0,3,7,20,35,,1
-fulkerson1974/data.27,sts,,fulkerson1974,1,117,27,351,0,3,13,11.11,117,,1
-fulkerson1974/data.45,sts,,fulkerson1974,1,330,45,990,0,3,22,6.67,330,,1
-fulkerson1974/data.81,sts,,fulkerson1974,1,1080,81,3240,0,3,40,3.7,1080,,1
-fulkerson1974/data.135,sts,,fulkerson1974,1,3015,135,9045,0,3,67,2.22,3015,,1
-fulkerson1974/data.243,sts,,fulkerson1974,1,9801,243,29403,0,3,121,1.23,9801,,1
-fulkerson1974/data.405,sts,,fulkerson1974,1,27270,405,81810,0,3,202,0.74,198,,1
-fulkerson1974/data.729,sts,,fulkerson1974,1,88452,729,265356,0,3,364,0.41,335,,1
-fulkerson1974/data.1215,sts,,fulkerson1974,1,245835,1215,737505,0,3,607,0.25,617,,1
-fulkerson1974/data.2187,sts,,fulkerson1974,1,796797,2187,2390391,0,3,1093,0.14,1063,,1
-wedelin1995/a320.dat,wedelin1995,,wedelin1995,0,199,6931,31801,350.1,160,5,2.31,12620100,12620100,12620100
-wedelin1995/a320_coc.dat,wedelin1995,,wedelin1995,0,235,18753,82229,246.19,350,4,1.87,14495500,14495500,14495500
-wedelin1995/alitalia.dat,wedelin1995,,wedelin1995,0,118,1165,4155,70.82,35,4,3.02,27258300,27258300,27258300
-wedelin1995/b727.dat,wedelin1995,,wedelin1995,0,29,157,372,45.69,13,2,8.17,94400,94400,94400
-wedelin1995/sasd9imp2.dat,wedelin1995,,wedelin1995,0,1366,25032,110881,45.79,81,4,0.32,5262040,5262040,5262040
-wedelin1995/sasjump.dat,wedelin1995,,wedelin1995,0,742,10370,42695,33.43,58,4,0.55,7338844,7338844,7338844
-balas1980/scp41.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,4009,0,20,4,2,38,,1
-balas1980/scp42.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3982,0,20,4,1.99,37,,1
-balas1980/scp43.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3984,0,20,4,1.99,38,,1
-balas1980/scp44.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,4009,0,20,4,2,38,,1
-balas1980/scp45.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3939,0,20,4,1.97,38,,1
-balas1980/scp46.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,4083,0,20,4,2.04,37,,1
-balas1980/scp47.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3920,0,20,4,1.96,38,,1
-balas1980/scp48.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,4017,0,20,4,2.01,37,,1
-balas1980/scp49.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3955,0,20,4,1.98,38,,1
-balas1980/scp410.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3905,0,20,4,1.95,38,,1
-balas1980/scp51.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7995,0,40,4,2,34,,1
-balas1980/scp52.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7997,0,40,4,2,34,,1
-balas1980/scp53.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,8015,0,40,4,2,34,,1
-balas1980/scp54.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7935,0,40,4,1.98,34,,1
-balas1980/scp55.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7855,0,39,4,1.96,34,,1
-balas1980/scp56.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7995,0,40,4,2,34,,1
-balas1980/scp57.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,8058,0,40,4,2.01,34,,1
-balas1980/scp58.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7921,0,40,4,1.98,34,,1
-balas1980/scp59.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7871,0,39,4,1.97,35,,1
-balas1980/scp510.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,8001,0,40,4,2,34,,1
-balas1980/scp61.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,9836,0,49,10,4.92,21,,1
-balas1980/scp62.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,10002,0,50,10,5,20,,1
-balas1980/scp63.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,9922,0,50,10,4.96,21,,1
-balas1980/scp64.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,9857,0,49,10,4.93,20,,1
-balas1980/scp65.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,9943,0,50,10,4.97,21,,1
-beasley1987/scpa1.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18091,0,60,6,2.01,38,,1
-beasley1987/scpa2.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18073,0,60,6,2.01,38,,1
-beasley1987/scpa3.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18077,0,60,6,2.01,38,,1
-beasley1987/scpa4.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18084,0,60,6,2.01,37,,1
-beasley1987/scpa5.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18072,0,60,6,2.01,38,,1
-beasley1987/scpb1.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44921,0,150,15,4.99,22,,1
-beasley1987/scpb2.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44869,0,150,15,4.99,22,,1
-beasley1987/scpb3.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44906,0,150,15,4.99,22,,1
-beasley1987/scpb4.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44893,0,150,15,4.99,22,,1
-beasley1987/scpb5.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44883,0,150,15,4.99,22,,1
-beasley1987/scpc1.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,32041,0,80,8,2,43,,1
-beasley1987/scpc2.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,31954,0,80,8,2,43,,1
-beasley1987/scpc3.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,31969,0,80,8,2,43,,1
-beasley1987/scpc4.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,31971,0,80,8,2,43,,1
-beasley1987/scpc5.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,31955,0,80,8,2,43,,1
-beasley1987/scpd1.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80143,0,200,20,5.01,24,,1
-beasley1987/scpd2.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80105,0,200,20,5.01,24,,1
-beasley1987/scpd3.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80163,0,200,20,5.01,24,,1
-beasley1987/scpd4.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80034,0,200,20,5,25,,1
-beasley1987/scpd5.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80072,0,200,20,5,24,,11
-beasley1987/scpe1.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,4914,0,98,10,19.66,5,,1
-beasley1987/scpe2.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,5013,0,100,10,20.05,5,,1
-beasley1987/scpe3.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,5040,0,101,10,20.16,5,,1
-beasley1987/scpe4.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,4952,0,99,10,19.81,5,,1
-beasley1987/scpe5.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,5017,0,100,10,20.07,5,,1
-beasley1990/scpnre1.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249448,0,499,50,9.98,16,,1
-beasley1990/scpnre2.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249367,0,499,50,9.97,17,,1
-beasley1990/scpnre3.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249371,0,499,50,9.97,17,,1
-beasley1990/scpnre4.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249341,0,499,50,9.97,16,,1
-beasley1990/scpnre5.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249393,0,499,50,9.98,17,,1
-beasley1990/scpnrf1.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499314,0,999,100,19.97,10,,1
-beasley1990/scpnrf2.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499275,0,999,100,19.97,10,,1
-beasley1990/scpnrf3.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499250,0,999,100,19.97,10,,1
-beasley1990/scpnrf4.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499302,0,999,100,19.97,10,,1
-beasley1990/scpnrf5.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499336,0,999,100,19.97,10,,1
-beasley1990/scpnrg1.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199471,0,199,20,1.99,61,,1
-beasley1990/scpnrg2.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199451,0,199,20,1.99,62,,1
-beasley1990/scpnrg3.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199498,0,199,20,1.99,62,,1
-beasley1990/scpnrg4.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199456,0,199,20,1.99,62,,1
-beasley1990/scpnrg5.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199450,0,199,20,1.99,62,,1
-beasley1990/scpnrh1.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499163,0,499,50,4.99,34,,1
-beasley1990/scpnrh2.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499167,0,499,50,4.99,34,,1
-beasley1990/scpnrh3.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499126,0,499,50,4.99,34,,1
-beasley1990/scpnrh4.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499149,0,499,50,4.99,34,,1
-beasley1990/scpnrh5.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499179,0,499,50,4.99,34,,1
-faster1994/rail507.txt,faster1994,--unicost,faster1994 unicost,1,507,63009,409349,0,807,6,1.28,96,96,96
-faster1994/rail516.txt,faster1994,--unicost,faster1994 unicost,1,516,47311,314896,0,610,7,1.29,134,134,134
-faster1994/rail582.txt,faster1994,--unicost,faster1994 unicost,1,582,55515,401708,0,690,7,1.24,125,125,125
-faster1994/rail2536.txt,faster1994,--unicost,faster1994 unicost,1,2536,1081841,10993311,0,4335,10,0.4,378,,1
-faster1994/rail2586.txt,faster1994,--unicost,faster1994 unicost,1,2586,920683,8008776,0,3097,9,0.34,518,,1
-faster1994/rail4284.txt,faster1994,--unicost,faster1994 unicost,1,4284,1092610,11279748,0,2633,10,0.24,594,,1
-faster1994/rail4872.txt,faster1994,--unicost,faster1994 unicost,1,4872,968672,9244093,0,1897,10,0.2,879,,1
-balas1996/bus1.inp,balas1996,--unicost,balas1996 unicost,1,454,2241,19193,0,42,9,1.89,68,68,68
-balas1996/bus2.inp,balas1996,--unicost,balas1996 unicost,1,681,9524,32763,0,48,3,0.51,207,207,207
-balas1996/aa03.inp,balas1996,--unicost,balas1996 unicost,1,106,8661,37253,0,351,4,4.06,28,28,28
-balas1996/aa04.inp,balas1996,--unicost,balas1996 unicost,1,106,8002,34390,0,324,4,4.05,30,30,30
-balas1996/aa05.inp,balas1996,--unicost,balas1996 unicost,1,105,7435,31984,0,305,4,4.1,29,29,29
-balas1996/aa06.inp,balas1996,--unicost,balas1996 unicost,1,105,6951,30056,0,286,4,4.12,29,29,29
-balas1996/aa11.inp,balas1996,--unicost,balas1996 unicost,1,271,4413,30343,0,112,7,2.54,56,56,56
-balas1996/aa12.inp,balas1996,--unicost,balas1996 unicost,1,272,4208,28947,0,106,7,2.53,52,52,52
-balas1996/aa13.inp,balas1996,--unicost,balas1996 unicost,1,265,4025,27773,0,105,7,2.6,54,54,54
-balas1996/aa14.inp,balas1996,--unicost,balas1996 unicost,1,266,3868,26664,0,100,7,2.59,55,55,55
-balas1996/aa15.inp,balas1996,--unicost,balas1996 unicost,1,267,3701,25587,0,96,7,2.59,56,56,56
-balas1996/aa16.inp,balas1996,--unicost,balas1996 unicost,1,265,3558,24821,0,94,7,2.63,53,53,53
-balas1996/aa17.inp,balas1996,--unicost,balas1996 unicost,1,264,3425,23653,0,90,7,2.62,52,52,52
-balas1996/aa18.inp,balas1996,--unicost,balas1996 unicost,1,271,3314,22924,0,85,7,2.55,58,58,58
-balas1996/aa19.inp,balas1996,--unicost,balas1996 unicost,1,263,3202,22178,0,84,7,2.63,53,53,53
-balas1996/aa20.inp,balas1996,--unicost,balas1996 unicost,1,269,3095,21534,0,80,7,2.59,56,56,56
-wedelin1995/a320.dat,wedelin1995,--unicost,wedelin1995 unicost,1,199,6931,31801,0,160,5,2.31,70,70,70
-wedelin1995/a320_coc.dat,wedelin1995,--unicost,wedelin1995 unicost,1,235,18753,82229,0,350,4,1.87,70,70,70
-wedelin1995/alitalia.dat,wedelin1995,--unicost,wedelin1995 unicost,1,118,1165,4155,0,35,4,3.02,59,59,59
-wedelin1995/b727.dat,wedelin1995,--unicost,wedelin1995 unicost,1,29,157,372,0,13,2,8.17,11,11,11
-wedelin1995/sasd9imp2.dat,wedelin1995,--unicost,wedelin1995 unicost,1,1366,25032,110881,0,81,4,0.32,429,429,429
-wedelin1995/sasjump.dat,wedelin1995,--unicost,wedelin1995 unicost,1,742,10370,42695,0,58,4,0.55,319,319,319
+Path,Format,Options,Dataset,Unicost,Number of sets,Number of elements,Number of arcs,Coefficient of variation of cost,Arc number / Line number,Arc number / Set number,Density,Best known solution value,Best known bound
+gecco2020/AC_01_cover.txt,gecco2020,,gecco2020_AC,1,605,2904,145188,0,240,50,8.26,7,7
+gecco2020/AC_02_cover.txt,gecco2020,,gecco2020_AC,1,2205,10584,1456440,0,661,138,6.24,4,4
+gecco2020/AC_03_cover.txt,gecco2020,,gecco2020_AC,1,4805,23064,6545420,0,1362,284,5.91,3,3
+gecco2020/AC_04_cover.txt,gecco2020,,gecco2020_AC,1,8405,40344,16858980,0,2006,418,4.97,5,5
+gecco2020/AC_05_cover.txt,gecco2020,,gecco2020_AC,1,13005,62424,31814340,0,2446,510,3.92,7,7
+gecco2020/AC_06_cover.txt,gecco2020,,gecco2020_AC,1,18605,89304,51402500,0,2763,576,3.09,10,9
+gecco2020/AC_07_cover.txt,gecco2020,,gecco2020_AC,1,32805,157464,104477220,0,3185,663,2.02,17,12
+gecco2020/AC_08_cover.txt,gecco2020,,gecco2020_AC,1,51005,244824,176083140,0,3452,719,1.41,25,1
+gecco2020/AC_09_cover.txt,gecco2020,,gecco2020_AC,1,73205,351384,266220260,0,3637,758,1.03,36,1
+gecco2020/AC_10_cover.txt,gecco2020,,gecco2020_AC,1,605,2904,93012,0,154,32,5.29,20,18
+gecco2020/AC_11_cover.txt,gecco2020,,gecco2020_AC,1,2205,10584,412892,0,187,39,1.77,64,54
+gecco2020/AC_12_cover.txt,gecco2020,,gecco2020_AC,1,4805,23064,960772,0,200,42,0.87,136,1
+gecco2020/AC_13_cover.txt,gecco2020,,gecco2020_AC,1,8405,40344,1736652,0,207,43,0.51,232,1
+gecco2020/AC_14_cover.txt,gecco2020,,gecco2020_AC,1,13005,62424,2740532,0,211,44,0.34,353,1
+gecco2020/AC_15_cover.txt,gecco2020,,gecco2020_AC,1,18605,89304,3972412,0,214,44,0.24,501,1
+gecco2020/AC_16_cover.txt,gecco2020,,gecco2020_AC,1,32805,157464,7120172,0,217,45,0.14,868,1
+gecco2020/AC_17_cover.txt,gecco2020,,gecco2020_AC,1,51005,244824,11179932,0,219,46,0.09,1334,1
+gecco2020/AC_18_cover.txt,gecco2020,,gecco2020_AC,1,73205,351384,16151692,0,221,46,0.06,1906,1
+gecco2020/AC_19_cover.txt,gecco2020,,gecco2020_AC,1,99405,477144,22035452,0,222,46,0.05,2571,1
+gecco2020/AC_20_cover.txt,gecco2020,,gecco2020_AC,1,129605,622104,28831212,0,222,46,0.04,3335,1
+gecco2020/AC_21_cover.txt,gecco2020,,gecco2020_AC,1,163805,786264,36538972,0,223,46,0.03,4211,1
+gecco2020/AC_22_cover.txt,gecco2020,,gecco2020_AC,1,202005,969624,45158732,0,224,47,0.02,5175,1
+gecco2020/AC_23_cover.txt,gecco2020,,gecco2020_AC,1,244205,1172184,54690492,0,224,47,0.02,6237,1
+gecco2020/AC_24_cover.txt,gecco2020,,gecco2020_AC,1,290405,1393944,65134252,0,224,47,0.02,7415,1
+gecco2020/AC_25_cover.txt,gecco2020,,gecco2020_AC,1,340605,1634904,76490012,0,225,47,0.01,8686,1
+gecco2020/AC_26_cover.txt,gecco2020,,gecco2020_AC,1,394805,1895064,88757772,0,225,47,0.01,10039,1
+gecco2020/AC_27_cover.txt,gecco2020,,gecco2020_AC,1,453005,2174424,101937532,0,225,47,0.01,11520,1
+gecco2020/AC_28_cover.txt,gecco2020,,gecco2020_AC,1,515205,2472984,116029292,0,225,47,0.01,13096,1
+gecco2020/AC_29_cover.txt,gecco2020,,gecco2020_AC,1,581405,2790744,131033052,0,225,47,0.01,14740,1
+gecco2020/AC_30_cover.txt,gecco2020,,gecco2020_AC,1,651605,3127704,146948812,0,226,47,0.01,16524,1
+gecco2020/AC_31_cover.txt,gecco2020,,gecco2020_AC,1,725805,3483864,163776572,0,226,47,0.01,18400,1
+gecco2020/AC_32_cover.txt,gecco2020,,gecco2020_AC,1,804005,3859224,181516332,0,226,47,0.01,20342,1
+gecco2020/RW_01_cover.txt,gecco2020,,gecco2020_RW,1,153368,32430,9153546,0,60,282,0.18,664,658
+gecco2020/RW_02_cover.txt,gecco2020,,gecco2020_RW,1,285698,56132,28374316,0,99,505,0.18,736,728
+gecco2020/RW_03_cover.txt,gecco2020,,gecco2020_RW,1,161099,32040,9451992,0,59,295,0.18,745,743
+gecco2020/RW_04_cover.txt,gecco2020,,gecco2020_RW,1,304655,59137,30753191,0,101,520,0.17,832,826
+gecco2020/RW_05_cover.txt,gecco2020,,gecco2020_RW,1,206900,34568,10064379,0,49,291,0.14,934,934
+gecco2020/RW_06_cover.txt,gecco2020,,gecco2020_RW,1,380420,65691,33098232,0,87,504,0.13,938,928
+gecco2020/RW_07_cover.txt,gecco2020,,gecco2020_RW,1,214889,42046,11649721,0,54,277,0.13,989,984
+gecco2020/RW_08_cover.txt,gecco2020,,gecco2020_RW,1,382651,77986,37372050,0,98,479,0.13,1025,1017
+gecco2020/RW_09_cover.txt,gecco2020,,gecco2020_RW,1,206816,39003,11027344,0,53,283,0.14,965,962
+gecco2020/RW_10_cover.txt,gecco2020,,gecco2020_RW,1,368114,71323,34928530,0,95,490,0.13,1034,1023
+gecco2020/RW_11_cover.txt,gecco2020,,gecco2020_RW,1,82437,15632,5051555,0,61,323,0.39,316,314
+gecco2020/RW_12_cover.txt,gecco2020,,gecco2020_RW,1,136555,28109,15352218,0,112,546,0.4,320,315
+gecco2020/RW_13_cover.txt,gecco2020,,gecco2020_RW,1,293138,61741,17260957,0,59,280,0.1,1299,1290
+gecco2020/RW_14_cover.txt,gecco2020,,gecco2020_RW,1,81062,14916,4663155,0,58,313,0.39,337,336
+gecco2020/RW_15_cover.txt,gecco2020,,gecco2020_RW,1,141309,27008,14642346,0,104,542,0.38,341,341
+gecco2020/RW_16_cover.txt,gecco2020,,gecco2020_RW,1,105829,21063,5255090,0,50,249,0.24,508,506
+gecco2020/RW_17_cover.txt,gecco2020,,gecco2020_RW,1,180453,35635,14921112,0,83,419,0.23,516,514
+gecco2020/RW_18_cover.txt,gecco2020,,gecco2020_RW,1,79947,14423,4449592,0,56,309,0.39,338,338
+gecco2020/RW_19_cover.txt,gecco2020,,gecco2020_RW,1,141114,26483,13664059,0,97,516,0.37,347,345
+gecco2020/RW_20_cover.txt,gecco2020,,gecco2020_RW,1,332300,50284,15364999,0,46,306,0.09,1466,1459
+gecco2020/RW_21_cover.txt,gecco2020,,gecco2020_RW,1,654068,90050,47381508,0,72,526,0.08,1580,1568
+gecco2020/RW_22_cover.txt,gecco2020,,gecco2020_RW,1,83835,17203,4246199,0,51,247,0.29,398,398
+gecco2020/RW_23_cover.txt,gecco2020,,gecco2020_RW,1,142326,31038,12594607,0,88,406,0.29,417,414
+gecco2020/RW_24_cover.txt,gecco2020,,gecco2020_RW,1,201967,33880,9870162,0,49,291,0.14,886,880
+gecco2020/RW_25_cover.txt,gecco2020,,gecco2020_RW,1,375680,59851,29719129,0,79,497,0.13,950,945
+gecco2020/RW_26_cover.txt,gecco2020,,gecco2020_RW,1,105566,18043,5089293,0,48,282,0.27,464,464
+gecco2020/RW_27_cover.txt,gecco2020,,gecco2020_RW,1,181090,32669,15037239,0,83,460,0.25,489,488
+gecco2020/RW_28_cover.txt,gecco2020,,gecco2020_RW,1,136755,27838,7139876,0,52,256,0.19,648,645
+gecco2020/RW_29_cover.txt,gecco2020,,gecco2020_RW,1,273964,49267,22836363,0,83,464,0.17,741,738
+gecco2020/RW_30_cover.txt,gecco2020,,gecco2020_RW,1,263518,49354,15774385,0,60,320,0.12,1095,1086
+gecco2020/RW_31_cover.txt,gecco2020,,gecco2020_RW,1,472660,87248,48428414,0,102,555,0.12,1198,1186
+gecco2020/RW_32_cover.txt,gecco2020,,gecco2020_RW,1,124289,30189,6284592,0,51,208,0.17,651,648
+gecco2020/RW_33_cover.txt,gecco2020,,gecco2020_RW,1,229231,55000,19624881,0,86,357,0.16,719,712
+gecco2020/RW_34_cover.txt,gecco2020,,gecco2020_RW,1,134479,27329,7575103,0,56,277,0.21,609,606
+gecco2020/RW_35_cover.txt,gecco2020,,gecco2020_RW,1,238546,47590,23342131,0,98,490,0.21,668,663
+gecco2020/RW_36_cover.txt,gecco2020,,gecco2020_RW,1,135043,28162,7789603,0,58,277,0.2,609,607
+gecco2020/RW_37_cover.txt,gecco2020,,gecco2020_RW,1,238492,50702,24109613,0,101,476,0.2,644,640
+balas1980/scp41.txt,orlibrary,,balas1980,0,200,1000,4009,59.22,20,4,2,429,429
+balas1980/scp42.txt,orlibrary,,balas1980,0,200,1000,3982,57.29,20,4,1.99,512,512
+balas1980/scp43.txt,orlibrary,,balas1980,0,200,1000,3984,57.92,20,4,1.99,516,516
+balas1980/scp44.txt,orlibrary,,balas1980,0,200,1000,4009,58.39,20,4,2,494,494
+balas1980/scp45.txt,orlibrary,,balas1980,0,200,1000,3939,57.92,20,4,1.97,512,512
+balas1980/scp46.txt,orlibrary,,balas1980,0,200,1000,4083,56.07,20,4,2.04,560,560
+balas1980/scp47.txt,orlibrary,,balas1980,0,200,1000,3920,58.43,20,4,1.96,430,430
+balas1980/scp48.txt,orlibrary,,balas1980,0,200,1000,4017,55.29,20,4,2.01,492,492
+balas1980/scp49.txt,orlibrary,,balas1980,0,200,1000,3955,55.47,20,4,1.98,641,641
+balas1980/scp410.txt,orlibrary,,balas1980,0,200,1000,3905,58.06,20,4,1.95,514,514
+balas1980/scp51.txt,orlibrary,,balas1980,0,200,2000,7995,57.6,40,4,2,253,253
+balas1980/scp52.txt,orlibrary,,balas1980,0,200,2000,7997,56.11,40,4,2,302,302
+balas1980/scp53.txt,orlibrary,,balas1980,0,200,2000,8015,59.34,40,4,2,226,226
+balas1980/scp54.txt,orlibrary,,balas1980,0,200,2000,7935,59.35,40,4,1.98,242,242
+balas1980/scp55.txt,orlibrary,,balas1980,0,200,2000,7855,58.07,39,4,1.96,211,211
+balas1980/scp56.txt,orlibrary,,balas1980,0,200,2000,7995,56.87,40,4,2,213,213
+balas1980/scp57.txt,orlibrary,,balas1980,0,200,2000,8058,55.8,40,4,2.01,293,293
+balas1980/scp58.txt,orlibrary,,balas1980,0,200,2000,7921,56.58,40,4,1.98,288,288
+balas1980/scp59.txt,orlibrary,,balas1980,0,200,2000,7871,56.84,39,4,1.97,279,279
+balas1980/scp510.txt,orlibrary,,balas1980,0,200,2000,8001,56.58,40,4,2,265,265
+balas1980/scp61.txt,orlibrary,,balas1980,0,200,1000,9836,59.22,49,10,4.92,138,138
+balas1980/scp62.txt,orlibrary,,balas1980,0,200,1000,10002,57.29,50,10,5,146,146
+balas1980/scp63.txt,orlibrary,,balas1980,0,200,1000,9922,57.92,50,10,4.96,145,145
+balas1980/scp64.txt,orlibrary,,balas1980,0,200,1000,9857,58.39,49,10,4.93,131,131
+balas1980/scp65.txt,orlibrary,,balas1980,0,200,1000,9943,57.92,50,10,4.97,161,161
+beasley1987/scpa1.txt,orlibrary,,beasley1987,0,300,3000,18091,56.75,60,6,2.01,253,253
+beasley1987/scpa2.txt,orlibrary,,beasley1987,0,300,3000,18073,56.44,60,6,2.01,252,252
+beasley1987/scpa3.txt,orlibrary,,beasley1987,0,300,3000,18077,58.4,60,6,2.01,232,232
+beasley1987/scpa4.txt,orlibrary,,beasley1987,0,300,3000,18084,57.16,60,6,2.01,234,234
+beasley1987/scpa5.txt,orlibrary,,beasley1987,0,300,3000,18072,57.89,60,6,2.01,236,236
+beasley1987/scpb1.txt,orlibrary,,beasley1987,0,300,3000,44921,56.79,150,15,4.99,69,69
+beasley1987/scpb2.txt,orlibrary,,beasley1987,0,300,3000,44869,57.21,150,15,4.99,76,76
+beasley1987/scpb3.txt,orlibrary,,beasley1987,0,300,3000,44906,56.34,150,15,4.99,80,80
+beasley1987/scpb4.txt,orlibrary,,beasley1987,0,300,3000,44893,58.02,150,15,4.99,79,79
+beasley1987/scpb5.txt,orlibrary,,beasley1987,0,300,3000,44883,57.09,150,15,4.99,72,72
+beasley1987/scpc1.txt,orlibrary,,beasley1987,0,400,4000,32041,56.27,80,8,2,227,227
+beasley1987/scpc2.txt,orlibrary,,beasley1987,0,400,4000,31954,57.89,80,8,2,219,219
+beasley1987/scpc3.txt,orlibrary,,beasley1987,0,400,4000,31969,55.84,80,8,2,243,243
+beasley1987/scpc4.txt,orlibrary,,beasley1987,0,400,4000,31971,57.4,80,8,2,219,219
+beasley1987/scpc5.txt,orlibrary,,beasley1987,0,400,4000,31955,56.67,80,8,2,215,215
+beasley1987/scpd1.txt,orlibrary,,beasley1987,0,400,4000,80143,57.3,200,20,5.01,60,60
+beasley1987/scpd2.txt,orlibrary,,beasley1987,0,400,4000,80105,58.04,200,20,5.01,66,66
+beasley1987/scpd3.txt,orlibrary,,beasley1987,0,400,4000,80163,56.13,200,20,5.01,72,72
+beasley1987/scpd4.txt,orlibrary,,beasley1987,0,400,4000,80034,57.48,200,20,5,62,62
+beasley1987/scpd5.txt,orlibrary,,beasley1987,0,400,4000,80072,56.74,200,20,5,61,61
+beasley1987/scpe1.txt,orlibrary,,beasley1987,0,50,500,4914,0,98,10,19.66,5,5
+beasley1987/scpe2.txt,orlibrary,,beasley1987,0,50,500,5013,0,100,10,20.05,5,5
+beasley1987/scpe3.txt,orlibrary,,beasley1987,0,50,500,5040,0,101,10,20.16,5,5
+beasley1987/scpe4.txt,orlibrary,,beasley1987,0,50,500,4952,0,99,10,19.81,5,5
+beasley1987/scpe5.txt,orlibrary,,beasley1987,0,50,500,5017,0,100,10,20.07,5,5
+beasley1990/scpnre1.txt,orlibrary,,beasley1990,0,500,5000,249448,55.82,499,50,9.98,29,29
+beasley1990/scpnre2.txt,orlibrary,,beasley1990,0,500,5000,249367,57.3,499,50,9.97,30,28
+beasley1990/scpnre3.txt,orlibrary,,beasley1990,0,500,5000,249371,57.34,499,50,9.97,27,27
+beasley1990/scpnre4.txt,orlibrary,,beasley1990,0,500,5000,249341,57.55,499,50,9.97,28,28
+beasley1990/scpnre5.txt,orlibrary,,beasley1990,0,500,5000,249393,57.74,499,50,9.98,28,28
+beasley1990/scpnrf1.txt,orlibrary,,beasley1990,0,500,5000,499314,58.12,999,100,19.97,14,14
+beasley1990/scpnrf2.txt,orlibrary,,beasley1990,0,500,5000,499275,56.99,999,100,19.97,15,15
+beasley1990/scpnrf3.txt,orlibrary,,beasley1990,0,500,5000,499250,57.45,999,100,19.97,14,14
+beasley1990/scpnrf4.txt,orlibrary,,beasley1990,0,500,5000,499302,57.05,999,100,19.97,14,14
+beasley1990/scpnrf5.txt,orlibrary,,beasley1990,0,500,5000,499336,56.11,999,100,19.97,13,13
+beasley1990/scpnrg1.txt,orlibrary,,beasley1990,0,1000,10000,199471,56.95,199,20,1.99,176,165
+beasley1990/scpnrg2.txt,orlibrary,,beasley1990,0,1000,10000,199451,57.72,199,20,1.99,154,147
+beasley1990/scpnrg3.txt,orlibrary,,beasley1990,0,1000,10000,199498,57.5,199,20,1.99,166,153
+beasley1990/scpnrg4.txt,orlibrary,,beasley1990,0,1000,10000,199456,56.47,199,20,1.99,168,154
+beasley1990/scpnrg5.txt,orlibrary,,beasley1990,0,1000,10000,199450,57.05,199,20,1.99,168,153
+beasley1990/scpnrh1.txt,orlibrary,,beasley1990,0,1000,10000,499163,57.22,499,50,4.99,63,52
+beasley1990/scpnrh2.txt,orlibrary,,beasley1990,0,1000,10000,499167,56.53,499,50,4.99,63,52
+beasley1990/scpnrh3.txt,orlibrary,,beasley1990,0,1000,10000,499126,57.36,499,50,4.99,59,48
+beasley1990/scpnrh4.txt,orlibrary,,beasley1990,0,1000,10000,499149,57.38,499,50,4.99,58,47
+beasley1990/scpnrh5.txt,orlibrary,,beasley1990,0,1000,10000,499179,57.51,499,50,4.99,55,46
+grossman1997/scpclr10.txt,orlibrary,,grossman1997_clr,1,511,210,13230,0,26,63,12.33,25,25
+grossman1997/scpclr11.txt,orlibrary,,grossman1997_clr,1,1023,330,41910,0,41,127,12.41,23,1
+grossman1997/scpclr12.txt,orlibrary,,grossman1997_clr,1,2047,495,126225,0,62,255,12.46,23,1
+grossman1997/scpclr13.txt,orlibrary,,grossman1997_clr,1,4095,715,365365,0,89,511,12.48,23,1
+grossman1997/scpcyc06.txt,orlibrary,,grossman1997_cyc,1,240,192,960,0,4,5,2.08,60,1
+grossman1997/scpcyc07.txt,orlibrary,,grossman1997_cyc,1,672,448,2688,0,4,6,0.89,144,1
+grossman1997/scpcyc08.txt,orlibrary,,grossman1997_cyc,1,1792,1024,7168,0,4,7,0.39,342,1
+grossman1997/scpcyc09.txt,orlibrary,,grossman1997_cyc,1,4608,2304,18432,0,4,8,0.17,772,1
+grossman1997/scpcyc10.txt,orlibrary,,grossman1997_cyc,1,11520,5120,46080,0,4,9,0.08,1798,1
+grossman1997/scpcyc11.txt,orlibrary,,grossman1997_cyc,1,28160,11264,112640,0,4,10,0.04,3968,1
+faster1994/rail507.txt,faster1994,,faster1994,0,507,63009,409349,11.93,807,6,1.28,174,174
+faster1994/rail516.txt,faster1994,,faster1994,0,516,47311,314896,10.23,610,7,1.29,182,182
+faster1994/rail582.txt,faster1994,,faster1994,0,582,55515,401708,11.06,690,7,1.24,211,211
+faster1994/rail2536.txt,faster1994,,faster1994,0,2536,1081841,10993311,6.2,4335,10,0.4,691,685
+faster1994/rail2586.txt,faster1994,,faster1994,0,2586,920683,8008776,10.5,3097,9,0.34,947,937
+faster1994/rail4284.txt,faster1994,,faster1994,0,4284,1092610,11279748,12.28,2633,10,0.24,1065,1051
+faster1994/rail4872.txt,faster1994,,faster1994,0,4872,968672,9244093,12.87,1897,10,0.2,1534,1509
+balas1996/bus1.inp,balas1996,,balas1996,0,454,2241,19193,12.97,42,9,1.89,27947,27947
+balas1996/bus2.inp,balas1996,,balas1996,0,681,9524,32763,11.47,48,3,0.51,67760,67760
+balas1996/aa03.inp,balas1996,,balas1996,0,106,8661,37253,25.8,351,4,4.06,33155,33155
+balas1996/aa04.inp,balas1996,,balas1996,0,106,8002,34390,25.92,324,4,4.05,34573,34573
+balas1996/aa05.inp,balas1996,,balas1996,0,105,7435,31984,26.39,305,4,4.1,31623,31623
+balas1996/aa06.inp,balas1996,,balas1996,0,105,6951,30056,26.1,286,4,4.12,37464,37464
+balas1996/aa11.inp,balas1996,,balas1996,0,271,4413,30343,26.95,112,7,2.54,35384,35384
+balas1996/aa12.inp,balas1996,,balas1996,0,272,4208,28947,27.16,106,7,2.53,30809,30809
+balas1996/aa13.inp,balas1996,,balas1996,0,265,4025,27773,27.79,105,7,2.6,33211,33211
+balas1996/aa14.inp,balas1996,,balas1996,0,266,3868,26664,27.34,100,7,2.59,33219,33219
+balas1996/aa15.inp,balas1996,,balas1996,0,267,3701,25587,26.9,96,7,2.59,34409,34409
+balas1996/aa16.inp,balas1996,,balas1996,0,265,3558,24821,26.56,94,7,2.63,32752,32752
+balas1996/aa17.inp,balas1996,,balas1996,0,264,3425,23653,27.85,90,7,2.62,31612,31612
+balas1996/aa18.inp,balas1996,,balas1996,0,271,3314,22924,28.16,85,7,2.55,36782,36782
+balas1996/aa19.inp,balas1996,,balas1996,0,263,3202,22178,28.01,84,7,2.63,32317,32317
+balas1996/aa20.inp,balas1996,,balas1996,0,269,3095,21534,26.78,80,7,2.59,34912,34912
+fulkerson1974/data.9,sts,,fulkerson1974,1,12,9,36,0,3,4,33.33,12,1
+fulkerson1974/data.15,sts,,fulkerson1974,1,35,15,105,0,3,7,20,35,1
+fulkerson1974/data.27,sts,,fulkerson1974,1,117,27,351,0,3,13,11.11,117,1
+fulkerson1974/data.45,sts,,fulkerson1974,1,330,45,990,0,3,22,6.67,330,1
+fulkerson1974/data.81,sts,,fulkerson1974,1,1080,81,3240,0,3,40,3.7,1080,1
+fulkerson1974/data.135,sts,,fulkerson1974,1,3015,135,9045,0,3,67,2.22,3015,1
+fulkerson1974/data.243,sts,,fulkerson1974,1,9801,243,29403,0,3,121,1.23,9801,1
+fulkerson1974/data.405,sts,,fulkerson1974,1,27270,405,81810,0,3,202,0.74,198,1
+fulkerson1974/data.729,sts,,fulkerson1974,1,88452,729,265356,0,3,364,0.41,335,1
+fulkerson1974/data.1215,sts,,fulkerson1974,1,245835,1215,737505,0,3,607,0.25,617,1
+fulkerson1974/data.2187,sts,,fulkerson1974,1,796797,2187,2390391,0,3,1093,0.14,1063,1
+wedelin1995/a320.dat,wedelin1995,,wedelin1995,0,199,6931,31801,350.1,160,5,2.31,12620100,12620100
+wedelin1995/a320_coc.dat,wedelin1995,,wedelin1995,0,235,18753,82229,246.19,350,4,1.87,14495500,14495500
+wedelin1995/alitalia.dat,wedelin1995,,wedelin1995,0,118,1165,4155,70.82,35,4,3.02,27258300,27258300
+wedelin1995/b727.dat,wedelin1995,,wedelin1995,0,29,157,372,45.69,13,2,8.17,94400,94400
+wedelin1995/sasd9imp2.dat,wedelin1995,,wedelin1995,0,1366,25032,110881,45.79,81,4,0.32,5262040,5262040
+wedelin1995/sasjump.dat,wedelin1995,,wedelin1995,0,742,10370,42695,33.43,58,4,0.55,7338844,7338844
+balas1980/scp41.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,4009,0,20,4,2,38,1
+balas1980/scp42.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3982,0,20,4,1.99,37,1
+balas1980/scp43.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3984,0,20,4,1.99,38,1
+balas1980/scp44.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,4009,0,20,4,2,38,1
+balas1980/scp45.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3939,0,20,4,1.97,38,1
+balas1980/scp46.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,4083,0,20,4,2.04,37,1
+balas1980/scp47.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3920,0,20,4,1.96,38,1
+balas1980/scp48.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,4017,0,20,4,2.01,37,1
+balas1980/scp49.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3955,0,20,4,1.98,38,1
+balas1980/scp410.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,3905,0,20,4,1.95,38,1
+balas1980/scp51.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7995,0,40,4,2,34,1
+balas1980/scp52.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7997,0,40,4,2,34,1
+balas1980/scp53.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,8015,0,40,4,2,34,1
+balas1980/scp54.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7935,0,40,4,1.98,34,1
+balas1980/scp55.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7855,0,39,4,1.96,34,1
+balas1980/scp56.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7995,0,40,4,2,34,1
+balas1980/scp57.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,8058,0,40,4,2.01,34,1
+balas1980/scp58.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7921,0,40,4,1.98,34,1
+balas1980/scp59.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,7871,0,39,4,1.97,35,1
+balas1980/scp510.txt,orlibrary,--unicost,balas1980 unicost,1,200,2000,8001,0,40,4,2,34,1
+balas1980/scp61.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,9836,0,49,10,4.92,21,1
+balas1980/scp62.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,10002,0,50,10,5,20,1
+balas1980/scp63.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,9922,0,50,10,4.96,21,1
+balas1980/scp64.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,9857,0,49,10,4.93,20,1
+balas1980/scp65.txt,orlibrary,--unicost,balas1980 unicost,1,200,1000,9943,0,50,10,4.97,21,1
+beasley1987/scpa1.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18091,0,60,6,2.01,38,1
+beasley1987/scpa2.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18073,0,60,6,2.01,38,1
+beasley1987/scpa3.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18077,0,60,6,2.01,38,1
+beasley1987/scpa4.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18084,0,60,6,2.01,37,1
+beasley1987/scpa5.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,18072,0,60,6,2.01,38,1
+beasley1987/scpb1.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44921,0,150,15,4.99,22,1
+beasley1987/scpb2.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44869,0,150,15,4.99,22,1
+beasley1987/scpb3.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44906,0,150,15,4.99,22,1
+beasley1987/scpb4.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44893,0,150,15,4.99,22,1
+beasley1987/scpb5.txt,orlibrary,--unicost,beasley1987 unicost,1,300,3000,44883,0,150,15,4.99,22,1
+beasley1987/scpc1.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,32041,0,80,8,2,43,1
+beasley1987/scpc2.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,31954,0,80,8,2,43,1
+beasley1987/scpc3.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,31969,0,80,8,2,43,1
+beasley1987/scpc4.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,31971,0,80,8,2,43,1
+beasley1987/scpc5.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,31955,0,80,8,2,43,1
+beasley1987/scpd1.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80143,0,200,20,5.01,24,1
+beasley1987/scpd2.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80105,0,200,20,5.01,24,1
+beasley1987/scpd3.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80163,0,200,20,5.01,24,1
+beasley1987/scpd4.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80034,0,200,20,5,25,1
+beasley1987/scpd5.txt,orlibrary,--unicost,beasley1987 unicost,1,400,4000,80072,0,200,20,5,24,11
+beasley1987/scpe1.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,4914,0,98,10,19.66,5,1
+beasley1987/scpe2.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,5013,0,100,10,20.05,5,1
+beasley1987/scpe3.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,5040,0,101,10,20.16,5,1
+beasley1987/scpe4.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,4952,0,99,10,19.81,5,1
+beasley1987/scpe5.txt,orlibrary,--unicost,beasley1987 unicost,1,50,500,5017,0,100,10,20.07,5,1
+beasley1990/scpnre1.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249448,0,499,50,9.98,16,1
+beasley1990/scpnre2.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249367,0,499,50,9.97,17,1
+beasley1990/scpnre3.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249371,0,499,50,9.97,17,1
+beasley1990/scpnre4.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249341,0,499,50,9.97,16,1
+beasley1990/scpnre5.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,249393,0,499,50,9.98,17,1
+beasley1990/scpnrf1.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499314,0,999,100,19.97,10,1
+beasley1990/scpnrf2.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499275,0,999,100,19.97,10,1
+beasley1990/scpnrf3.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499250,0,999,100,19.97,10,1
+beasley1990/scpnrf4.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499302,0,999,100,19.97,10,1
+beasley1990/scpnrf5.txt,orlibrary,--unicost,beasley1990 unicost,1,500,5000,499336,0,999,100,19.97,10,1
+beasley1990/scpnrg1.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199471,0,199,20,1.99,61,1
+beasley1990/scpnrg2.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199451,0,199,20,1.99,62,1
+beasley1990/scpnrg3.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199498,0,199,20,1.99,62,1
+beasley1990/scpnrg4.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199456,0,199,20,1.99,62,1
+beasley1990/scpnrg5.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,199450,0,199,20,1.99,62,1
+beasley1990/scpnrh1.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499163,0,499,50,4.99,34,1
+beasley1990/scpnrh2.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499167,0,499,50,4.99,34,1
+beasley1990/scpnrh3.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499126,0,499,50,4.99,34,1
+beasley1990/scpnrh4.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499149,0,499,50,4.99,34,1
+beasley1990/scpnrh5.txt,orlibrary,--unicost,beasley1990 unicost,1,1000,10000,499179,0,499,50,4.99,34,1
+faster1994/rail507.txt,faster1994,--unicost,faster1994 unicost,1,507,63009,409349,0,807,6,1.28,96,96
+faster1994/rail516.txt,faster1994,--unicost,faster1994 unicost,1,516,47311,314896,0,610,7,1.29,134,134
+faster1994/rail582.txt,faster1994,--unicost,faster1994 unicost,1,582,55515,401708,0,690,7,1.24,125,125
+faster1994/rail2536.txt,faster1994,--unicost,faster1994 unicost,1,2536,1081841,10993311,0,4335,10,0.4,378,1
+faster1994/rail2586.txt,faster1994,--unicost,faster1994 unicost,1,2586,920683,8008776,0,3097,9,0.34,518,1
+faster1994/rail4284.txt,faster1994,--unicost,faster1994 unicost,1,4284,1092610,11279748,0,2633,10,0.24,594,1
+faster1994/rail4872.txt,faster1994,--unicost,faster1994 unicost,1,4872,968672,9244093,0,1897,10,0.2,879,1
+balas1996/bus1.inp,balas1996,--unicost,balas1996 unicost,1,454,2241,19193,0,42,9,1.89,68,68
+balas1996/bus2.inp,balas1996,--unicost,balas1996 unicost,1,681,9524,32763,0,48,3,0.51,207,207
+balas1996/aa03.inp,balas1996,--unicost,balas1996 unicost,1,106,8661,37253,0,351,4,4.06,28,28
+balas1996/aa04.inp,balas1996,--unicost,balas1996 unicost,1,106,8002,34390,0,324,4,4.05,30,30
+balas1996/aa05.inp,balas1996,--unicost,balas1996 unicost,1,105,7435,31984,0,305,4,4.1,29,29
+balas1996/aa06.inp,balas1996,--unicost,balas1996 unicost,1,105,6951,30056,0,286,4,4.12,29,29
+balas1996/aa11.inp,balas1996,--unicost,balas1996 unicost,1,271,4413,30343,0,112,7,2.54,56,56
+balas1996/aa12.inp,balas1996,--unicost,balas1996 unicost,1,272,4208,28947,0,106,7,2.53,52,52
+balas1996/aa13.inp,balas1996,--unicost,balas1996 unicost,1,265,4025,27773,0,105,7,2.6,54,54
+balas1996/aa14.inp,balas1996,--unicost,balas1996 unicost,1,266,3868,26664,0,100,7,2.59,55,55
+balas1996/aa15.inp,balas1996,--unicost,balas1996 unicost,1,267,3701,25587,0,96,7,2.59,56,56
+balas1996/aa16.inp,balas1996,--unicost,balas1996 unicost,1,265,3558,24821,0,94,7,2.63,53,53
+balas1996/aa17.inp,balas1996,--unicost,balas1996 unicost,1,264,3425,23653,0,90,7,2.62,52,52
+balas1996/aa18.inp,balas1996,--unicost,balas1996 unicost,1,271,3314,22924,0,85,7,2.55,58,58
+balas1996/aa19.inp,balas1996,--unicost,balas1996 unicost,1,263,3202,22178,0,84,7,2.63,53,53
+balas1996/aa20.inp,balas1996,--unicost,balas1996 unicost,1,269,3095,21534,0,80,7,2.59,56,56
+wedelin1995/a320.dat,wedelin1995,--unicost,wedelin1995 unicost,1,199,6931,31801,0,160,5,2.31,70,70
+wedelin1995/a320_coc.dat,wedelin1995,--unicost,wedelin1995 unicost,1,235,18753,82229,0,350,4,1.87,70,70
+wedelin1995/alitalia.dat,wedelin1995,--unicost,wedelin1995 unicost,1,118,1165,4155,0,35,4,3.02,59,59
+wedelin1995/b727.dat,wedelin1995,--unicost,wedelin1995 unicost,1,29,157,372,0,13,2,8.17,11,11
+wedelin1995/sasd9imp2.dat,wedelin1995,--unicost,wedelin1995 unicost,1,1366,25032,110881,0,81,4,0.32,429,429
+wedelin1995/sasjump.dat,wedelin1995,--unicost,wedelin1995 unicost,1,742,10370,42695,0,58,4,0.55,319,319

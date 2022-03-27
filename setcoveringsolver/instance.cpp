@@ -11,9 +11,10 @@ Instance::Instance(std::string instance_path, std::string format):
     fixed_elements_(0)
 {
     std::ifstream file(instance_path);
-    if (!file.good())
+    if (!file.good()) {
         throw std::runtime_error(
                 "Unable to open file \"" + instance_path + "\".");
+    }
 
     if (format == "gecco2020" || format == "gecco") {
         read_geccod2020(file);
@@ -30,7 +31,7 @@ Instance::Instance(std::string instance_path, std::string format):
                 "Unknown instance format \"" + format + "\".");
     }
 
-    fixed_sets_     = optimizationtools::IndexedSet(number_of_sets());
+    fixed_sets_ = optimizationtools::IndexedSet(number_of_sets());
     fixed_elements_ = optimizationtools::IndexedSet(number_of_elements());
 
     compute_components();
@@ -58,7 +59,10 @@ void Instance::add_arc(SetId s, ElementId e)
 
 void Instance::fix_identical(optimizationtools::Info& info)
 {
-    VER(info, "Fix redundant elements and sets..." << std::endl);
+    VER(info,
+               "Reduction" << std::endl
+            << "---------" << std::endl);
+
     optimizationtools::IndexedSet elements_to_remove(number_of_elements());
     optimizationtools::IndexedSet sets_to_remove(number_of_sets());
 
@@ -82,7 +86,7 @@ void Instance::fix_identical(optimizationtools::Info& info)
         e_prec = e;
     }
     remove_elements(elements_to_remove);
-    VER(info, "* Element number: " << number_of_unfixed_elements() << "/" << number_of_elements()
+    VER(info, "Number of unfixed elements:  " << number_of_unfixed_elements() << "/" << number_of_elements()
             << " (" << elements_to_remove.size() << " fixed)"
             << std::endl);
 
@@ -112,8 +116,10 @@ void Instance::fix_identical(optimizationtools::Info& info)
         s_prec = s;
     }
     remove_sets(sets_to_remove);
-    VER(info, "* Set number: " << number_of_unfixed_sets() << "/" << number_of_sets()
+    VER(info,
+            "Number of unfixed sets:      " << number_of_unfixed_sets() << "/" << number_of_sets()
             << " (" << sets_to_remove.size() << " fixed)"
+            << std::endl
             << std::endl);
 }
 
@@ -188,7 +194,7 @@ void Instance::compute_set_neighbors(
         Counter number_of_threads,
         optimizationtools::Info& info)
 {
-    VER(info, "Compute set neighbors..." << std::endl);
+    VER(info, "Compute set neighbors..." << std::endl << std::endl);
     std::vector<std::thread> threads;
     for (Counter thread_id = 0; thread_id < number_of_threads; ++thread_id)
         threads.push_back(std::thread(&Instance::compute_set_neighbors_worker,
@@ -470,7 +476,31 @@ void Instance::read_faster1994(std::ifstream& file)
 
 void Instance::set_unicost()
 {
-    for (SetId s = 0; s < number_of_sets(); ++s)
+    total_cost_ = 0;
+    for (SetId s = 0; s < number_of_sets(); ++s) {
         sets_[s].cost = 1;
+        total_cost_++;
+    }
+}
+
+void setcoveringsolver::init_display(
+        const Instance& instance,
+        optimizationtools::Info& info)
+{
+    VER(info,
+               "=====================================" << std::endl
+            << "         Set Covering Solver         " << std::endl
+            << "=====================================" << std::endl
+            << std::endl
+            << "Instance" << std::endl
+            << "--------" << std::endl
+            << "Number of elements:                           " << instance.number_of_elements() << std::endl
+            << "Number of sets:                               " << instance.number_of_sets() << std::endl
+            << "Number of arcs:                               " << instance.number_of_arcs() << std::endl
+            << "Average number of sets covering an element:   " << (double)instance.number_of_arcs() / instance.number_of_elements() << std::endl
+            << "Average number of elements covered by a set:  " << (double)instance.number_of_arcs() / instance.number_of_sets() << std::endl
+            << "Number of connected components:               " << instance.number_of_components() << std::endl
+            << "Average cost:                                 " << (double)instance.total_cost() / instance.number_of_unfixed_sets() << std::endl
+            << std::endl);
 }
 
