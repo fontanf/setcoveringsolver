@@ -28,7 +28,7 @@ cc_library(
         deps = [
                 ":greedy",
                 "//setcoveringsolver:setcoveringsolver",
-                "@optimizationtools//optimizationtools:utils",
+                "@optimizationtools//optimizationtools/utils:utils",
         ],
         visibility = ["//visibility:public"],
 )

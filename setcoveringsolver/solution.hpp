@@ -2,8 +2,8 @@
 
 #include "setcoveringsolver/instance.hpp"
 
-#include "optimizationtools/indexed_set.hpp"
-#include "optimizationtools/indexed_map.hpp"
+#include "optimizationtools/containers/indexed_set.hpp"
+#include "optimizationtools/containers/indexed_map.hpp"
 
 #include <functional>
 

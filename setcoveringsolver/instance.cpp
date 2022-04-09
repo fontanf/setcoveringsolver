@@ -59,7 +59,7 @@ void Instance::add_arc(SetId s, ElementId e)
 
 void Instance::fix_identical(optimizationtools::Info& info)
 {
-    VER(info,
+    FFOT_VER(info,
                "Reduction" << std::endl
             << "---------" << std::endl);
 
@@ -86,7 +86,7 @@ void Instance::fix_identical(optimizationtools::Info& info)
         e_prec = e;
     }
     remove_elements(elements_to_remove);
-    VER(info, "Number of unfixed elements:  " << number_of_unfixed_elements() << "/" << number_of_elements()
+    FFOT_VER(info, "Number of unfixed elements:  " << number_of_unfixed_elements() << "/" << number_of_elements()
             << " (" << elements_to_remove.size() << " fixed)"
             << std::endl);
 
@@ -116,7 +116,7 @@ void Instance::fix_identical(optimizationtools::Info& info)
         s_prec = s;
     }
     remove_sets(sets_to_remove);
-    VER(info,
+    FFOT_VER(info,
             "Number of unfixed sets:      " << number_of_unfixed_sets() << "/" << number_of_sets()
             << " (" << sets_to_remove.size() << " fixed)"
             << std::endl
@@ -125,7 +125,7 @@ void Instance::fix_identical(optimizationtools::Info& info)
 
 void Instance::fix_dominated(optimizationtools::Info& info)
 {
-    VER(info, "Fix dominated elements and sets..." << std::endl);
+    FFOT_VER(info, "Fix dominated elements and sets..." << std::endl);
     optimizationtools::IndexedSet elements_to_remove(number_of_elements());
     optimizationtools::IndexedSet sets_to_remove(number_of_sets());
 
@@ -155,7 +155,7 @@ void Instance::fix_dominated(optimizationtools::Info& info)
         }
     }
     remove_elements(elements_to_remove);
-    VER(info, "* Element number: " << number_of_unfixed_elements() << "/" << number_of_elements()
+    FFOT_VER(info, "* Element number: " << number_of_unfixed_elements() << "/" << number_of_elements()
             << " (" << elements_to_remove.size() << " fixed)"
             << std::endl);
 
@@ -185,7 +185,7 @@ void Instance::fix_dominated(optimizationtools::Info& info)
         }
     }
     remove_sets(sets_to_remove);
-    VER(info, "* Set number: " << number_of_unfixed_sets() << "/" << number_of_sets()
+    FFOT_VER(info, "* Set number: " << number_of_unfixed_sets() << "/" << number_of_sets()
             << " (" << sets_to_remove.size() << " fixed)"
             << std::endl);
 }
@@ -194,7 +194,7 @@ void Instance::compute_set_neighbors(
         Counter number_of_threads,
         optimizationtools::Info& info)
 {
-    VER(info, "Compute set neighbors..." << std::endl << std::endl);
+    FFOT_VER(info, "Compute set neighbors..." << std::endl << std::endl);
     std::vector<std::thread> threads;
     for (Counter thread_id = 0; thread_id < number_of_threads; ++thread_id)
         threads.push_back(std::thread(&Instance::compute_set_neighbors_worker,
@@ -221,7 +221,7 @@ void Instance::compute_set_neighbors_worker(SetId s_start, SetId s_end)
 
 void Instance::compute_element_neighbors(optimizationtools::Info& info)
 {
-    VER(info, "Compute element neighbors..." << std::endl);
+    FFOT_VER(info, "Compute element neighbors..." << std::endl);
     optimizationtools::IndexedSet neighbors(number_of_elements());
     for (ElementId e1 = 0; e1 < number_of_elements(); ++e1) {
         neighbors.clear();
@@ -487,7 +487,7 @@ void setcoveringsolver::init_display(
         const Instance& instance,
         optimizationtools::Info& info)
 {
-    VER(info,
+    FFOT_VER(info,
                "=====================================" << std::endl
             << "         Set Covering Solver         " << std::endl
             << "=====================================" << std::endl

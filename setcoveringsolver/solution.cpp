@@ -99,7 +99,7 @@ Output::Output(
         optimizationtools::Info& info):
     solution(instance)
 {
-    VER(info,
+    FFOT_VER(info,
                std::setw(12) << "T (s)"
             << std::setw(12) << "UB"
             << std::setw(12) << "LB"
@@ -126,7 +126,7 @@ void Output::print(
         (double)(upper_bound() - lower_bound) / lower_bound * 100;
     double t = round(info.elapsed_time() * 10000) / 10000;
 
-    VER(info,
+    FFOT_VER(info,
                std::setw(12) << t
             << std::setw(12) << upper_bound()
             << std::setw(12) << lower_bound
@@ -178,9 +178,9 @@ void Output::update_solution(
         info.output->number_of_solutions++;
         double t = round(info.elapsed_time() * 10000) / 10000;
         std::string sol_str = "Solution" + std::to_string(info.output->number_of_solutions);
-        PUT(info, sol_str, "Value", solution.cost());
-        PUT(info, sol_str, "Time", t);
-        PUT(info, sol_str, "String", s.str());
+        FFOT_PUT(info, sol_str, "Value", solution.cost());
+        FFOT_PUT(info, sol_str, "Time", t);
+        FFOT_PUT(info, sol_str, "String", s.str());
         if (!info.output->only_write_at_the_end) {
             info.write_json_output();
             solution.write(info.output->certificate_path);
@@ -207,9 +207,9 @@ void Output::update_lower_bound(
         info.output->number_of_bounds++;
         double t = round(info.elapsed_time() * 10000) / 10000;
         std::string sol_str = "Bound" + std::to_string(info.output->number_of_bounds);
-        PUT(info, sol_str, "Bound", lower_bound);
-        PUT(info, sol_str, "Time", t);
-        PUT(info, sol_str, "String", s.str());
+        FFOT_PUT(info, sol_str, "Bound", lower_bound);
+        FFOT_PUT(info, sol_str, "Time", t);
+        FFOT_PUT(info, sol_str, "String", s.str());
         if (!info.output->only_write_at_the_end)
             solution.write(info.output->certificate_path);
     }
@@ -223,11 +223,11 @@ Output& Output::algorithm_end(optimizationtools::Info& info)
     double gap = (lower_bound == 0)?
         std::numeric_limits<double>::infinity():
         (double)(upper_bound() - lower_bound) / lower_bound * 100;
-    PUT(info, "Solution", "Value", upper_bound());
-    PUT(info, "Bound", "Value", lower_bound);
-    PUT(info, "Solution", "Time", t);
-    PUT(info, "Bound", "Time", t);
-    VER(info,
+    FFOT_PUT(info, "Solution", "Value", upper_bound());
+    FFOT_PUT(info, "Bound", "Value", lower_bound);
+    FFOT_PUT(info, "Solution", "Time", t);
+    FFOT_PUT(info, "Bound", "Time", t);
+    FFOT_VER(info,
             std::endl
             << "Final statistics" << std::endl
             << "----------------" << std::endl
@@ -247,9 +247,9 @@ Cost setcoveringsolver::algorithm_end(
         optimizationtools::Info& info)
 {
     double t = round(info.elapsed_time() * 10000) / 10000;
-    PUT(info, "Bound", "Value", lower_bound);
-    PUT(info, "Bound", "Time", t);
-    VER(info, "---" << std::endl
+    FFOT_PUT(info, "Bound", "Value", lower_bound);
+    FFOT_PUT(info, "Bound", "Time", t);
+    FFOT_VER(info, "---" << std::endl
             << "Bound:                 " << lower_bound << std::endl
             << "Time (s):              " << t << std::endl);
 

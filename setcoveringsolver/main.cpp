@@ -56,26 +56,6 @@ int main(int argc, char *argv[])
     Instance instance(instance_path, format);
     if (vm.count("unicost"))
         instance.set_unicost();
-    //Cost cost_sum = 0;
-    //Cost cost_sum_2 = 0;
-    //for (SetId s = 0; s < instance.number_of_sets(); ++s) {
-        //cost_sum += instance.set(s).cost;
-        //cost_sum_2 += instance.set(s).cost * instance.set(s).cost;
-    //}
-    //double mean = (double)cost_sum / instance.number_of_sets();
-    //double v    = (double)cost_sum_2 / instance.number_of_sets();
-    //double std_dev = std::sqrt(std::abs(mean * mean - v));
-    //double coefficient_of_variation = std_dev / mean * 100;
-    //std::cout << instance_path
-        //<< "," << instance.number_of_elements()
-        //<< "," << instance.number_of_sets()
-        //<< "," << instance.number_of_arcs()
-        //<< "," << coefficient_of_variation
-        //<< std::endl;
-    //VER(info, "* Components:");
-    //for (ComponentId c = 0; c < number_of_components(); ++c)
-        //VER(info, " " << c << "/" << component(c).elements.size() << "/" << component(c).sets.size());
-    //VER(info, std::endl);
 
     optimizationtools::Info info = optimizationtools::Info()
         .set_verbose(vm.count("verbose"))

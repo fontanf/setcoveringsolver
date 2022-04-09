@@ -9,9 +9,9 @@ using namespace setcoveringsolver;
 MilpGurobiOutput& MilpGurobiOutput::algorithm_end(
         optimizationtools::Info& info)
 {
-    //PUT(info, "Algorithm", "Iterations", it);
+    //FFOT_PUT(info, "Algorithm", "Iterations", it);
     Output::algorithm_end(info);
-    //VER(info, "Iterations: " << it << std::endl);
+    //FFOT_VER(info, "Iterations: " << it << std::endl);
     return *this;
 }
 
@@ -34,7 +34,7 @@ protected:
         if (where != GRB_CB_MIPSOL)
             return;
 
-        SetId lb = std::ceil(getDoubleInfo(GRB_CB_MIPSOL_OBJBND) - TOL);
+        SetId lb = std::ceil(getDoubleInfo(GRB_CB_MIPSOL_OBJBND) - FFOT_TOL);
         output_.update_lower_bound(lb, std::stringstream(""), p_.info);
 
         if (!output_.solution.feasible() || output_.solution.cost() > getDoubleInfo(GRB_CB_MIPSOL_OBJ) + 0.5) {
@@ -62,7 +62,7 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
 {
     GRBEnv env;
     init_display(instance, parameters.info);
-    VER(parameters.info,
+    FFOT_VER(parameters.info,
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "MILP (Gurobi)" << std::endl
@@ -127,10 +127,10 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
             if (x[s].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(s);
         output.update_solution(solution, std::stringstream(""), p.info);
-        SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - TOL);
+        SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
         output.update_lower_bound(lb, std::stringstream(""), p.info);
     } else {
-        SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - TOL);
+        SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
         output.update_lower_bound(lb, std::stringstream(""), p.info);
     }
 

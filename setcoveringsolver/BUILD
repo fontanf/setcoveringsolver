@@ -14,8 +14,8 @@ cc_library(
                 "solution.cpp",
         ],
         deps = [
-                "@optimizationtools//optimizationtools:info",
-                "@optimizationtools//optimizationtools:indexed_collections",
+                "@optimizationtools//optimizationtools/utils:info",
+                "@optimizationtools//optimizationtools/containers:containers",
         ],
         copts = STDCPP,
         visibility = ["//visibility:public"],

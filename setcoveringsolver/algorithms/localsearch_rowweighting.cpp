@@ -2,9 +2,9 @@
 
 #include "setcoveringsolver/algorithms/greedy.hpp"
 
-#include "optimizationtools/indexed_set.hpp"
-#include "optimizationtools/indexed_binary_heap.hpp"
-#include "optimizationtools/utils.hpp"
+#include "optimizationtools/containers/indexed_set.hpp"
+#include "optimizationtools/containers/indexed_binary_heap.hpp"
+#include "optimizationtools/utils/utils.hpp"
 
 #include <thread>
 
@@ -13,9 +13,9 @@ using namespace setcoveringsolver;
 LocalSearchRowWeightingOutput& LocalSearchRowWeightingOutput::algorithm_end(
         optimizationtools::Info& info)
 {
-    PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
+    FFOT_PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    VER(info, "Number of iterations:  " << number_of_iterations << std::endl);
+    FFOT_VER(info, "Number of iterations:  " << number_of_iterations << std::endl);
     return *this;
 }
 
@@ -47,7 +47,7 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
         LocalSearchRowWeightingOptionalParameters parameters)
 {
     init_display(instance, parameters.info);
-    VER(parameters.info,
+    FFOT_VER(parameters.info,
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Row Weighting Local Search" << std::endl
@@ -248,9 +248,9 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
 LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(
         optimizationtools::Info& info)
 {
-    PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
+    FFOT_PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    VER(info, "Number of iterations:  " << number_of_iterations << std::endl);
+    FFOT_VER(info, "Number of iterations:  " << number_of_iterations << std::endl);
     return *this;
 }
 
@@ -269,7 +269,7 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         LocalSearchRowWeighting2OptionalParameters parameters)
 {
     init_display(instance, parameters.info);
-    VER(parameters.info,
+    FFOT_VER(parameters.info,
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Row Weighting Local Search 2" << std::endl

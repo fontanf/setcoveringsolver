@@ -2,17 +2,17 @@
 
 #include "setcoveringsolver/algorithms/greedy.hpp"
 
-#include "optimizationtools/indexed_set.hpp"
-#include "optimizationtools/indexed_binary_heap.hpp"
+#include "optimizationtools/containers/indexed_set.hpp"
+#include "optimizationtools/containers/indexed_binary_heap.hpp"
 
 using namespace setcoveringsolver;
 
 LargeNeighborhoodSearchOutput& LargeNeighborhoodSearchOutput::algorithm_end(
         optimizationtools::Info& info)
 {
-    PUT(info, "Algorithm", "Iterations", iterations);
+    FFOT_PUT(info, "Algorithm", "Iterations", iterations);
     Output::algorithm_end(info);
-    VER(info, "Iterations: " << iterations << std::endl);
+    FFOT_VER(info, "Iterations: " << iterations << std::endl);
     return *this;
 }
 
@@ -22,7 +22,7 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
         LargeNeighborhoodSearchOptionalParameters parameters)
 {
     init_display(instance, parameters.info);
-    VER(parameters.info,
+    FFOT_VER(parameters.info,
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Large Neighborhood Search" << std::endl
@@ -91,7 +91,7 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
             val += (double)(output.iterations - last_iteration[p.first]) / output.iterations;
             val /= instance.set(p.first).cost;
             val = - val;
-            if (val <= p.second + TOL) {
+            if (val <= p.second + FFOT_TOL) {
                 if (d01(generator) < 0.9) {
                     solution.add(p.first);
                     sets_added.push_back(p.first);
@@ -125,9 +125,9 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
 LargeNeighborhoodSearch2Output& LargeNeighborhoodSearch2Output::algorithm_end(
         optimizationtools::Info& info)
 {
-    PUT(info, "Algorithm", "Iterations", iterations);
+    FFOT_PUT(info, "Algorithm", "Iterations", iterations);
     Output::algorithm_end(info);
-    VER(info, "Iterations: " << iterations << std::endl);
+    FFOT_VER(info, "Iterations: " << iterations << std::endl);
     return *this;
 }
 
@@ -145,7 +145,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
         LargeNeighborhoodSearch2OptionalParameters parameters)
 {
     init_display(instance, parameters.info);
-    VER(parameters.info,
+    FFOT_VER(parameters.info,
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Large Neighborhood Search 2" << std::endl

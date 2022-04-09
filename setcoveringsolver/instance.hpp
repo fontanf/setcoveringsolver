@@ -1,8 +1,8 @@
 #pragma once
 
-#include "optimizationtools/info.hpp"
-#include "optimizationtools/indexed_set.hpp"
-#include "optimizationtools/indexed_map.hpp"
+#include "optimizationtools/utils/info.hpp"
+#include "optimizationtools/containers/indexed_set.hpp"
+#include "optimizationtools/containers/indexed_map.hpp"
 
 #include <random>
 #include <set>

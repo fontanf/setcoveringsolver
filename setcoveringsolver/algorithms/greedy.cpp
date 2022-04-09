@@ -1,6 +1,6 @@
 #include "setcoveringsolver/algorithms/greedy.hpp"
 
-#include "optimizationtools/indexed_binary_heap.hpp"
+#include "optimizationtools/containers/indexed_binary_heap.hpp"
 
 using namespace setcoveringsolver;
 
@@ -9,7 +9,7 @@ Output setcoveringsolver::greedy(
         optimizationtools::Info info)
 {
     init_display(instance, info);
-    VER(info,
+    FFOT_VER(info,
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Greedy" << std::endl
@@ -32,7 +32,7 @@ Output setcoveringsolver::greedy(
             //<< " c " << solution.cost()
             //<< " e " << solution.number_of_elements() << " / " << instance.number_of_elements()
             //<< " s " << p.first << " v_old " << p.second.first << " v_new " << val << std::endl;
-        if (val <= p.second.first + TOL) {
+        if (val <= p.second.first + FFOT_TOL) {
             solution.add(p.first);
             heap.pop();
         } else {
@@ -66,7 +66,7 @@ Output setcoveringsolver::greedy_lin(
         optimizationtools::Info info)
 {
     init_display(instance, info);
-    VER(info,
+    FFOT_VER(info,
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Greedy Lin" << std::endl
@@ -88,7 +88,7 @@ Output setcoveringsolver::greedy_lin(
     while (!solution.feasible()) {
         auto p = heap.top();
         double val = f(p.first);
-        if (val <= p.second + TOL) {
+        if (val <= p.second + FFOT_TOL) {
             solution.add(p.first);
             heap.pop();
         } else {
@@ -122,7 +122,7 @@ Output setcoveringsolver::greedy_dual(
         optimizationtools::Info info)
 {
     init_display(instance, info);
-    VER(info,
+    FFOT_VER(info,
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Dual Greedy" << std::endl
