@@ -10,6 +10,8 @@ LocalSearchRowWeightingOptionalParameters read_localsearch_rowweighting_args(con
     LocalSearchRowWeightingOptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
+        ("iterations,i", po::value<Counter>(&parameters.maximum_number_of_iterations), "")
+        ("iterations-without-improvement,w", po::value<Counter>(&parameters.maximum_number_of_iterations_without_improvement), "")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
@@ -27,6 +29,8 @@ LocalSearchRowWeighting2OptionalParameters read_localsearch_rowweighting_2_args(
     LocalSearchRowWeighting2OptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
+        ("iterations,i", po::value<Counter>(&parameters.maximum_number_of_iterations), "")
+        ("iterations-without-improvement,w", po::value<Counter>(&parameters.maximum_number_of_iterations_without_improvement), "")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
@@ -44,8 +48,8 @@ LargeNeighborhoodSearchOptionalParameters read_largeneighborhoodsearch_args(cons
     LargeNeighborhoodSearchOptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
-        ("iteration-limit,i", po::value<Counter>(&parameters.iteration_limit), "")
-        ("iteration-without-improvment-limit,w", po::value<Counter>(&parameters.iteration_without_improvment_limit), "")
+        ("iterations,i", po::value<Counter>(&parameters.maximum_number_of_iterations), "")
+        ("iterations-without-improvement,w", po::value<Counter>(&parameters.maximum_number_of_iterations_without_improvement), "")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
@@ -63,8 +67,8 @@ LargeNeighborhoodSearch2OptionalParameters read_largeneighborhoodsearch_2_args(c
     LargeNeighborhoodSearch2OptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
-        ("iteration-limit,i", po::value<Counter>(&parameters.iteration_limit), "")
-        ("iteration-without-improvment-limit,w", po::value<Counter>(&parameters.iteration_without_improvment_limit), "")
+        ("iterations,i", po::value<Counter>(&parameters.maximum_number_of_iterations), "")
+        ("iterations-without-improvement,w", po::value<Counter>(&parameters.maximum_number_of_iterations_without_improvement), "")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);

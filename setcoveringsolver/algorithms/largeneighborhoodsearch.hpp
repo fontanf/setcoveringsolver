@@ -7,10 +7,12 @@ namespace setcoveringsolver
 
 struct LargeNeighborhoodSearchOptionalParameters
 {
+    /** Maximum number of iterations. */
+    Counter maximum_number_of_iterations = -1;
+    /** Maximum number of iterations without improvement. */
+    Counter maximum_number_of_iterations_without_improvement = -1;
+    /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();
-
-    Counter iteration_limit = -1;
-    Counter iteration_without_improvment_limit = -1;
 };
 
 struct LargeNeighborhoodSearchOutput: Output
@@ -23,7 +25,8 @@ struct LargeNeighborhoodSearchOutput: Output
     LargeNeighborhoodSearchOutput& algorithm_end(
             optimizationtools::Info& info);
 
-    Counter iterations = 0;
+    /** Number of iterations. */
+    Counter number_of_iterations = 0;
 };
 
 LargeNeighborhoodSearchOutput largeneighborhoodsearch(
@@ -31,15 +34,18 @@ LargeNeighborhoodSearchOutput largeneighborhoodsearch(
         std::mt19937_64& generator,
         LargeNeighborhoodSearchOptionalParameters parameters = {});
 
-/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 struct LargeNeighborhoodSearch2OptionalParameters
 {
+    /** Maximum number of iterations. */
+    Counter maximum_number_of_iterations = -1;
+    /** Maximum number of iterations without improvement. */
+    Counter maximum_number_of_iterations_without_improvement = -1;
+    /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();
-
-    Counter number_of_threads = 3;
-    Counter iteration_limit = -1;
-    Counter iteration_without_improvment_limit = -1;
 };
 
 struct LargeNeighborhoodSearch2Output: Output
@@ -52,7 +58,8 @@ struct LargeNeighborhoodSearch2Output: Output
     LargeNeighborhoodSearch2Output& algorithm_end(
             optimizationtools::Info& info);
 
-    Counter iterations = 0;
+    /** Number of iterations. */
+    Counter number_of_iterations = 0;
 };
 
 LargeNeighborhoodSearch2Output largeneighborhoodsearch_2(

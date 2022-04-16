@@ -10,9 +10,9 @@ using namespace setcoveringsolver;
 LargeNeighborhoodSearchOutput& LargeNeighborhoodSearchOutput::algorithm_end(
         optimizationtools::Info& info)
 {
-    FFOT_PUT(info, "Algorithm", "Iterations", iterations);
+    FFOT_PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    FFOT_VER(info, "Iterations: " << iterations << std::endl);
+    FFOT_VER(info, "Iterations: " << number_of_iterations << std::endl);
     return *this;
 }
 
@@ -26,6 +26,11 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Large Neighborhood Search" << std::endl
+            << std::endl
+            << "Parameters" << std::endl
+            << "----------" << std::endl
+            << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
+            << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
             << std::endl);
 
     instance.fix_identical(parameters.info);
@@ -44,13 +49,16 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
     optimizationtools::IndexedSet sets_candidates(instance.number_of_sets());
     optimizationtools::IndexedBinaryHeap<double> heap(instance.number_of_sets());
     Counter iterations_without_improvment = 0;
-    for (output.iterations = 1; !parameters.info.needs_to_end(); ++output.iterations, ++iterations_without_improvment) {
+    for (output.number_of_iterations = 0;
+            !parameters.info.needs_to_end();
+            ++output.number_of_iterations,
+            ++iterations_without_improvment) {
         // Check stop criteria.
-        if (parameters.iteration_limit != -1
-                && output.iterations > parameters.iteration_limit)
+        if (parameters.maximum_number_of_iterations != -1
+                && output.number_of_iterations >= parameters.maximum_number_of_iterations)
             break;
-        if (parameters.iteration_without_improvment_limit != -1
-                && iterations_without_improvment > parameters.iteration_without_improvment_limit)
+        if (parameters.maximum_number_of_iterations_without_improvement != -1
+                && iterations_without_improvment >= parameters.maximum_number_of_iterations_without_improvement)
             break;
 
         sets_added.clear();
@@ -75,7 +83,7 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
             for (ElementId e: solution.instance().set(s).elements)
                 if (!solution.covers(e))
                     val++;
-            val += (double)(output.iterations - last_iteration[s]) / output.iterations;
+            val += (double)(output.number_of_iterations - last_iteration[s]) / output.number_of_iterations;
             val /= solution.instance().set(s).cost;
             return - val;
         };
@@ -88,14 +96,14 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
             for (ElementId e: instance.set(p.first).elements)
                 if (!solution.covers(e))
                     val++;
-            val += (double)(output.iterations - last_iteration[p.first]) / output.iterations;
+            val += (double)(output.number_of_iterations - last_iteration[p.first]) / output.number_of_iterations;
             val /= instance.set(p.first).cost;
             val = - val;
             if (val <= p.second + FFOT_TOL) {
                 if (d01(generator) < 0.9) {
                     solution.add(p.first);
                     sets_added.push_back(p.first);
-                    last_iteration[p.first] = output.iterations;
+                    last_iteration[p.first] = output.number_of_iterations;
                 }
                 heap.pop();
             } else {
@@ -109,7 +117,7 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
                 solution.add(s);
         } else if (output.solution.cost() > solution.cost()){
             std::stringstream ss;
-            ss << "iteration " << output.iterations;
+            ss << "iteration " << output.number_of_iterations;
             output.update_solution(solution, ss, parameters.info);
             iterations_without_improvment = 0;
         }
@@ -125,9 +133,9 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
 LargeNeighborhoodSearch2Output& LargeNeighborhoodSearch2Output::algorithm_end(
         optimizationtools::Info& info)
 {
-    FFOT_PUT(info, "Algorithm", "Iterations", iterations);
+    FFOT_PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    FFOT_VER(info, "Iterations: " << iterations << std::endl);
+    FFOT_VER(info, "Iterations: " << number_of_iterations << std::endl);
     return *this;
 }
 
@@ -149,6 +157,11 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Large Neighborhood Search 2" << std::endl
+            << std::endl
+            << "Parameters" << std::endl
+            << "----------" << std::endl
+            << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
+            << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
             << std::endl);
 
     instance.fix_identical(parameters.info);
@@ -175,13 +188,16 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
     optimizationtools::IndexedSet sets_in_to_update(instance.number_of_sets());
     optimizationtools::IndexedSet sets_out_to_update(instance.number_of_sets());
     Counter iterations_without_improvment = 0;
-    for (output.iterations = 1; !parameters.info.needs_to_end(); ++output.iterations, ++iterations_without_improvment) {
+    for (output.number_of_iterations = 0;
+            !parameters.info.needs_to_end();
+            ++output.number_of_iterations,
+            ++iterations_without_improvment) {
         // Check stop criteria.
-        if (parameters.iteration_limit != -1
-                && output.iterations > parameters.iteration_limit)
+        if (parameters.maximum_number_of_iterations != -1
+                && output.number_of_iterations >= parameters.maximum_number_of_iterations)
             break;
-        if (parameters.iteration_without_improvment_limit != -1
-                && iterations_without_improvment > parameters.iteration_without_improvment_limit)
+        if (parameters.maximum_number_of_iterations_without_improvement != -1
+                && iterations_without_improvment >= parameters.maximum_number_of_iterations_without_improvement)
             break;
         //std::cout
             //<< "cost " << solution.cost()
@@ -198,7 +214,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
             SetId s = p.first;
             //std::cout << "remove " << s << " score " << p.second << " cost " << instance.set(s).cost << " e " << solution.number_of_elements() << std::endl;
             solution.remove(s);
-            sets[s].last_removal = output.iterations;
+            sets[s].last_removal = output.number_of_iterations;
             sets_out_to_update.add(s);
             // Update scores.
             sets_in_to_update.clear();
@@ -246,7 +262,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
             solution.add(s);
             //std::cout << "add " << s << " score " << p.second << " cost " << instance.set(s).cost << " e " << solution.number_of_elements() << std::endl;
             assert(p.second.first < 0);
-            sets[s].last_addition = output.iterations;
+            sets[s].last_addition = output.number_of_iterations;
             sets_in_to_update.add(s);
             // Update scores.
             sets_out_to_update.clear();
@@ -273,7 +289,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
                 for (SetId s2: instance.element(e).sets) {
                     if (solution.contains(s2) && sets[s2].score == 0) {
                         solution.remove(s2);
-                        sets[s2].last_removal = output.iterations;
+                        sets[s2].last_removal = output.number_of_iterations;
                         //std::cout << "> remove " << s2 << " score " << sets[s2].score << " cost " << instance.set(s2).cost << " e " << solution.number_of_elements() << " / " << instance.number_of_elements() << std::endl;
                         for (ElementId e2: instance.set(s2).elements) {
                             if (solution.covers(e2) == 1) {
@@ -305,7 +321,7 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
         //std::cout << "cost " << solution.cost() << std::endl;
         if (output.solution.cost() > solution.cost()){
             std::stringstream ss;
-            ss << "iteration " << output.iterations;
+            ss << "iteration " << output.number_of_iterations;
             output.update_solution(solution, ss, parameters.info);
             iterations_without_improvment = 0;
         }

@@ -7,6 +7,10 @@ namespace setcoveringsolver
 
 struct LocalSearchRowWeightingOptionalParameters
 {
+    /** Maximum number of iterations. */
+    Counter maximum_number_of_iterations = -1;
+    /** Maximum number of iterations without improvement. */
+    Counter maximum_number_of_iterations_without_improvement = -1;
     /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();
 };
@@ -30,10 +34,16 @@ LocalSearchRowWeightingOutput localsearch_rowweighting(
         std::mt19937_64& generator,
         LocalSearchRowWeightingOptionalParameters parameters = {});
 
-/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 struct LocalSearchRowWeighting2OptionalParameters
 {
+    /** Maximum number of iterations. */
+    Counter maximum_number_of_iterations = -1;
+    /** Maximum number of iterations without improvement. */
+    Counter maximum_number_of_iterations_without_improvement = -1;
     /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();
 };

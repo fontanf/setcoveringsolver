@@ -51,12 +51,11 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Row Weighting Local Search" << std::endl
-            //<< std::endl
-            //<< "Parameters" << std::endl
-            //<< "----------" << std::endl
-            //<< "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
-            //<< "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
-            //<< "Maximum number of improvements:                    " << parameters.maximum_number_of_improvements << std::endl
+            << std::endl
+            << "Parameters" << std::endl
+            << "----------" << std::endl
+            << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
+            << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
             << std::endl);
 
     // Instance pre-processing.
@@ -83,7 +82,19 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
     std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
 
     ComponentId c = 0;
-    for (output.number_of_iterations = 1; !parameters.info.needs_to_end(); ++output.number_of_iterations) {
+    Counter number_of_iterations_without_improvement = 0;
+    for (output.number_of_iterations = 0;
+            !parameters.info.needs_to_end();
+            ++output.number_of_iterations,
+            ++number_of_iterations_without_improvement) {
+        // Check stop criteria.
+        if (parameters.maximum_number_of_iterations != -1
+                && output.number_of_iterations >= parameters.maximum_number_of_iterations)
+            break;
+        if (parameters.maximum_number_of_iterations_without_improvement != -1
+                && number_of_iterations_without_improvement >= parameters.maximum_number_of_iterations_without_improvement)
+            break;
+
         // Compute component
         if (output.number_of_iterations % (components.back().iteration_max + 1) >= components[c].iteration_max) {
             c = (c + 1) % instance.number_of_components();
@@ -103,6 +114,7 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
                 output.update_solution(solution, c, ss, parameters.info);
             }
             // Update statistics
+            number_of_iterations_without_improvement = 0;
             if (component.iterations_without_improvment > 0)
                 component.iterations_without_improvment = 0;
 
@@ -273,12 +285,11 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
                "Algorithm" << std::endl
             << "---------" << std::endl
             << "Row Weighting Local Search 2" << std::endl
-            //<< std::endl
-            //<< "Parameters" << std::endl
-            //<< "----------" << std::endl
-            //<< "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
-            //<< "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
-            //<< "Maximum number of improvements:                    " << parameters.maximum_number_of_improvements << std::endl
+            << std::endl
+            << "Parameters" << std::endl
+            << "----------" << std::endl
+            << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
+            << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
             << std::endl);
 
     // Instance pre-processing.
@@ -303,10 +314,18 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
     SetId s_last_removed = -1;
     SetId s_last_added = -1;
 
-    Counter iterations_without_improvment = 0;
+    Counter number_of_iterations_without_improvement = 0;
     for (output.number_of_iterations = 0;
             !parameters.info.needs_to_end();
-            ++output.number_of_iterations, iterations_without_improvment++) {
+            ++output.number_of_iterations,
+            ++number_of_iterations_without_improvement) {
+        // Check stop criteria.
+        if (parameters.maximum_number_of_iterations != -1
+                && output.number_of_iterations >= parameters.maximum_number_of_iterations)
+            break;
+        if (parameters.maximum_number_of_iterations_without_improvement != -1
+                && number_of_iterations_without_improvement >= parameters.maximum_number_of_iterations_without_improvement)
+            break;
 
         while (solution.feasible()) {
 
@@ -318,7 +337,7 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
             }
 
             // Update statistics
-            iterations_without_improvment = 0;
+            number_of_iterations_without_improvement = 0;
 
             // Find the best shift move.
             SetId s_best = -1;
