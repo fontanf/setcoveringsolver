@@ -9,11 +9,11 @@ Output setcoveringsolver::greedy(
         optimizationtools::Info info)
 {
     init_display(instance, info);
-    FFOT_VER(info,
-               "Algorithm" << std::endl
+    info.os()
+            << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Greedy" << std::endl
-            << std::endl);
+            << std::endl;
 
     Output output(instance, info);
     Solution solution(instance);
@@ -66,11 +66,11 @@ Output setcoveringsolver::greedy_lin(
         optimizationtools::Info info)
 {
     init_display(instance, info);
-    FFOT_VER(info,
-               "Algorithm" << std::endl
+    info.os()
+            << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Greedy Lin" << std::endl
-            << std::endl);
+            << std::endl;
 
     Output output(instance, info);
     Solution solution(instance);
@@ -122,11 +122,11 @@ Output setcoveringsolver::greedy_dual(
         optimizationtools::Info info)
 {
     init_display(instance, info);
-    FFOT_VER(info,
-               "Algorithm" << std::endl
+    info.os()
+            << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Dual Greedy" << std::endl
-            << std::endl);
+            << std::endl;
 
     Output output(instance, info);
     Solution solution(instance);

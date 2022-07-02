@@ -9,9 +9,7 @@ using namespace setcoveringsolver;
 MilpGurobiOutput& MilpGurobiOutput::algorithm_end(
         optimizationtools::Info& info)
 {
-    //FFOT_PUT(info, "Algorithm", "Iterations", it);
     Output::algorithm_end(info);
-    //FFOT_VER(info, "Iterations: " << it << std::endl);
     return *this;
 }
 
@@ -62,11 +60,11 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
 {
     GRBEnv env;
     init_display(instance, parameters.info);
-    FFOT_VER(parameters.info,
-               "Algorithm" << std::endl
+    parameters.info.os()
+            << "Algorithm" << std::endl
             << "---------" << std::endl
             << "MILP (Gurobi)" << std::endl
-            << std::endl);
+            << std::endl;
 
     MilpGurobiOutput output(instance, p.info);
 

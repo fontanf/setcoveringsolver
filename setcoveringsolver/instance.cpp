@@ -59,9 +59,9 @@ void Instance::add_arc(SetId s, ElementId e)
 
 void Instance::fix_identical(optimizationtools::Info& info)
 {
-    FFOT_VER(info,
-               "Reduction" << std::endl
-            << "---------" << std::endl);
+    info.os()
+            << "Reduction" << std::endl
+            << "---------" << std::endl;
 
     optimizationtools::IndexedSet elements_to_remove(number_of_elements());
     optimizationtools::IndexedSet sets_to_remove(number_of_sets());
@@ -86,9 +86,9 @@ void Instance::fix_identical(optimizationtools::Info& info)
         e_prec = e;
     }
     remove_elements(elements_to_remove);
-    FFOT_VER(info, "Number of unfixed elements:  " << number_of_unfixed_elements() << "/" << number_of_elements()
+    info.os() << "Number of unfixed elements:  " << number_of_unfixed_elements() << "/" << number_of_elements()
             << " (" << elements_to_remove.size() << " fixed)"
-            << std::endl);
+            << std::endl;
 
     sets_to_remove.clear();
     std::vector<SetId> sets_sorted(fixed_sets_.out_begin(), fixed_sets_.out_end());
@@ -116,16 +116,16 @@ void Instance::fix_identical(optimizationtools::Info& info)
         s_prec = s;
     }
     remove_sets(sets_to_remove);
-    FFOT_VER(info,
-            "Number of unfixed sets:      " << number_of_unfixed_sets() << "/" << number_of_sets()
+    info.os()
+            << "Number of unfixed sets:      " << number_of_unfixed_sets() << "/" << number_of_sets()
             << " (" << sets_to_remove.size() << " fixed)"
             << std::endl
-            << std::endl);
+            << std::endl;
 }
 
 void Instance::fix_dominated(optimizationtools::Info& info)
 {
-    FFOT_VER(info, "Fix dominated elements and sets..." << std::endl);
+    info.os() << "Fix dominated elements and sets..." << std::endl;
     optimizationtools::IndexedSet elements_to_remove(number_of_elements());
     optimizationtools::IndexedSet sets_to_remove(number_of_sets());
 
@@ -155,9 +155,9 @@ void Instance::fix_dominated(optimizationtools::Info& info)
         }
     }
     remove_elements(elements_to_remove);
-    FFOT_VER(info, "* Element number: " << number_of_unfixed_elements() << "/" << number_of_elements()
+    info.os() << "* Element number: " << number_of_unfixed_elements() << "/" << number_of_elements()
             << " (" << elements_to_remove.size() << " fixed)"
-            << std::endl);
+            << std::endl;
 
     sets_to_remove.clear();
     optimizationtools::IndexedSet covered_elements(number_of_elements());
@@ -185,16 +185,16 @@ void Instance::fix_dominated(optimizationtools::Info& info)
         }
     }
     remove_sets(sets_to_remove);
-    FFOT_VER(info, "* Set number: " << number_of_unfixed_sets() << "/" << number_of_sets()
+    info.os() << "* Set number: " << number_of_unfixed_sets() << "/" << number_of_sets()
             << " (" << sets_to_remove.size() << " fixed)"
-            << std::endl);
+            << std::endl;
 }
 
 void Instance::compute_set_neighbors(
         Counter number_of_threads,
         optimizationtools::Info& info)
 {
-    FFOT_VER(info, "Compute set neighbors..." << std::endl << std::endl);
+    info.os() << "Compute set neighbors..." << std::endl << std::endl;
     std::vector<std::thread> threads;
     for (Counter thread_id = 0; thread_id < number_of_threads; ++thread_id)
         threads.push_back(std::thread(&Instance::compute_set_neighbors_worker,
@@ -221,7 +221,7 @@ void Instance::compute_set_neighbors_worker(SetId s_start, SetId s_end)
 
 void Instance::compute_element_neighbors(optimizationtools::Info& info)
 {
-    FFOT_VER(info, "Compute element neighbors..." << std::endl);
+    info.os() << "Compute element neighbors..." << std::endl;
     optimizationtools::IndexedSet neighbors(number_of_elements());
     for (ElementId e1 = 0; e1 < number_of_elements(); ++e1) {
         neighbors.clear();
@@ -487,8 +487,8 @@ void setcoveringsolver::init_display(
         const Instance& instance,
         optimizationtools::Info& info)
 {
-    FFOT_VER(info,
-               "=====================================" << std::endl
+    info.os()
+            << "=====================================" << std::endl
             << "         Set Covering Solver         " << std::endl
             << "=====================================" << std::endl
             << std::endl
@@ -501,6 +501,6 @@ void setcoveringsolver::init_display(
             << "Average number of elements covered by a set:  " << (double)instance.number_of_arcs() / instance.number_of_sets() << std::endl
             << "Number of connected components:               " << instance.number_of_components() << std::endl
             << "Average cost:                                 " << (double)instance.total_cost() / instance.number_of_unfixed_sets() << std::endl
-            << std::endl);
+            << std::endl;
 }
 

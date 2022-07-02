@@ -13,9 +13,9 @@ using namespace setcoveringsolver;
 LocalSearchRowWeightingOutput& LocalSearchRowWeightingOutput::algorithm_end(
         optimizationtools::Info& info)
 {
-    FFOT_PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
+    info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    FFOT_VER(info, "Number of iterations:  " << number_of_iterations << std::endl);
+    info.os() << "Number of iterations:  " << number_of_iterations << std::endl;
     return *this;
 }
 
@@ -47,8 +47,8 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
         LocalSearchRowWeightingOptionalParameters parameters)
 {
     init_display(instance, parameters.info);
-    FFOT_VER(parameters.info,
-               "Algorithm" << std::endl
+    parameters.info.os()
+            << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Row Weighting Local Search" << std::endl
             << std::endl
@@ -56,7 +56,7 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
             << "----------" << std::endl
             << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
             << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
-            << std::endl);
+            << std::endl;
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);
@@ -260,9 +260,9 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
 LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(
         optimizationtools::Info& info)
 {
-    FFOT_PUT(info, "Algorithm", "NumberOfIterations", number_of_iterations);
+    info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    FFOT_VER(info, "Number of iterations:  " << number_of_iterations << std::endl);
+    info.os() << "Number of iterations:  " << number_of_iterations << std::endl;
     return *this;
 }
 
@@ -281,8 +281,8 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         LocalSearchRowWeighting2OptionalParameters parameters)
 {
     init_display(instance, parameters.info);
-    FFOT_VER(parameters.info,
-               "Algorithm" << std::endl
+    parameters.info.os()
+            << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Row Weighting Local Search 2" << std::endl
             << std::endl
@@ -290,7 +290,7 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
             << "----------" << std::endl
             << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
             << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
-            << std::endl);
+            << std::endl;
 
     // Instance pre-processing.
     instance.fix_identical(parameters.info);

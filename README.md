@@ -33,7 +33,7 @@ bazel build -- //...
 Run:
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v -i data/faster1994/rail582.txt -f faster --unicost -a localsearch_rowweighting_2 -c solution.txt -t 2
+./bazel-bin/setcoveringsolver/main -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a localsearch_rowweighting_2 -c solution.txt -t 2
 ```
 ```
 =====================================
@@ -99,7 +99,7 @@ Number of iterations:  199431
 ```
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a localsearch_rowweighting -t 10 -c solution.txt
+./bazel-bin/setcoveringsolver/main -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a localsearch_rowweighting -t 10 -c solution.txt
 ```
 ```
 =====================================

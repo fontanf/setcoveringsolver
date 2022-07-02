@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     std::string output_path = "";
     std::string certificate_path = "";
     std::string log_path = "";
+    int verbosity_level = 0;
     int loglevelmax = 999;
     int seed = 0;
     double time_limit = std::numeric_limits<double>::infinity();
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
         ("certificate,c", po::value<std::string>(&certificate_path), "set certificate file")
         ("time-limit,t", po::value<double>(&time_limit), "Time limit in seconds")
         ("seed,s", po::value<int>(&seed), "set seed")
-        ("verbose,v", "set verbosity")
+        ("verbosity-level,v", po::value<int>(&verbosity_level), "set verbosity level")
         ("log,l", po::value<std::string>(&log_path), "set log file")
         ("loglevelmax", po::value<int>(&loglevelmax), "set log max level")
         ("log2stderr", "write log to stderr")
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
         instance.set_unicost();
 
     optimizationtools::Info info = optimizationtools::Info()
-        .set_verbose(vm.count("verbose"))
+        .set_verbosity_level(verbosity_level)
         .set_time_limit(time_limit)
         .set_certificate_path(certificate_path)
         .set_json_output_path(output_path)

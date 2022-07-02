@@ -99,8 +99,8 @@ Output::Output(
         optimizationtools::Info& info):
     solution(instance)
 {
-    FFOT_VER(info,
-               std::setw(12) << "T (s)"
+    info.os()
+            << std::setw(12) << "T (s)"
             << std::setw(12) << "UB"
             << std::setw(12) << "LB"
             << std::setw(12) << "GAP"
@@ -113,7 +113,7 @@ Output::Output(
             << std::setw(12) << "---"
             << std::setw(12) << "-------"
             << std::setw(24) << "-------"
-            << std::endl);
+            << std::endl;
     print(info, std::stringstream(""));
 }
 
@@ -126,13 +126,13 @@ void Output::print(
         (double)(upper_bound() - lower_bound) / lower_bound * 100;
     double t = round(info.elapsed_time() * 10000) / 10000;
 
-    FFOT_VER(info,
-               std::setw(12) << t
+    info.os()
+            << std::setw(12) << t
             << std::setw(12) << upper_bound()
             << std::setw(12) << lower_bound
             << std::setw(12) << upper_bound() - lower_bound
             << std::setw(12) << gap
-            << std::setw(24) << s.str() << std::endl);
+            << std::setw(24) << s.str() << std::endl;
 
     if (!info.output->only_write_at_the_end)
         info.write_json_output();
@@ -144,7 +144,7 @@ void Output::update_solution(
         const std::stringstream& s,
         optimizationtools::Info& info)
 {
-    info.output->mutex_solutions.lock();
+    info.lock();
 
     bool ok = false;
     if (c == -1) {
@@ -178,16 +178,16 @@ void Output::update_solution(
         info.output->number_of_solutions++;
         double t = round(info.elapsed_time() * 10000) / 10000;
         std::string sol_str = "Solution" + std::to_string(info.output->number_of_solutions);
-        FFOT_PUT(info, sol_str, "Value", solution.cost());
-        FFOT_PUT(info, sol_str, "Time", t);
-        FFOT_PUT(info, sol_str, "String", s.str());
+        info.add_to_json(sol_str, "Value", solution.cost());
+        info.add_to_json(sol_str, "Time", t);
+        info.add_to_json(sol_str, "String", s.str());
         if (!info.output->only_write_at_the_end) {
             info.write_json_output();
             solution.write(info.output->certificate_path);
         }
     }
 
-    info.output->mutex_solutions.unlock();
+    info.unlock();
 }
 
 void Output::update_lower_bound(
@@ -198,7 +198,7 @@ void Output::update_lower_bound(
     if (lower_bound >= lower_bound_new)
         return;
 
-    info.output->mutex_solutions.lock();
+    info.lock();
 
     if (lower_bound < lower_bound_new) {
         lower_bound = lower_bound_new;
@@ -207,14 +207,14 @@ void Output::update_lower_bound(
         info.output->number_of_bounds++;
         double t = round(info.elapsed_time() * 10000) / 10000;
         std::string sol_str = "Bound" + std::to_string(info.output->number_of_bounds);
-        FFOT_PUT(info, sol_str, "Bound", lower_bound);
-        FFOT_PUT(info, sol_str, "Time", t);
-        FFOT_PUT(info, sol_str, "String", s.str());
+        info.add_to_json(sol_str, "Bound", lower_bound);
+        info.add_to_json(sol_str, "Time", t);
+        info.add_to_json(sol_str, "String", s.str());
         if (!info.output->only_write_at_the_end)
             solution.write(info.output->certificate_path);
     }
 
-    info.output->mutex_solutions.unlock();
+    info.unlock();
 }
 
 Output& Output::algorithm_end(optimizationtools::Info& info)
@@ -223,19 +223,19 @@ Output& Output::algorithm_end(optimizationtools::Info& info)
     double gap = (lower_bound == 0)?
         std::numeric_limits<double>::infinity():
         (double)(upper_bound() - lower_bound) / lower_bound * 100;
-    FFOT_PUT(info, "Solution", "Value", upper_bound());
-    FFOT_PUT(info, "Bound", "Value", lower_bound);
-    FFOT_PUT(info, "Solution", "Time", t);
-    FFOT_PUT(info, "Bound", "Time", t);
-    FFOT_VER(info,
-            std::endl
+    info.add_to_json("Solution", "Value", upper_bound());
+    info.add_to_json("Bound", "Value", lower_bound);
+    info.add_to_json("Solution", "Time", t);
+    info.add_to_json("Bound", "Time", t);
+    info.os()
+            << std::endl
             << "Final statistics" << std::endl
             << "----------------" << std::endl
             << "Value:                 " << upper_bound() << std::endl
             << "Bound:                 " << lower_bound << std::endl
             << "Gap:                   " << upper_bound() - lower_bound << std::endl
             << "Gap (%):               " << gap << std::endl
-            << "Time (s):              " << t << std::endl);
+            << "Time (s):              " << t << std::endl;
 
     info.write_json_output();
     solution.write(info.output->certificate_path);
@@ -247,11 +247,11 @@ Cost setcoveringsolver::algorithm_end(
         optimizationtools::Info& info)
 {
     double t = round(info.elapsed_time() * 10000) / 10000;
-    FFOT_PUT(info, "Bound", "Value", lower_bound);
-    FFOT_PUT(info, "Bound", "Time", t);
-    FFOT_VER(info, "---" << std::endl
+    info.add_to_json("Bound", "Value", lower_bound);
+    info.add_to_json("Bound", "Time", t);
+    info.os() << "---" << std::endl
             << "Bound:                 " << lower_bound << std::endl
-            << "Time (s):              " << t << std::endl);
+            << "Time (s):              " << t << std::endl;
 
     info.write_json_output();
     return lower_bound;
