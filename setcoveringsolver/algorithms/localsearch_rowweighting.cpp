@@ -353,6 +353,9 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
                     score_best = sets[s].score;
                 }
             }
+            // It may happen that all sets in the solution are mandatory.
+            if (s_best == -1)
+                return output.algorithm_end(parameters.info);
             // Apply best move
             solution.remove(s_best);
             // Update scores.
