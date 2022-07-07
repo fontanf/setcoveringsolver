@@ -212,7 +212,9 @@ private:
 
     void compute_set_neighbors_worker(SetId s_start, SetId s_end);
     void remove_elements(const optimizationtools::IndexedSet& elements);
-    void remove_sets(const optimizationtools::IndexedSet& sets);
+    void remove_sets(
+            const optimizationtools::IndexedSet& sets,
+            optimizationtools::Info& info);
 
 };
 

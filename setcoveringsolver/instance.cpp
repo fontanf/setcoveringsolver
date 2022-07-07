@@ -115,7 +115,7 @@ void Instance::fix_identical(optimizationtools::Info& info)
         }
         s_prec = s;
     }
-    remove_sets(sets_to_remove);
+    remove_sets(sets_to_remove, info);
     info.os()
             << "Number of unfixed sets:      " << number_of_unfixed_sets() << "/" << number_of_sets()
             << " (" << sets_to_remove.size() << " fixed)"
@@ -184,7 +184,7 @@ void Instance::fix_dominated(optimizationtools::Info& info)
                 sets_to_remove.add(s2);
         }
     }
-    remove_sets(sets_to_remove);
+    remove_sets(sets_to_remove, info);
     info.os() << "* Set number: " << number_of_unfixed_sets() << "/" << number_of_sets()
             << " (" << sets_to_remove.size() << " fixed)"
             << std::endl;
@@ -295,7 +295,9 @@ void Instance::remove_elements(const optimizationtools::IndexedSet& elements)
     }
 }
 
-void Instance::remove_sets(const optimizationtools::IndexedSet& sets)
+void Instance::remove_sets(
+        const optimizationtools::IndexedSet& sets,
+        optimizationtools::Info& info)
 {
     optimizationtools::IndexedSet modified_elements(number_of_elements());
     for (SetId s: sets) {
@@ -312,9 +314,16 @@ void Instance::remove_sets(const optimizationtools::IndexedSet& sets)
         elements_[e].sets.swap(e_sets_new);
     }
 
-    for (ElementId e = 0; e < number_of_elements(); ++e)
-        if (element(e).sets.size() == 1)
-            sets_[element(e).sets.front()].mandatory = true;
+    SetPos number_of_mandatory_sets = 0;
+    for (ElementId e = 0; e < number_of_elements(); ++e) {
+        if (element(e).sets.size() == 1) {
+            if (!sets_[element(e).sets.front()].mandatory) {
+                sets_[element(e).sets.front()].mandatory = true;
+                number_of_mandatory_sets++;
+            }
+        }
+    }
+    info.os() << "Number of mandatory sets:    " << number_of_mandatory_sets << "/" << number_of_sets() << std::endl;
 }
 
 void Instance::read_geccod2020(std::ifstream& file)

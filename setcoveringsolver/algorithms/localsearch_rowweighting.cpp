@@ -29,8 +29,17 @@ struct LocalSearchRowWeightingComponent
     Counter iterations = 0;
     /** Number of iterations without improvment. */
     Counter iterations_without_improvment = 0;
-    /** When to start optimizing next component. */
-    Counter iteration_max;
+    /** Iteration at which optimizing this component starts (included). */
+    Counter itmode_start;
+    /** Iteration at which optimizing this component ends (excluded). */
+    Counter itmode_end;
+    /**
+     * Boolean that indicates if the component of the current solution optimal.
+     *
+     * This is set to true when all the sets of this components which are in
+     * the current solution are mandatory sets.
+     */
+    bool optimal = false;
 };
 
 struct LocalSearchRowWeightingSet
@@ -76,9 +85,13 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
     for (SetId s: solution.sets())
         sets[s].last_addition = 0;
     std::vector<LocalSearchRowWeightingComponent> components(instance.number_of_components());
-    for (ComponentId c = 0; c < instance.number_of_components(); ++c)
-        components[c].iteration_max = ((c == 0)? 0: components[c - 1].iteration_max)
+    components[0].itmode_start = 0;
+    for (ComponentId c = 0; c < instance.number_of_components(); ++c) {
+        components[c].itmode_end = components[c].itmode_start
             + instance.component(c).elements.size();
+        if (c + 1 < instance.number_of_components())
+            components[c + 1].itmode_start = components[c].itmode_end;
+    }
     std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
 
     ComponentId c = 0;
@@ -96,12 +109,22 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
             break;
 
         // Compute component
-        if (output.number_of_iterations % (components.back().iteration_max + 1) >= components[c].iteration_max) {
+        //std::cout << "it " << output.number_of_iterations
+        //    << " % " << output.number_of_iterations % (components.back().itmode_end)
+        //    << " c " << c
+        //    << " start " << components[c].itmode_start
+        //    << " end " << components[c].itmode_end
+        //    << std::endl;
+        Counter itmod = output.number_of_iterations % (components.back().itmode_end);
+        while (itmod < components[c].itmode_start
+                || itmod >= components[c].itmode_end) {
             c = (c + 1) % instance.number_of_components();
-            //std::cout << "c " << c << " " << components[c].iteration_max
-                //<< " e " << instance.component(c).elements.size()
-                //<< " s " << instance.component(c).sets.size()
-                //<< std::endl;
+            //std::cout << "it " << output.number_of_iterations
+            //    << " % " << output.number_of_iterations % (components.back().itmode_end)
+            //    << " c " << c
+            //    << " start " << components[c].itmode_start
+            //    << " end " << components[c].itmode_end
+            //    << std::endl;
         }
         LocalSearchRowWeightingComponent& component = components[c];
 
@@ -140,6 +163,29 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
                     s_best = s;
                     p_best = p;
                 }
+            }
+            if (s_best == -1) {
+                // Happens when all sets of the component which are in the
+                // solution are mandatory.
+                component.optimal = true;
+                //std::cout << "c " << c << " optimal" << std::endl;
+                bool all_component_optimal = true;
+                components[0].itmode_start = 0;
+                for (ComponentId c = 0; c < instance.number_of_components(); ++c) {
+                    //std::cout << "comp " << c << " opt " << component.optimal << std::endl;
+                    components[c].itmode_end = components[c].itmode_start;
+                    if (components[c].optimal) {
+                    } else {
+                        components[c].itmode_end += instance.component(c).elements.size();
+                        all_component_optimal = false;
+                    }
+                    if (c + 1 < instance.number_of_components())
+                        components[c + 1].itmode_start = components[c].itmode_end;
+                }
+                // If all components are optimal, stop here.
+                if (all_component_optimal)
+                    return output.algorithm_end(parameters.info);
+                break;
             }
             // Apply best move
             solution.remove(s_best);
