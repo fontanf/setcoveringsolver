@@ -226,7 +226,7 @@ LocalSearchRowWeightingOutput setcoveringsolver::localsearch_rowweighting(
                 if (solution.covers(e2) == 0)
                     p0 -= solution_penalties[e2];
             solution.add(s1);
-            if (p_best == -1 || p0 <= p_best) {
+            if (s1_best == -1 || p0 <= p_best) {
                 // For each neighbor s2 of s1 which is neither part of the
                 // solution, nor the last set added, nor mandatory.
                 for (SetId s2: instance.set(s1).neighbors) {
