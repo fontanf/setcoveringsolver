@@ -124,15 +124,16 @@ void Output::print(
     double gap = (lower_bound == 0)?
         std::numeric_limits<double>::infinity():
         (double)(upper_bound() - lower_bound) / lower_bound * 100;
-    double t = round(info.elapsed_time() * 10000) / 10000;
 
+    double t = info.elapsed_time();
+    std::streamsize precision = std::cout.precision();
     info.os()
-            << std::setw(12) << t
-            << std::setw(12) << upper_bound()
-            << std::setw(12) << lower_bound
-            << std::setw(12) << upper_bound() - lower_bound
-            << std::setw(12) << gap
-            << std::setw(24) << s.str() << std::endl;
+        << std::setw(12) << std::fixed << std::setprecision(3) << t << std::defaultfloat << std::setprecision(precision)
+        << std::setw(12) << upper_bound()
+        << std::setw(12) << lower_bound
+        << std::setw(12) << upper_bound() - lower_bound
+        << std::setw(12) << gap
+        << std::setw(24) << s.str() << std::endl;
 
     if (!info.output->only_write_at_the_end)
         info.write_json_output();
@@ -176,7 +177,7 @@ void Output::update_solution(
         print(info, s);
 
         info.output->number_of_solutions++;
-        double t = round(info.elapsed_time() * 10000) / 10000;
+        double t = info.elapsed_time();
         std::string sol_str = "Solution" + std::to_string(info.output->number_of_solutions);
         info.add_to_json(sol_str, "Value", solution.cost());
         info.add_to_json(sol_str, "Time", t);
@@ -205,7 +206,7 @@ void Output::update_lower_bound(
         print(info, s);
 
         info.output->number_of_bounds++;
-        double t = round(info.elapsed_time() * 10000) / 10000;
+        double t = info.elapsed_time();
         std::string sol_str = "Bound" + std::to_string(info.output->number_of_bounds);
         info.add_to_json(sol_str, "Bound", lower_bound);
         info.add_to_json(sol_str, "Time", t);
@@ -219,7 +220,7 @@ void Output::update_lower_bound(
 
 Output& Output::algorithm_end(optimizationtools::Info& info)
 {
-    double t = round(info.elapsed_time() * 10000) / 10000;
+    double t = info.elapsed_time();
     double gap = (lower_bound == 0)?
         std::numeric_limits<double>::infinity():
         (double)(upper_bound() - lower_bound) / lower_bound * 100;
@@ -246,7 +247,7 @@ Cost setcoveringsolver::algorithm_end(
         Cost lower_bound,
         optimizationtools::Info& info)
 {
-    double t = round(info.elapsed_time() * 10000) / 10000;
+    double t = info.elapsed_time();
     info.add_to_json("Bound", "Value", lower_bound);
     info.add_to_json("Bound", "Time", t);
     info.os() << "---" << std::endl
