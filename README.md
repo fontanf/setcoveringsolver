@@ -19,9 +19,7 @@ A solver for the (Unicost) Set Covering Problem.
     - `-a "localsearch_rowweighting_2 --wu 1"` implements the algorithm from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020)
     - `-a "localsearch_rowweighting_2 --n1 1 --n2 2 --wu 1"` implements the algorithm from "Weighting-based Variable Neighborhood Search for Optimal Camera Placement" (Su et al., 2021)
 
-- Large neighborhood search based on "Note: A local‐search heuristic for large set‐covering problems" (Jacobs et Brusco, 1995). A move consists in removing some sets and then filing the solution until it becomes feasible again.
-  - Sets are removed to uncover a randomly selected element. This implementation is fast, simple and robust, but returns lower quality solutions `-a "largeneighborhoodsearch --iteration-limit 100000 --iteration-without-improvment-limit 10000"`
-  - Sets are removed and added following a scoring scheme similar to the one from "NuMWVC: A novel local search for minimum weighted vertex cover problem" (Li et al., 2020). This implementation has decent performances on literature benchmarks except on the  `gecco2020` benchmark. `-a "largeneighborhoodsearch_2 --iteration-limit 100000 --iteration-without-improvment-limit 10000"`
+- Large neighborhood search `-a "largeneighborhoodsearch --iterations 100000 --iterations-without-improvment 10000"`
 
 ## Usage (command line)
 

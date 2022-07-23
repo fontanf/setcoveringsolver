@@ -12,13 +12,21 @@ LargeNeighborhoodSearchOutput& LargeNeighborhoodSearchOutput::algorithm_end(
 {
     info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    info.os() << "Iterations: " << number_of_iterations << std::endl;
+    info.os() << "Iterations:                    " << number_of_iterations << std::endl;
     return *this;
 }
 
+struct LargeNeighborhoodSearchSet
+{
+    Counter timestamp = -1;
+    Counter last_addition = -1;
+    Counter last_removal = -1;
+    Counter iterations = 0;
+    Cost score = 0;
+};
+
 LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
         Instance& instance,
-        std::mt19937_64& generator,
         LargeNeighborhoodSearchOptionalParameters parameters)
 {
     init_display(instance, parameters.info);
@@ -34,6 +42,7 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
             << std::endl;
 
     instance.fix_identical(parameters.info);
+    //instance.fix_dominated(parameters.info);
 
     LargeNeighborhoodSearchOutput output(instance, parameters.info);
     Solution solution = greedy(instance).solution;
@@ -41,142 +50,8 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);
 
-    std::vector<Counter> last_iteration(instance.number_of_sets(), 0);
-    std::uniform_int_distribution<ElementId> distribution_elements(0, instance.number_of_elements() - 1);
-    std::uniform_real_distribution<double> d01(0, 1);
-    std::vector<SetId> sets_added;
-    std::vector<SetId> sets_removed;
-    optimizationtools::IndexedSet sets_candidates(instance.number_of_sets());
-    optimizationtools::IndexedBinaryHeap<double> heap(instance.number_of_sets());
-    Counter iterations_without_improvment = 0;
-    for (output.number_of_iterations = 0;
-            !parameters.info.needs_to_end();
-            ++output.number_of_iterations,
-            ++iterations_without_improvment) {
-        // Check stop criteria.
-        if (parameters.maximum_number_of_iterations != -1
-                && output.number_of_iterations >= parameters.maximum_number_of_iterations)
-            break;
-        if (parameters.maximum_number_of_iterations_without_improvement != -1
-                && iterations_without_improvment >= parameters.maximum_number_of_iterations_without_improvement)
-            break;
-
-        sets_added.clear();
-        sets_removed.clear();
-        sets_candidates.clear();
-
-        // Remove all sets covering element e.
-        ElementId e = distribution_elements(generator);
-        for (SetId s: instance.element(e).sets) {
-            if (solution.contains(s)) {
-                solution.remove(s);
-                sets_removed.push_back(s);
-            }
-        }
-
-        // Update heap
-        for (SetId s: instance.element(e).sets)
-            sets_candidates.add(s);
-        auto f = [&solution, &last_iteration, &output](SetId s)
-        {
-            double val = 0;
-            for (ElementId e: solution.instance().set(s).elements)
-                if (!solution.covers(e))
-                    val++;
-            val += (double)(output.number_of_iterations - last_iteration[s]) / output.number_of_iterations;
-            val /= solution.instance().set(s).cost;
-            return - val;
-        };
-        heap.reset(sets_candidates, f);
-
-        // Fill solution
-        while (!solution.feasible() && !heap.empty()) {
-            auto p = heap.top();
-            double val = 0;
-            for (ElementId e: instance.set(p.first).elements)
-                if (!solution.covers(e))
-                    val++;
-            val += (double)(output.number_of_iterations - last_iteration[p.first]) / output.number_of_iterations;
-            val /= instance.set(p.first).cost;
-            val = - val;
-            if (val <= p.second + FFOT_TOL) {
-                if (d01(generator) < 0.9) {
-                    solution.add(p.first);
-                    sets_added.push_back(p.first);
-                    last_iteration[p.first] = output.number_of_iterations;
-                }
-                heap.pop();
-            } else {
-                heap.update_key(p.first, val);
-            }
-        }
-        if (!solution.feasible() || output.solution.cost() < solution.cost()) {
-            for (SetId s: sets_added)
-                solution.remove(s);
-            for (SetId s: sets_removed)
-                solution.add(s);
-        } else if (output.solution.cost() > solution.cost()){
-            std::stringstream ss;
-            ss << "iteration " << output.number_of_iterations;
-            output.update_solution(solution, ss, parameters.info);
-            iterations_without_improvment = 0;
-        }
-    }
-
-    return output.algorithm_end(parameters.info);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-LargeNeighborhoodSearch2Output& LargeNeighborhoodSearch2Output::algorithm_end(
-        optimizationtools::Info& info)
-{
-    info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
-    Output::algorithm_end(info);
-    info.os() << "Iterations:                    " << number_of_iterations << std::endl;
-    return *this;
-}
-
-struct LargeNeighborhoodSearch2Set
-{
-    Counter timestamp     = -1;
-    Counter last_addition = -1;
-    Counter last_removal  = -1;
-    Counter iterations    = 0;
-    Cost    score         = 0;
-};
-
-LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
-        Instance& instance,
-        LargeNeighborhoodSearch2OptionalParameters parameters)
-{
-    init_display(instance, parameters.info);
-    parameters.info.os()
-            << "Algorithm" << std::endl
-            << "---------" << std::endl
-            << "Large Neighborhood Search 2" << std::endl
-            << std::endl
-            << "Parameters" << std::endl
-            << "----------" << std::endl
-            << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
-            << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
-            << std::endl;
-
-    instance.fix_identical(parameters.info);
-    //instance.fix_dominated(parameters.info);
-
-    LargeNeighborhoodSearch2Output output(instance, parameters.info);
-    Solution solution = greedy(instance).solution;
-    std::stringstream ss;
-    ss << "initial solution";
-    output.update_solution(solution, ss, parameters.info);
-
-    std::mt19937_64 generator(0);
-
     // Initialize local search structures.
-    std::vector<LargeNeighborhoodSearch2Set> sets(instance.number_of_sets());
+    std::vector<LargeNeighborhoodSearchSet> sets(instance.number_of_sets());
     std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
     for (SetId s: solution.sets())
         for (ElementId e: instance.set(s).elements)

@@ -65,25 +65,6 @@ LargeNeighborhoodSearchOptionalParameters read_largeneighborhoodsearch_args(cons
     return parameters;
 }
 
-LargeNeighborhoodSearch2OptionalParameters read_largeneighborhoodsearch_2_args(const std::vector<char*>& argv)
-{
-    LargeNeighborhoodSearch2OptionalParameters parameters;
-    po::options_description desc("Allowed options");
-    desc.add_options()
-        ("iterations,i", po::value<Counter>(&parameters.maximum_number_of_iterations), "")
-        ("iterations-without-improvement,w", po::value<Counter>(&parameters.maximum_number_of_iterations_without_improvement), "")
-        ;
-    po::variables_map vm;
-    po::store(po::parse_command_line((Counter)argv.size(), argv.data(), desc), vm);
-    try {
-        po::notify(vm);
-    } catch (const po::required_option& e) {
-        std::cout << desc << std::endl;;
-        throw "";
-    }
-    return parameters;
-}
-
 Output setcoveringsolver::run(
         std::string algorithm,
         Instance& instance,
@@ -125,15 +106,12 @@ Output setcoveringsolver::run(
         auto parameters = read_localsearch_rowweighting_2_args(algorithm_argv);
         parameters.info = info;
         return localsearch_rowweighting_2(instance, generator, parameters);
-    } else if (algorithm_args[0] == "largeneighborhoodsearch") {
+    } else if (algorithm_args[0] == "largeneighborhoodsearch"
+            || algorithm_args[0] == "largeneighborhoodsearch_2") {
         auto parameters = read_largeneighborhoodsearch_args(algorithm_argv);
-        parameters.info = info;
-        return largeneighborhoodsearch(instance, generator, parameters);
-    } else if (algorithm_args[0] == "largeneighborhoodsearch_2") {
-        auto parameters = read_largeneighborhoodsearch_2_args(algorithm_argv);
         parameters.goal = goal;
         parameters.info = info;
-        return largeneighborhoodsearch_2(instance, parameters);
+        return largeneighborhoodsearch(instance, parameters);
 
     } else {
         throw std::invalid_argument(
