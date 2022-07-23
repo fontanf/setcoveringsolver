@@ -135,7 +135,7 @@ LargeNeighborhoodSearch2Output& LargeNeighborhoodSearch2Output::algorithm_end(
 {
     info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    info.os() << "Iterations: " << number_of_iterations << std::endl;
+    info.os() << "Iterations:            " << number_of_iterations << std::endl;
     return *this;
 }
 
@@ -173,6 +173,8 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);
 
+    std::mt19937_64 generator(0);
+
     // Initialize local search structures.
     std::vector<LargeNeighborhoodSearch2Set> sets(instance.number_of_sets());
     std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
@@ -198,6 +200,8 @@ LargeNeighborhoodSearch2Output setcoveringsolver::largeneighborhoodsearch_2(
             break;
         if (parameters.maximum_number_of_iterations_without_improvement != -1
                 && iterations_without_improvment >= parameters.maximum_number_of_iterations_without_improvement)
+            break;
+        if (output.solution.cost() == parameters.goal)
             break;
         //std::cout
             //<< "cost " << solution.cost()

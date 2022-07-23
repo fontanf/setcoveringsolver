@@ -5,9 +5,9 @@
 using namespace setcoveringsolver;
 namespace po = boost::program_options;
 
-LocalSearchRowWeightingOptionalParameters read_localsearch_rowweighting_args(const std::vector<char*>& argv)
+LocalSearchRowWeighting1OptionalParameters read_localsearch_rowweighting_1_args(const std::vector<char*>& argv)
 {
-    LocalSearchRowWeightingOptionalParameters parameters;
+    LocalSearchRowWeighting1OptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
         ("iterations,i", po::value<Counter>(&parameters.maximum_number_of_iterations), "")
@@ -29,6 +29,9 @@ LocalSearchRowWeighting2OptionalParameters read_localsearch_rowweighting_2_args(
     LocalSearchRowWeighting2OptionalParameters parameters;
     po::options_description desc("Allowed options");
     desc.add_options()
+        ("n1,", po::value<int>(&parameters.neighborhood_1), "")
+        ("n2,", po::value<int>(&parameters.neighborhood_2), "")
+        ("wu,", po::value<int>(&parameters.weights_update_strategy), "")
         ("iterations,i", po::value<Counter>(&parameters.maximum_number_of_iterations), "")
         ("iterations-without-improvement,w", po::value<Counter>(&parameters.maximum_number_of_iterations_without_improvement), "")
         ;
@@ -84,6 +87,7 @@ LargeNeighborhoodSearch2OptionalParameters read_largeneighborhoodsearch_2_args(c
 Output setcoveringsolver::run(
         std::string algorithm,
         Instance& instance,
+        Cost goal,
         std::mt19937_64& generator,
         optimizationtools::Info info)
 {
@@ -107,10 +111,10 @@ Output setcoveringsolver::run(
         parameters.info = info;
         return milp_gurobi(instance, parameters);
 #endif
-    } else if (algorithm_args[0] == "localsearch_rowweighting") {
-        auto parameters = read_localsearch_rowweighting_args(algorithm_argv);
+    } else if (algorithm_args[0] == "localsearch_rowweighting_1") {
+        auto parameters = read_localsearch_rowweighting_1_args(algorithm_argv);
         parameters.info = info;
-        return localsearch_rowweighting(instance, generator, parameters);
+        return localsearch_rowweighting_1(instance, generator, parameters);
     } else if (algorithm_args[0] == "localsearch_rowweighting_2") {
         auto parameters = read_localsearch_rowweighting_2_args(algorithm_argv);
         parameters.info = info;
@@ -121,6 +125,7 @@ Output setcoveringsolver::run(
         return largeneighborhoodsearch(instance, generator, parameters);
     } else if (algorithm_args[0] == "largeneighborhoodsearch_2") {
         auto parameters = read_largeneighborhoodsearch_2_args(algorithm_argv);
+        parameters.goal = goal;
         parameters.info = info;
         return largeneighborhoodsearch_2(instance, parameters);
 

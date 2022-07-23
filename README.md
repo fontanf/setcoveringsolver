@@ -12,8 +12,10 @@ A solver for the (Unicost) Set Covering Problem.
 - Mixed-Integer Linear Program (Gurobi) `-a milp_gurobi`
 
 - Row weighting local search (unicost only)
-  - based on "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a "localsearch_rowweighting"`
-  - based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015) `-a "localsearch_rowweighting_2"`
+  - based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015) `-a "localsearch_rowweighting_1"`
+  - `-a "localsearch_rowweighting_2"`
+    - `-a "localsearch_rowweighting_2 --wu 1"` implements the algorithm from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020)
+    - `-a "localsearch_rowweighting_2 --n1 1 --n2 2 --wu 1"` implements the algorithm from "Weighting-based Variable Neighborhood Search for Optimal Camera Placement" (Su et al., 2021)
 
 - Large neighborhood search based on "Note: A local‐search heuristic for large set‐covering problems" (Jacobs et Brusco, 1995). A move consists in removing some sets and then filing the solution until it becomes feasible again.
   - Sets are removed to uncover a randomly selected element. This implementation is fast, simple and robust, but returns lower quality solutions `-a "largeneighborhoodsearch --iteration-limit 100000 --iteration-without-improvment-limit 10000"`
@@ -216,10 +218,10 @@ Number of iterations:  13475
 
 Benchmarks:
 ```shell
-python3 ../optimizationtools/optimizationtools/bench_run.py --algorithms "greedy"
-python3 ../optimizationtools/optimizationtools/bench_run.py --algorithms "greedy_lin"
-python3 ../optimizationtools/optimizationtools/bench_run.py --algorithms "greedy_dual"
-python3 ../optimizationtools/optimizationtools/bench_process.py --benchmark heuristicshort --timelimit 10 --labels "greedy" "greedy_lin" "greedy_dual"
+python3 ../optimizationtools/scripts/bench_run.py --algorithms "greedy"
+python3 ../optimizationtools/scripts/bench_run.py --algorithms "greedy_lin"
+python3 ../optimizationtools/scripts/bench_run.py --algorithms "greedy_dual"
+python3 ../optimizationtools/scripts/bench_process.py --benchmark heuristicshort --timelimit 10 --labels "greedy" "greedy_lin" "greedy_dual"
 ```
 
 ![heuristicshort](img/heuristicshort.png?raw=true "heuristicshort")

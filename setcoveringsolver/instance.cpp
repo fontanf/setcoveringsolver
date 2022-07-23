@@ -205,6 +205,23 @@ void Instance::compute_set_neighbors(
         threads[thread_id].join();
 }
 
+void Instance::compute_element_neighbor_sets(
+        optimizationtools::Info& info)
+{
+    info.os() << "Compute element neighbor sets..." << std::endl << std::endl;
+    optimizationtools::IndexedSet neighbors(number_of_sets());
+    for (ElementId e = 0; e < number_of_elements(); ++e) {
+        neighbors.clear();
+        for (SetId s: element(e).sets) {
+            neighbors.add(s);
+            for (SetId s2: set(s).neighbors)
+                neighbors.add(s2);
+        }
+        for (SetId s: neighbors)
+            elements_[e].neighbor_sets.push_back(s);
+    }
+}
+
 void Instance::compute_set_neighbors_worker(SetId s_start, SetId s_end)
 {
     optimizationtools::IndexedSet neighbors(number_of_sets());
@@ -212,8 +229,9 @@ void Instance::compute_set_neighbors_worker(SetId s_start, SetId s_end)
         neighbors.clear();
         for (ElementId e: set(s1).elements)
             for (SetId s2: element(e).sets)
-                if (s2 != s1)
-                    neighbors.add(s2);
+                neighbors.add(s2);
+        if (neighbors.contains(s1))
+            neighbors.remove(s1);
         for (SetId s2: neighbors)
             sets_[s1].neighbors.push_back(s2);
     }

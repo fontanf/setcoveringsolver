@@ -38,7 +38,9 @@ struct Element
      * This attribute is not computed by default, use instance.compute_element_neighbors().
      * This might require a large amount of memory for large instances.
      */
-    std::vector<SetId> neighbors;
+    std::vector<ElementId> neighbors;
+
+    std::vector<SetId> neighbor_sets;
 
     /**
      * Index of the connected component in which the element belongs.
@@ -113,6 +115,8 @@ public:
      * They can then be retrieved with 'set(s).neighbors'.
      */
     void compute_set_neighbors(Counter number_of_threads, optimizationtools::Info& info);
+
+    void compute_element_neighbor_sets(optimizationtools::Info& info);
 
     /**
      * Compute the neighbors of the elements.

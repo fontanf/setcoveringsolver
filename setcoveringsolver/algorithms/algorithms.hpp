@@ -13,6 +13,7 @@ namespace setcoveringsolver
 Output run(
         std::string algorithm,
         Instance& instance,
+        Cost goal,
         std::mt19937_64& generator,
         optimizationtools::Info info);
 

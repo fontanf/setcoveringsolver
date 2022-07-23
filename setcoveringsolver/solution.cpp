@@ -232,11 +232,11 @@ Output& Output::algorithm_end(optimizationtools::Info& info)
             << std::endl
             << "Final statistics" << std::endl
             << "----------------" << std::endl
-            << "Value:                 " << upper_bound() << std::endl
-            << "Bound:                 " << lower_bound << std::endl
-            << "Gap:                   " << upper_bound() - lower_bound << std::endl
-            << "Gap (%):               " << gap << std::endl
-            << "Time (s):              " << t << std::endl;
+            << "Value:                         " << upper_bound() << std::endl
+            << "Bound:                         " << lower_bound << std::endl
+            << "Gap:                           " << upper_bound() - lower_bound << std::endl
+            << "Gap (%):                       " << gap << std::endl
+            << "Time (s):                      " << t << std::endl;
 
     info.write_json_output();
     solution.write(info.output->certificate_path);
@@ -251,8 +251,8 @@ Cost setcoveringsolver::algorithm_end(
     info.add_to_json("Bound", "Value", lower_bound);
     info.add_to_json("Bound", "Time", t);
     info.os() << "---" << std::endl
-            << "Bound:                 " << lower_bound << std::endl
-            << "Time (s):              " << t << std::endl;
+            << "Bound:                         " << lower_bound << std::endl
+            << "Time (s):                      " << t << std::endl;
 
     info.write_json_output();
     return lower_bound;

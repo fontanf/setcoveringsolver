@@ -116,7 +116,7 @@ void Solution::add(SetId s)
     }
     sets_.add(s);
     component_costs_[c] += instance().set(s).cost;
-    cost_               += instance().set(s).cost;
+    cost_ += instance().set(s).cost;
 }
 
 void Solution::remove(SetId s)
@@ -136,7 +136,7 @@ void Solution::remove(SetId s)
     }
     sets_.remove(s);
     component_costs_[c] -= instance().set(s).cost;
-    cost_               -= instance().set(s).cost;
+    cost_ -= instance().set(s).cost;
 }
 
 std::ostream& operator<<(std::ostream& os, const Solution& solution);

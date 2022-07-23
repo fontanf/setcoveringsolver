@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     int verbosity_level = 0;
     int loglevelmax = 999;
     int seed = 0;
+    Cost goal = 0;
     double time_limit = std::numeric_limits<double>::infinity();
 
     po::options_description desc("Allowed options");
@@ -32,6 +33,7 @@ int main(int argc, char *argv[])
         ("output,o", po::value<std::string>(&output_path), "set JSON output file")
         ("initial-solution,", po::value<std::string>(&initial_solution_path), "")
         ("certificate,c", po::value<std::string>(&certificate_path), "set certificate file")
+        ("goal,", po::value<Cost>(&goal), "")
         ("time-limit,t", po::value<double>(&time_limit), "Time limit in seconds")
         ("seed,s", po::value<int>(&seed), "set seed")
         ("verbosity-level,v", po::value<int>(&verbosity_level), "set verbosity level")
@@ -73,7 +75,7 @@ int main(int argc, char *argv[])
     std::mt19937_64 generator(seed);
     Solution solution(instance, initial_solution_path);
 
-    auto output = run(algorithm, instance, generator, info);
+    auto output = run(algorithm, instance, goal, generator, info);
 
     return 0;
 }
