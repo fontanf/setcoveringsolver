@@ -14,8 +14,11 @@ A solver for the (Unicost) Set Covering Problem.
   - Solved with Gurobi `-a milp_gurobi`
 
 - Row weighting local search (unicost only)
-  - based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015) `-a "localsearch_rowweighting_1"`
+  - `-a "localsearch_rowweighting_1"`
+    - Neighborhood: toggle a set (remove and then add)
+    - based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015)
   - `-a "localsearch_rowweighting_2"`
+    - Neighborhood: swap two sets
     - `-a "localsearch_rowweighting_2 --wu 1"` implements the algorithm from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020)
     - `-a "localsearch_rowweighting_2 --n1 1 --n2 2 --wu 1"` implements the algorithm from "Weighting-based Variable Neighborhood Search for Optimal Camera Placement" (Su et al., 2021)
 
