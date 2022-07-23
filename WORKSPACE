@@ -50,6 +50,20 @@ git_repository(
 )
 
 new_local_repository(
+    name = "coinor",
+    path = "/home/florian/Programmes/coinbrew/",
+    build_file_content = """
+cc_library(
+    name = "coinor",
+    hdrs = glob(["dist/include/**/*.h*"], exclude_directories = 0),
+    strip_include_prefix = "dist/include/",
+    srcs = glob(["dist/lib/**/*.so"], exclude_directories = 0),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+new_local_repository(
     name = "gurobi",
     path = "/home/florian/Programmes/gurobi811/linux64/",
     build_file_content = """

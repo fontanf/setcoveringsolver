@@ -135,7 +135,7 @@ LargeNeighborhoodSearch2Output& LargeNeighborhoodSearch2Output::algorithm_end(
 {
     info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
     Output::algorithm_end(info);
-    info.os() << "Iterations:            " << number_of_iterations << std::endl;
+    info.os() << "Iterations:                    " << number_of_iterations << std::endl;
     return *this;
 }
 

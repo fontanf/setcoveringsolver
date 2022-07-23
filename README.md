@@ -9,7 +9,9 @@ A solver for the (Unicost) Set Covering Problem.
   - based on the one from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a greedy_lin`
   - Dual greedy `-a greedy_dual`
 
-- Mixed-Integer Linear Program (Gurobi) `-a milp_gurobi`
+- Mixed-Integer Linear Program
+  - Solved with Cbc `-a milp_cbc`
+  - Solved with Gurobi `-a milp_gurobi`
 
 - Row weighting local search (unicost only)
   - based on "An efficient local search heuristic with row weighting for the unicost set covering problem" (Gao et al., 2015) `-a "localsearch_rowweighting_1"`

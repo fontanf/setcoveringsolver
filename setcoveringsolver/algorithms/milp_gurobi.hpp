@@ -26,7 +26,7 @@ struct MilpGurobiOutput: Output
 
 MilpGurobiOutput milp_gurobi(
         const Instance& instance,
-        MilpGurobiOptionalParameters p = {});
+        MilpGurobiOptionalParameters parameters = {});
 
 }
 

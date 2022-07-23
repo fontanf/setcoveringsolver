@@ -3,6 +3,7 @@
 #include "setcoveringsolver/solution.hpp"
 
 #include "setcoveringsolver/algorithms/greedy.hpp"
+#include "setcoveringsolver/algorithms/milp_cbc.hpp"
 #include "setcoveringsolver/algorithms/milp_gurobi.hpp"
 #include "setcoveringsolver/algorithms/localsearch_rowweighting.hpp"
 #include "setcoveringsolver/algorithms/largeneighborhoodsearch.hpp"
