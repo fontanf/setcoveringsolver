@@ -33,12 +33,111 @@ https://drive.google.com/file/d/1lhbfd_ayrIUEUgGJ33YH-9_QrCjwGO6Y/view?usp=shari
 Compile:
 ```shell
 bazel build -- //...
+
+# To use algorithm "milp_cbc":
+bazel build --define coinor=true -- //...
+
+# To use algorithm "milp_gurobi":
+bazel build --define gurobi=true -- //...
 ```
 
 Run:
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a localsearch_rowweighting_2 -c solution.txt -t 2
+./bazel-bin/setcoveringsolver/main -v 1 -i data/wedelin1995/sasd9imp2.dat -f wedelin1995 -a milp_cbc
+```
+```
+=====================================
+         Set Covering Solver         
+=====================================
+
+Instance
+--------
+Number of elements:                           1366
+Number of sets:                               25032
+Number of arcs:                               110881
+Average number of sets covering an element:   81.172
+Average number of elements covered by a set:  4.42957
+Number of connected components:               9
+Average cost:                                 12426.6
+
+Algorithm
+---------
+MILP (CBC)
+
+       T (s)          UB          LB         GAP     GAP (%)                 Comment
+       -----          --          --         ---     -------                 -------
+       0.000   311062130           0   311062130         inf                        
+       0.673   311062130     5261088   305801042     5812.51                        
+      14.626     5263570     5261088        2482   0.0471766                        
+      15.029     5262040     5261088         952   0.0180951                        
+      20.842     5262040     5261498         542   0.0103012                        
+      21.794     5262040     5262040           0           0                        
+
+Final statistics
+----------------
+Value:                         5262040
+Bound:                         5262040
+Gap:                           0
+Gap (%):                       0
+Time (s):                      21.7971
+```
+
+```shell
+./bazel-bin/setcoveringsolver/main -v 1 -i data/beasley1990/scpnrh5.txt -f orlibrary -a largeneighborhoodsearch -t 0.2
+```
+```
+=====================================
+         Set Covering Solver         
+=====================================
+
+Instance
+--------
+Number of elements:                           1000
+Number of sets:                               10000
+Number of arcs:                               499179
+Average number of sets covering an element:   499.179
+Average number of elements covered by a set:  49.9179
+Number of connected components:               1
+Average cost:                                 50.4208
+
+Algorithm
+---------
+Large Neighborhood Search
+
+Parameters
+----------
+Maximum number of iterations:                      -1
+Maximum number of iterations without improvement:  -1
+
+Reduction
+---------
+Number of unfixed elements:  1000/1000 (0 fixed)
+Number of mandatory sets:    0/10000
+Number of unfixed sets:      10000/10000 (0 fixed)
+
+       T (s)          UB          LB         GAP     GAP (%)                 Comment
+       -----          --          --         ---     -------                 -------
+       0.002      504208           0      504208         inf                        
+       0.005          61           0          61         inf        initial solution
+       0.006          59           0          59         inf             iteration 0
+       0.007          58           0          58         inf             iteration 1
+       0.025          57           0          57         inf            iteration 19
+       0.030          56           0          56         inf            iteration 24
+       0.120          55           0          55         inf           iteration 111
+
+Final statistics
+----------------
+Value:                         55
+Bound:                         0
+Gap:                           55
+Gap (%):                       inf
+Time (s):                      0.200135
+Iterations:                    188
+```
+
+```shell
+./bazel-bin/setcoveringsolver/main -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a localsearch_rowweighting_1 -c solution.txt -t 2
 ```
 ```
 =====================================
@@ -57,7 +156,7 @@ Average cost:                                 1
 
 Algorithm
 ---------
-Row Weighting Local Search 2
+Row Weighting Local Search 1
 
 Reduction
 ---------
@@ -104,7 +203,7 @@ Number of iterations:  199431
 ```
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a localsearch_rowweighting -t 10 -c solution.txt
+./bazel-bin/setcoveringsolver/main -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a localsearch_rowweighting_2 -t 10 -c solution.txt
 ```
 ```
 =====================================
@@ -123,100 +222,116 @@ Average cost:                                 1
 
 Algorithm
 ---------
-Row Weighting Local Search
+Row Weighting Local Search 2
+
+Parameters
+----------
+Neighborhood 1:                                    0
+Neighborhood 2:                                    0
+Weights update strategy:                           0
+Maximum number of iterations:                      -1
+Maximum number of iterations without improvement:  -1
 
 Reduction
 ---------
 Number of unfixed elements:  18605/18605 (0 fixed)
+Number of mandatory sets:    0/89304
 Number of unfixed sets:      72684/89304 (16620 fixed)
 
 Compute set neighbors...
 
        T (s)          UB          LB         GAP     GAP (%)                 Comment
        -----          --          --         ---     -------                 -------
-      0.4678       89304           0       89304         inf                        
-      0.5587         641           0         641         inf        initial solution
-      0.5605         640           0         640         inf             it 3 comp 0
-      0.5661         639           0         639         inf             it 8 comp 0
-      0.5672         638           0         638         inf             it 9 comp 0
-      0.5685         637           0         637         inf            it 10 comp 0
-      0.5695         636           0         636         inf            it 11 comp 0
-      0.5714         635           0         635         inf            it 13 comp 0
-       0.576         634           0         634         inf            it 18 comp 0
-      0.5774         633           0         633         inf            it 19 comp 0
-      0.5784         632           0         632         inf            it 20 comp 0
-      0.5792         631           0         631         inf            it 21 comp 0
-      0.5801         630           0         630         inf            it 22 comp 0
-      0.5808         629           0         629         inf            it 23 comp 0
-      0.5841         628           0         628         inf            it 29 comp 0
-       0.587         627           0         627         inf            it 32 comp 0
-      0.5957         626           0         626         inf            it 47 comp 0
-      0.5978         625           0         625         inf            it 52 comp 0
-      0.5995         624           0         624         inf            it 55 comp 0
-      0.6019         623           0         623         inf            it 58 comp 0
-      0.6056         622           0         622         inf            it 62 comp 0
-      0.6098         621           0         621         inf            it 70 comp 0
-      0.6123         620           0         620         inf            it 73 comp 0
-      0.6167         619           0         619         inf            it 78 comp 0
-      0.6199         618           0         618         inf            it 84 comp 0
-      0.6499         617           0         617         inf           it 126 comp 0
-      0.6571         616           0         616         inf           it 135 comp 0
-      0.6622         615           0         615         inf           it 141 comp 0
-      0.6631         614           0         614         inf           it 142 comp 0
-      0.6678         613           0         613         inf           it 148 comp 0
-      0.6887         612           0         612         inf           it 175 comp 0
-      0.6975         611           0         611         inf           it 188 comp 0
-      0.6994         610           0         610         inf           it 190 comp 0
-      0.7073         609           0         609         inf           it 200 comp 0
-      0.7118         608           0         608         inf           it 206 comp 0
-      0.7237         607           0         607         inf           it 236 comp 0
-      0.7256         606           0         606         inf           it 238 comp 0
-      0.7554         605           0         605         inf           it 279 comp 0
-      0.7621         604           0         604         inf           it 287 comp 0
-       0.772         603           0         603         inf           it 302 comp 0
-       0.789         602           0         602         inf           it 334 comp 0
-      0.8018         601           0         601         inf           it 355 comp 0
-      0.8051         600           0         600         inf           it 360 comp 0
-      0.8083         599           0         599         inf           it 368 comp 0
-       0.848         598           0         598         inf           it 427 comp 0
-      0.8851         597           0         597         inf           it 484 comp 0
-      0.9396         596           0         596         inf           it 558 comp 0
-      0.9439         595           0         595         inf           it 564 comp 0
-      0.9511         594           0         594         inf           it 575 comp 0
-      0.9648         593           0         593         inf           it 597 comp 0
-      0.9978         592           0         592         inf           it 643 comp 0
-      1.0578         591           0         591         inf           it 734 comp 0
-      1.0677         590           0         590         inf           it 749 comp 0
-      1.0926         589           0         589         inf           it 805 comp 0
-      1.1084         588           0         588         inf           it 826 comp 0
-      1.1163         587           0         587         inf           it 841 comp 0
-      1.2482         586           0         586         inf          it 1044 comp 0
-      1.2561         585           0         585         inf          it 1054 comp 0
-      1.2595         584           0         584         inf          it 1059 comp 0
-      1.2793         583           0         583         inf          it 1093 comp 0
-      1.4527         582           0         582         inf          it 1324 comp 0
-      1.5559         581           0         581         inf          it 1452 comp 0
-      2.6289         580           0         580         inf          it 3020 comp 0
-      4.7291         579           0         579         inf          it 6183 comp 0
-      4.9129         578           0         578         inf          it 6487 comp 0
-      5.0021         577           0         577         inf          it 6598 comp 0
-      5.2493         576           0         576         inf          it 6927 comp 0
-      5.2594         575           0         575         inf          it 6939 comp 0
-       5.326         574           0         574         inf          it 7055 comp 0
-      5.3695         573           0         573         inf          it 7110 comp 0
-      5.8834         572           0         572         inf          it 7804 comp 0
-      6.0148         571           0         571         inf          it 7962 comp 0
-      7.4605         570           0         570         inf          it 9903 comp 0
-      7.9649         569           0         569         inf         it 10714 comp 0
+       0.495       89304           0       89304         inf                        
+       0.587         641           0         641         inf        initial solution
+       0.592         640           0         640         inf             it 2 comp 0
+       0.599         639           0         639         inf             it 7 comp 0
+       0.600         638           0         638         inf             it 8 comp 0
+       0.601         637           0         637         inf             it 9 comp 0
+       0.602         636           0         636         inf            it 10 comp 0
+       0.604         635           0         635         inf            it 12 comp 0
+       0.609         634           0         634         inf            it 17 comp 0
+       0.610         633           0         633         inf            it 18 comp 0
+       0.611         632           0         632         inf            it 19 comp 0
+       0.612         631           0         631         inf            it 20 comp 0
+       0.613         630           0         630         inf            it 21 comp 0
+       0.614         629           0         629         inf            it 22 comp 0
+       0.617         628           0         628         inf            it 28 comp 0
+       0.620         627           0         627         inf            it 31 comp 0
+       0.630         626           0         626         inf            it 46 comp 0
+       0.632         625           0         625         inf            it 51 comp 0
+       0.634         624           0         624         inf            it 54 comp 0
+       0.636         623           0         623         inf            it 57 comp 0
+       0.640         622           0         622         inf            it 61 comp 0
+       0.645         621           0         621         inf            it 69 comp 0
+       0.648         620           0         620         inf            it 72 comp 0
+       0.652         619           0         619         inf            it 77 comp 0
+       0.656         618           0         618         inf            it 83 comp 0
+       0.689         617           0         617         inf           it 125 comp 0
+       0.697         616           0         616         inf           it 134 comp 0
+       0.703         615           0         615         inf           it 140 comp 0
+       0.703         614           0         614         inf           it 141 comp 0
+       0.708         613           0         613         inf           it 147 comp 0
+       0.732         612           0         612         inf           it 174 comp 0
+       0.741         611           0         611         inf           it 187 comp 0
+       0.743         610           0         610         inf           it 189 comp 0
+       0.752         609           0         609         inf           it 199 comp 0
+       0.757         608           0         608         inf           it 205 comp 0
+       0.770         607           0         607         inf           it 235 comp 0
+       0.772         606           0         606         inf           it 237 comp 0
+       0.806         605           0         605         inf           it 278 comp 0
+       0.813         604           0         604         inf           it 286 comp 0
+       0.824         603           0         603         inf           it 301 comp 0
+       0.842         602           0         602         inf           it 333 comp 0
+       0.857         601           0         601         inf           it 354 comp 0
+       0.860         600           0         600         inf           it 359 comp 0
+       0.863         599           0         599         inf           it 367 comp 0
+       0.908         598           0         598         inf           it 426 comp 0
+       0.949         597           0         597         inf           it 483 comp 0
+       1.011         596           0         596         inf           it 557 comp 0
+       1.015         595           0         595         inf           it 563 comp 0
+       1.023         594           0         594         inf           it 574 comp 0
+       1.048         593           0         593         inf           it 605 comp 0
+       1.056         592           0         592         inf           it 617 comp 0
+       1.082         591           0         591         inf           it 648 comp 0
+       1.102         590           0         590         inf           it 676 comp 0
+       1.110         589           0         589         inf           it 685 comp 0
+       1.279         588           0         588         inf           it 905 comp 0
+       1.447         587           0         587         inf          it 1118 comp 0
+       1.557         586           0         586         inf          it 1249 comp 0
+       1.578         585           0         585         inf          it 1279 comp 0
+       1.606         584           0         584         inf          it 1319 comp 0
+       1.630         583           0         583         inf          it 1351 comp 0
+       1.658         582           0         582         inf          it 1384 comp 0
+       3.094         581           0         581         inf          it 3387 comp 0
+       3.106         580           0         580         inf          it 3403 comp 0
+       3.123         579           0         579         inf          it 3439 comp 0
+       4.520         578           0         578         inf          it 5099 comp 0
+       5.606         577           0         577         inf          it 6471 comp 0
+       6.487         576           0         576         inf          it 7629 comp 0
+       6.645         575           0         575         inf          it 7807 comp 0
+       7.148         574           0         574         inf          it 8475 comp 0
+       7.501         573           0         573         inf          it 8901 comp 0
+       8.326         572           0         572         inf          it 9892 comp 0
+       8.336         571           0         571         inf          it 9904 comp 0
+       8.801         570           0         570         inf         it 10505 comp 0
+       9.209         569           0         569         inf         it 11137 comp 0
+       9.460         568           0         568         inf         it 11436 comp 0
+       9.946         567           0         567         inf         it 12044 comp 0
 
 Final statistics
 ----------------
-Value:                 569
-Bound:                 0
-Gap:                   569
-Gap (%):               inf
-Time (s):              10.0002
-Number of iterations:  13475
+Value:                         567
+Bound:                         0
+Gap:                           567
+Gap (%):                       inf
+Time (s):                      10.0001
+Number of iterations:          12121
+Neighborhood 1 improvements:   12121
+Neighborhood 2 improvements:   0
+Neighborhood 1 time:           9.14862
+Neighborhood 2 time:           0
+Number of weights reductions:  0
 ```
 
 Benchmarks:
