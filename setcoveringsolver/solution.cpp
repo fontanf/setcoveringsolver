@@ -5,7 +5,7 @@
 using namespace setcoveringsolver;
 
 Solution::Solution(const Instance& instance):
-    instance_(instance),
+    instance_(&instance),
     elements_(instance.number_of_elements(), 0),
     sets_(instance.number_of_sets()),
     component_number_of_elements_(instance.number_of_components(), 0),
@@ -15,12 +15,10 @@ Solution::Solution(const Instance& instance):
         elements_.set(e, 1);
 }
 
-Solution::Solution(const Instance& instance, std::string certificate_path):
-    instance_(instance),
-    elements_(instance.number_of_elements(), 0),
-    sets_(instance.number_of_sets()),
-    component_number_of_elements_(instance.number_of_components(), 0),
-    component_costs_(instance.number_of_components(), 0)
+Solution::Solution(
+        const Instance& instance,
+        std::string certificate_path):
+    Solution(instance)
 {
     if (certificate_path.empty())
         return;
@@ -40,28 +38,6 @@ Solution::Solution(const Instance& instance, std::string certificate_path):
         file >> s;
         add(s);
     }
-}
-
-Solution::Solution(const Solution& solution):
-    instance_(solution.instance_),
-    elements_(solution.elements_),
-    sets_(solution.sets_),
-    component_number_of_elements_(solution.component_number_of_elements_),
-    component_costs_(solution.component_costs_),
-    cost_(solution.cost_)
-{ }
-
-Solution& Solution::operator=(const Solution& solution)
-{
-    if (this != &solution) {
-        assert(&instance_ == &solution.instance_);
-        elements_                     = solution.elements_;
-        sets_                         = solution.sets_;
-        component_number_of_elements_ = solution.component_number_of_elements_;
-        component_costs_              = solution.component_costs_;
-        cost_                         = solution.cost_;
-    }
-    return *this;
 }
 
 void Solution::write(std::string certificate_path)

@@ -50,6 +50,13 @@ Instance::Instance(SetId number_of_sets, ElementId number_of_elements):
         sets_[s].id = s;
 }
 
+void Instance::set_cost(SetId s, Cost cost)
+{
+    total_cost_ -= sets_[s].cost;
+    sets_[s].cost = cost;
+    total_cost_ += sets_[s].cost;
+}
+
 void Instance::add_arc(SetId s, ElementId e)
 {
     elements_[e].sets.push_back(s);
@@ -507,6 +514,50 @@ void Instance::set_unicost()
     for (SetId s = 0; s < number_of_sets(); ++s) {
         sets_[s].cost = 1;
         total_cost_++;
+    }
+}
+
+void Instance::write(std::string instance_path, std::string format)
+{
+    std::ofstream file(instance_path);
+    if (!file.good()) {
+        throw std::runtime_error(
+                "Unable to open file \"" + instance_path + "\".");
+    }
+
+    if (format == "gecco2020" || format == "gecco") {
+        //write_geccod2020(file);
+    } else if (format == "fulkerson1974" || format == "sts") {
+        //write_fulkerson1974(file);
+    } else if (format == "balas1980" || format == "orlibrary") {
+        write_balas1980(file);
+    } else if (format == "balas1996") {
+        //write_balas1996(file);
+    } else if (format == "faster1994" || format == "faster" || format == "wedelin1995" || format == "wedelin") {
+        //write_faster1994(file);
+    } else {
+        throw std::invalid_argument(
+                "Unknown instance format \"" + format + "\".");
+    }
+
+    fixed_sets_ = optimizationtools::IndexedSet(number_of_sets());
+    fixed_elements_ = optimizationtools::IndexedSet(number_of_elements());
+
+    compute_components();
+}
+
+void Instance::write_balas1980(std::ofstream& file)
+{
+    file << number_of_elements() << " " << number_of_sets() << std::endl;
+    for (SetId s = 0; s < number_of_sets(); ++s)
+        file << " " << set(s).cost;
+    file << std::endl;
+
+    for (ElementId e = 0; e < number_of_elements(); ++e) {
+        file << element(e).sets.size();
+        for (SetId s: element(e).sets)
+            file << " " << (s + 1);
+        file << std::endl;
     }
 }
 

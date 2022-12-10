@@ -10,15 +10,15 @@
 namespace setcoveringsolver
 {
 
-typedef int64_t ElementId; // e
-typedef int64_t ElementPos; // e_pos
-typedef int64_t SetId; // s
-typedef int64_t SetPos; // s_pos
-typedef int64_t ComponentId; // c
-typedef int64_t Cost;
-typedef int64_t Penalty;
-typedef int64_t Counter;
-typedef int64_t Seed;
+using ElementId = int64_t; // e
+using ElementPos = int64_t; // e_pos
+using SetId = int64_t; // s
+using SetPos = int64_t; // s_pos
+using ComponentId = int64_t; // c
+using Cost = int64_t;
+using Penalty = int64_t;
+using Counter = int64_t;
+using Seed = int64_t;
 
 class Solution;
 
@@ -95,6 +95,8 @@ public:
 
     /** Create an instance manually. */
     Instance(SetId number_of_sets, ElementId number_of_elements);
+    /** Set the cost of a set. */
+    void set_cost(SetId s, Cost cost);
     /** Add an between set 's' and element 'e'. */
     void add_arc(SetId s, ElementId e);
 
@@ -213,6 +215,9 @@ private:
     void read_faster1994(std::ifstream& file);
     /** Read an instance file in 'geccod2020' format. */
     void read_geccod2020(std::ifstream& file);
+
+    /** Write an instance in 'balas1980' format. */
+    void write_balas1980(std::ofstream& file);
 
     void compute_set_neighbors_worker(SetId s_start, SetId s_end);
     void remove_elements(const optimizationtools::IndexedSet& elements);
