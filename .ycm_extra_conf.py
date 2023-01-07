@@ -3,15 +3,29 @@ def Settings( **kwargs ):
             'flags': [
                 '-x', 'c++',
                 '-Wall', '-Wextra', '-Werror',
-                '-DCOINOR_FOUND',
-                '-DGUROBI_FOUND',
                 '-I', '.',
+
+                '-I', './bazel-setcoveringsolver/external/'
+                'json/single_include/',
+
+                '-I', './bazel-setcoveringsolver/external/'
+                'googletest/googletest/include/',
+
+                '-I', './bazel-setcoveringsolver/external/'
+                'boost/',
+
+                # optimizationtools
+                '-I', './bazel-setcoveringsolver/external/'
+                # '-I', './../'
+                'optimizationtools/',
+
+                # COIN-OR
+                '-DCOINOR_FOUND',
                 '-I', '/home/florian/Programmes/coinbrew/dist/include/',
-                '-I', './bazel-setcoveringsolver/external/json/single_include',
-                '-I', './bazel-setcoveringsolver/external/googletest/googletest/include',
-                '-I', './bazel-setcoveringsolver/external/boost/',
-                '-I', './bazel-setcoveringsolver/external/optimizationtools',
+
+                # Gurobi
+                '-DGUROBI_FOUND',
                 '-I', '/home/florian/Programmes/gurobi811/linux64/include/',
+
                 ],
             }
-
