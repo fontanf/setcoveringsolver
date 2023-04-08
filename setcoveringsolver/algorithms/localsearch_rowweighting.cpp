@@ -28,16 +28,22 @@ struct LocalSearchRowWeightingComponent
 {
     /** Last set added to the current solution. */
     SetId s_last_added = -1;
+
     /** Last set removed from the current solution. */
     SetId s_last_removed = -1;
+
     /** Number of iterations. */
     Counter iterations = 0;
+
     /** Number of iterations without improvment. */
     Counter iterations_without_improvment = 0;
+
     /** Iteration at which optimizing this component starts (included). */
     Counter itmode_start;
+
     /** Iteration at which optimizing this component ends (excluded). */
     Counter itmode_end;
+
     /**
      * Boolean that indicates if the component of the current solution optimal.
      *

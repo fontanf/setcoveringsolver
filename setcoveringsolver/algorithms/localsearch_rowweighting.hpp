@@ -5,6 +5,41 @@
 namespace setcoveringsolver
 {
 
+struct LocalSearchRowWeighting1OptionalParameters
+{
+    /** Maximum number of iterations. */
+    Counter maximum_number_of_iterations = -1;
+
+    /** Maximum number of iterations without improvement. */
+    Counter maximum_number_of_iterations_without_improvement = -1;
+
+    /** Info structure. */
+    optimizationtools::Info info = optimizationtools::Info();
+};
+
+struct LocalSearchRowWeighting1Output: Output
+{
+    LocalSearchRowWeighting1Output(
+            const Instance& instance,
+            optimizationtools::Info& info):
+        Output(instance, info) { }
+
+    LocalSearchRowWeighting1Output& algorithm_end(
+            optimizationtools::Info& info);
+
+    /** Number of iterations. */
+    Counter number_of_iterations = 0;
+};
+
+LocalSearchRowWeighting1Output localsearch_rowweighting_1(
+        Instance& instance,
+        std::mt19937_64& generator,
+        LocalSearchRowWeighting1OptionalParameters parameters = {});
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 struct LocalSearchRowWeighting2OptionalParameters
 {
     /**
@@ -23,7 +58,7 @@ struct LocalSearchRowWeighting2OptionalParameters
      *   which is not a set neighbor of the drawn element. In this case, the
      *   two sets which are swapped are "independent".
      * - '2': same as '1' but is only done when no improving move has been
-     *   found in the first part of the neighborhood..
+     *   found in the first part of the neighborhood.
      *
      * 'neighborhood_1 = 0' and 'neighborhood_2 = 0' only consider swaps
      * between sets which are neighbors.
@@ -41,7 +76,7 @@ struct LocalSearchRowWeighting2OptionalParameters
      * Parameter for the weights update strategy:
      * - '0': at the end of an iteration, increment the weights of the elements
      *   uncovered by the set which has been remove.
-     * - '1': at the end of a non-improving interation, increment the weights
+     * - '1': at the end of a non-improving iteration, increment the weights
      *   of all uncovered elements.
      */
     int weights_update_strategy = 0;
@@ -89,39 +124,6 @@ LocalSearchRowWeighting2Output localsearch_rowweighting_2(
         Instance& instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting2OptionalParameters parameters = {});
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-struct LocalSearchRowWeighting1OptionalParameters
-{
-    /** Maximum number of iterations. */
-    Counter maximum_number_of_iterations = -1;
-    /** Maximum number of iterations without improvement. */
-    Counter maximum_number_of_iterations_without_improvement = -1;
-    /** Info structure. */
-    optimizationtools::Info info = optimizationtools::Info();
-};
-
-struct LocalSearchRowWeighting1Output: Output
-{
-    LocalSearchRowWeighting1Output(
-            const Instance& instance,
-            optimizationtools::Info& info):
-        Output(instance, info) { }
-
-    LocalSearchRowWeighting1Output& algorithm_end(
-            optimizationtools::Info& info);
-
-    /** Number of iterations. */
-    Counter number_of_iterations = 0;
-};
-
-LocalSearchRowWeighting1Output localsearch_rowweighting_1(
-        Instance& instance,
-        std::mt19937_64& generator,
-        LocalSearchRowWeighting1OptionalParameters parameters = {});
 
 }
 

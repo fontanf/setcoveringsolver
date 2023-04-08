@@ -95,8 +95,10 @@ public:
 
     /** Create an instance manually. */
     Instance(SetId number_of_sets, ElementId number_of_elements);
+
     /** Set the cost of a set. */
     void set_cost(SetId s, Cost cost);
+
     /** Add an between set 's' and element 'e'. */
     void add_arc(SetId s, ElementId e);
 
@@ -108,6 +110,7 @@ public:
 
     /** Fix identical sets and elements. */
     void fix_identical(optimizationtools::Info& info);
+
     /** Fix dominanted sets and elements. */
     void fix_dominated(optimizationtools::Info& info);
 
@@ -133,28 +136,37 @@ public:
 
     /** Get the number of elements. */
     inline ElementId number_of_elements() const { return elements_.size(); }
+
     /** Get the number of sets. */
     inline SetId number_of_sets() const { return sets_.size(); }
+
     /** Get the number of arcs. */
     inline ElementPos number_of_arcs() const { return number_of_arcs_; }
+
     /** Get the number of conntected components. */
     inline ComponentId number_of_components() const { return components_.size(); }
+
     /** Get the total cost of the sets. */
     inline Cost total_cost() const { return total_cost_; }
 
     /** Get element 'e'. */
     inline const Element& element(ElementId e) const { return elements_[e]; }
+
     /** Get set 's'. */
     inline const Set& set(SetId s) const { return sets_[s]; }
+
     /** Get component 'c'. */
     inline const Component& component(ComponentId c) const { return components_[c]; }
 
     /** Get the number of unfixed elements. */
     inline ElementId number_of_unfixed_elements() const { return elements_.size() - fixed_elements_.size(); }
+
     /** Get the number of unfixed sets. */
     inline SetId number_of_unfixed_sets() const { return sets_.size() - fixed_sets_.size(); }
+
     /** Get the set of fixed elements. */
     inline const optimizationtools::IndexedSet& fixed_elements() const { return fixed_elements_; }
+
     /** Get the number of elements in component 'c'. */
     inline ElementId number_of_elements(ComponentId c) const { return components_[c].elements.size(); }
 
@@ -187,17 +199,22 @@ private:
 
     /** Elements. */
     std::vector<Element> elements_;
+
     /** Sets. */
     std::vector<Set> sets_;
+
     /** Total cost of the sets. */
     Cost total_cost_ = 0;
+
     /** Number of arcs. */
     ElementPos number_of_arcs_ = 0;
 
     /** Set of fixed sets. */
     optimizationtools::IndexedSet fixed_sets_;
+
     /** Set of fixed elements. */
     optimizationtools::IndexedSet fixed_elements_;
+
     /** Components. */
     std::vector<Component> components_;
 
@@ -207,12 +224,16 @@ private:
 
     /** Read an instance file in 'fulkerson1974' format. */
     void read_fulkerson1974(std::ifstream& file);
+
     /** Read an instance file in 'balas1980' format. */
     void read_balas1980(std::ifstream& file);
+
     /** Read an instance file in 'balas1996' format. */
     void read_balas1996(std::ifstream& file);
+
     /** Read an instance file in 'faster1994' format. */
     void read_faster1994(std::ifstream& file);
+
     /** Read an instance file in 'geccod2020' format. */
     void read_geccod2020(std::ifstream& file);
 
@@ -220,7 +241,9 @@ private:
     void write_balas1980(std::ofstream& file);
 
     void compute_set_neighbors_worker(SetId s_start, SetId s_end);
+
     void remove_elements(const optimizationtools::IndexedSet& elements);
+
     void remove_sets(
             const optimizationtools::IndexedSet& sets,
             optimizationtools::Info& info);
