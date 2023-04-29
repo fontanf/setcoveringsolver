@@ -11,8 +11,8 @@ Solution::Solution(const Instance& instance):
     component_number_of_elements_(instance.number_of_components(), 0),
     component_costs_(instance.number_of_components(), 0)
 {
-    for (ElementId e: instance.fixed_elements())
-        elements_.set(e, 1);
+    for (ElementId element_id: instance.fixed_elements())
+        elements_.set(element_id, 1);
 }
 
 Solution::Solution(
@@ -28,15 +28,15 @@ Solution::Solution(
                 "Unable to open file \"" + certificate_path + "\".");
     }
 
-    for (ElementId e: instance.fixed_elements())
-        elements_.set(e, 1);
+    for (ElementId element_id: instance.fixed_elements())
+        elements_.set(element_id, 1);
 
     SetId number_of_sets;
-    SetId s;
+    SetId set_id;
     file >> number_of_sets;
-    for (SetPos s_pos = 0; s_pos < number_of_sets; ++s_pos) {
-        file >> s;
-        add(s);
+    for (SetPos set_pos = 0; set_pos < number_of_sets; ++set_pos) {
+        file >> set_id;
+        add(set_id);
     }
 }
 
@@ -51,18 +51,20 @@ void Solution::write(std::string certificate_path)
     }
 
     file << number_of_sets() << std::endl;
-    for (SetId s = 0; s < instance().number_of_sets(); ++s)
-        if (contains(s))
-            file << s << " ";
+    for (SetId set_id = 0; set_id < instance().number_of_sets(); ++set_id)
+        if (contains(set_id))
+            file << set_id << " ";
     file.close();
 }
 
 std::ostream& setcoveringsolver::operator<<(std::ostream& os, const Solution& solution)
 {
     os << solution.number_of_sets() << std::endl;
-    for (SetId s = 0; s < solution.instance().number_of_sets(); ++s)
-        if (solution.contains(s))
-            os << s << " ";
+    for (SetId set_id = 0;
+            set_id < solution.instance().number_of_sets();
+            ++set_id)
+        if (solution.contains(set_id))
+            os << set_id << " ";
     return os;
 }
 
@@ -117,36 +119,39 @@ void Output::print(
 
 void Output::update_solution(
         const Solution& solution_new,
-        ComponentId c,
+        ComponentId component_id,
         const std::stringstream& s,
         optimizationtools::Info& info)
 {
     info.lock();
 
     bool ok = false;
-    if (c == -1) {
+    if (component_id == -1) {
         if (solution_new.feasible() && (!solution.feasible() || solution.cost() > solution_new.cost()))
             ok = true;
     } else {
-        if (solution_new.feasible(c) && solution.cost(c) > solution_new.cost(c))
+        if (solution_new.feasible(component_id)
+                && solution.cost(component_id) > solution_new.cost(component_id))
             ok = true;
     }
 
     if (ok) {
-        if (c == -1) {
-            for (SetId s = 0; s < solution.instance().number_of_sets(); ++s) {
-                if (solution.contains(s) && !solution_new.contains(s)) {
-                    solution.remove(s);
-                } else if (!solution.contains(s) && solution_new.contains(s)) {
-                    solution.add(s);
+        if (component_id == -1) {
+            for (SetId set_id = 0;
+                    set_id < solution.instance().number_of_sets();
+                    ++set_id) {
+                if (solution.contains(set_id) && !solution_new.contains(set_id)) {
+                    solution.remove(set_id);
+                } else if (!solution.contains(set_id) && solution_new.contains(set_id)) {
+                    solution.add(set_id);
                 }
             }
         } else {
-            for (SetId s: solution.instance().component(c).sets) {
-                if (solution.contains(s) && !solution_new.contains(s)) {
-                    solution.remove(s);
-                } else if (!solution.contains(s) && solution_new.contains(s)) {
-                    solution.add(s);
+            for (SetId set_id: solution.instance().component(component_id).sets) {
+                if (solution.contains(set_id) && !solution_new.contains(set_id)) {
+                    solution.remove(set_id);
+                } else if (!solution.contains(set_id) && solution_new.contains(set_id)) {
+                    solution.add(set_id);
                 }
             }
         }

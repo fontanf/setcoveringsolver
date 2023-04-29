@@ -27,10 +27,10 @@ LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(
 struct LocalSearchRowWeightingComponent
 {
     /** Last set added to the current solution. */
-    SetId s_last_added = -1;
+    SetId set_id_last_added = -1;
 
     /** Last set removed from the current solution. */
-    SetId s_last_removed = -1;
+    SetId set_id_last_removed = -1;
 
     /** Number of iterations. */
     Counter iterations = 0;
@@ -100,29 +100,34 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
 
     // Initialize local search structures.
     std::vector<LocalSearchRowWeightingSet> sets(instance.number_of_sets());
-    for (SetId s: solution.sets())
-        sets[s].last_addition = 0;
+    for (SetId set_id: solution.sets())
+        sets[set_id].last_addition = 0;
     Penalty solution_penalty = 0;
     std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
-    for (ElementId e = 0; e < instance.number_of_elements(); ++e)
-        if (solution.covers(e) == 1)
-            for (SetId s: instance.element(e).sets)
-                if (solution.contains(s))
-                    sets[s].score += solution_penalties[e];
+    for (ElementId element_id = 0;
+            element_id < instance.number_of_elements();
+            ++element_id) {
+        if (solution.covers(element_id) == 1)
+            for (SetId set_id: instance.element(element_id).sets)
+                if (solution.contains(set_id))
+                    sets[set_id].score += solution_penalties[element_id];
+    }
     bool reduce = false;
 
     std::vector<LocalSearchRowWeightingComponent> components(instance.number_of_components());
     components[0].itmode_start = 0;
-    for (ComponentId c = 0; c < instance.number_of_components(); ++c) {
-        components[c].itmode_end = components[c].itmode_start
-            + instance.component(c).elements.size();
-        if (c + 1 < instance.number_of_components())
-            components[c + 1].itmode_start = components[c].itmode_end;
+    for (ComponentId component_id = 0;
+            component_id < instance.number_of_components();
+            ++component_id) {
+        components[component_id].itmode_end = components[component_id].itmode_start
+            + instance.component(component_id).elements.size();
+        if (component_id + 1 < instance.number_of_components())
+            components[component_id + 1].itmode_start = components[component_id].itmode_end;
     }
 
     optimizationtools::IndexedSet neighbor_sets(instance.number_of_sets());
 
-    ComponentId c = 0;
+    ComponentId component_id = 0;
     Counter number_of_iterations_without_improvement = 0;
     for (output.number_of_iterations = 0;
             !parameters.info.needs_to_end();
@@ -140,29 +145,29 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         //std::cout << "it " << output.number_of_iterations
         //    << " % " << output.number_of_iterations % (components.back().itmode_end)
         //    << " c " << c
-        //    << " start " << components[c].itmode_start
-        //    << " end " << components[c].itmode_end
+        //    << " start " << components[component_id].itmode_start
+        //    << " end " << components[component_id].itmode_end
         //    << std::endl;
         Counter itmod = output.number_of_iterations % (components.back().itmode_end);
-        while (itmod < components[c].itmode_start
-                || itmod >= components[c].itmode_end) {
-            c = (c + 1) % instance.number_of_components();
+        while (itmod < components[component_id].itmode_start
+                || itmod >= components[component_id].itmode_end) {
+            component_id = (component_id + 1) % instance.number_of_components();
             //std::cout << "it " << output.number_of_iterations
             //    << " % " << output.number_of_iterations % (components.back().itmode_end)
             //    << " c " << c
-            //    << " start " << components[c].itmode_start
-            //    << " end " << components[c].itmode_end
+            //    << " start " << components[component_id].itmode_start
+            //    << " end " << components[component_id].itmode_end
             //    << std::endl;
         }
-        LocalSearchRowWeightingComponent& component = components[c];
+        LocalSearchRowWeightingComponent& component = components[component_id];
 
-        while (solution.feasible(c)) {
+        while (solution.feasible(component_id)) {
             // New best solution
-            if (output.solution.cost(c) > solution.cost(c)) {
+            if (output.solution.cost(component_id) > solution.cost(component_id)) {
                 // Update best solution
                 std::stringstream ss;
-                ss << "it " << output.number_of_iterations << " comp " << c;
-                output.update_solution(solution, c, ss, parameters.info);
+                ss << "it " << output.number_of_iterations << " comp " << component_id;
+                output.update_solution(solution, component_id, ss, parameters.info);
             }
             // Update statistics
             number_of_iterations_without_improvement = 0;
@@ -170,42 +175,45 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
                 component.iterations_without_improvment = 0;
 
             // Find the best shift move.
-            SetId s_best = -1;
+            SetId set_id_best = -1;
             Cost p_best = -1;
             // For each set s of the current solution which belongs to the
             // currently considered component and is not mandatory.
-            for (SetId s: solution.sets()) {
-                if (instance.set(s).component != c || instance.set(s).mandatory)
+            for (SetId set_id: solution.sets()) {
+                if (instance.set(set_id).component != component_id
+                        || instance.set(set_id).mandatory)
                     continue;
-                Penalty p = -sets[s].score;
+                Penalty p = -sets[set_id].score;
                 // Update best move.
-                if (s_best == -1 // First move considered.
+                if (set_id_best == -1 // First move considered.
                         || p_best < p // Strictly better.
                         // Equivalent, but s has not been considered for a
                         // longer time.
                         || (p_best == p
-                            && sets[s_best].timestamp > sets[s].timestamp)) {
-                    s_best = s;
+                            && sets[set_id_best].timestamp > sets[set_id].timestamp)) {
+                    set_id_best = set_id;
                     p_best = p;
                 }
             }
-            if (s_best == -1) {
+            if (set_id_best == -1) {
                 // Happens when all sets of the component which are in the
                 // solution are mandatory.
                 component.optimal = true;
                 //std::cout << "c " << c << " optimal" << std::endl;
                 bool all_component_optimal = true;
                 components[0].itmode_start = 0;
-                for (ComponentId c = 0; c < instance.number_of_components(); ++c) {
+                for (ComponentId component_id = 0;
+                        component_id < instance.number_of_components();
+                        ++component_id) {
                     //std::cout << "comp " << c << " opt " << component.optimal << std::endl;
-                    components[c].itmode_end = components[c].itmode_start;
-                    if (components[c].optimal) {
+                    components[component_id].itmode_end = components[component_id].itmode_start;
+                    if (components[component_id].optimal) {
                     } else {
-                        components[c].itmode_end += instance.component(c).elements.size();
+                        components[component_id].itmode_end += instance.component(component_id).elements.size();
                         all_component_optimal = false;
                     }
-                    if (c + 1 < instance.number_of_components())
-                        components[c + 1].itmode_start = components[c].itmode_end;
+                    if (component_id + 1 < instance.number_of_components())
+                        components[component_id + 1].itmode_start = components[component_id].itmode_end;
                 }
                 // If all components are optimal, stop here.
                 if (all_component_optimal)
@@ -213,39 +221,39 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
                 break;
             }
             // Apply best move
-            solution.remove(s_best);
+            solution.remove(set_id_best);
             // Update scores.
-            for (ElementId e: instance.set(s_best).elements) {
-                if (solution.covers(e) == 0) {
-                    solution_penalty += solution_penalties[e];
-                    for (SetId s: instance.element(e).sets)
-                        if (s != s_best)
-                            sets[s].score += solution_penalties[e];
-                } else if (solution.covers(e) == 1) {
-                    for (SetId s: instance.element(e).sets)
-                        if (solution.contains(s))
-                            sets[s].score += solution_penalties[e];
+            for (ElementId element_id: instance.set(set_id_best).elements) {
+                if (solution.covers(element_id) == 0) {
+                    solution_penalty += solution_penalties[element_id];
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (set_id != set_id_best)
+                            sets[set_id].score += solution_penalties[element_id];
+                } else if (solution.covers(element_id) == 1) {
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (solution.contains(set_id))
+                            sets[set_id].score += solution_penalties[element_id];
                 }
             }
             // Update sets
-            sets[s_best].timestamp = output.number_of_iterations;
-            sets[s_best].iterations += (component.iterations - sets[s_best].last_addition);
-            sets[s_best].last_removal = component.iterations;
+            sets[set_id_best].timestamp = output.number_of_iterations;
+            sets[set_id_best].iterations += (component.iterations - sets[set_id_best].last_addition);
+            sets[set_id_best].last_removal = component.iterations;
             // Update tabu
-            component.s_last_removed = s_best;
+            component.set_id_last_removed = set_id_best;
             //std::cout << "it " << output.iterations
-            //<< " s_best " << s_best
+            //<< " set_id_best " << set_id_best
             //<< " p " << solution.penalty()
             //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
             //<< " s " << solution.number_of_sets()
             //<< std::endl;
         }
-        if (components[c].optimal)
+        if (components[component_id].optimal)
             continue;
 
-        if (solution.cost(c) != output.solution.cost(c) - 1) {
-            throw std::runtime_error("component " + std::to_string(c)
-                    + " size " + std::to_string(instance.component(c).sets.size()));
+        if (solution.cost(component_id) != output.solution.cost(component_id) - 1) {
+            throw std::runtime_error("component " + std::to_string(component_id)
+                    + " size " + std::to_string(instance.component(component_id).sets.size()));
         }
 
         bool neighborhood_2_improvement = false;
@@ -253,73 +261,73 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         // Draw randomly an uncovered element e.
         std::vector<ElementId> e_candidates;
         for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it)
-            if (instance.element(it->first).component == c)
+            if (instance.element(it->first).component == component_id)
                 e_candidates.push_back(it->first);
         std::uniform_int_distribution<ElementId> d_e(
                 0, e_candidates.size() - 1);
-        ElementId e = e_candidates[d_e(generator)];
+        ElementId element_id = e_candidates[d_e(generator)];
         //std::cout << "it " << output.iterations
             //<< " e " << e
-            //<< " s " << instance.element(e).sets.size()
+            //<< " s " << instance.element(element_id).sets.size()
             //<< std::endl;
 
         std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
 
         // Find the best swap move.
-        SetId s1_best = -1;
-        SetId s2_best = -1;
+        SetId set_id_1_best = -1;
+        SetId set_id_2_best = -1;
         Cost p_best = 0;
 
         if (parameters.neighborhood_1 == 1 || parameters.neighborhood_2 == 1) {
             neighbor_sets.clear();
-            for (SetId s: instance.element(e).neighbor_sets)
-                neighbor_sets.add(s);
+            for (SetId set_id: instance.element(element_id).neighbor_sets)
+                neighbor_sets.add(set_id);
         }
 
-        // For each set s1 covering element e which is not part of the solution
+        // For each set set_id_1 covering element e which is not part of the solution
         // and which is not the last set removed.
-        for (SetId s1: instance.element(e).sets) {
-            if (s1 == component.s_last_removed)
+        for (SetId set_id_1: instance.element(element_id).sets) {
+            if (set_id_1 == component.set_id_last_removed)
                 continue;
             Penalty p0 = 0;
-            for (ElementId e2: instance.set(s1).elements)
-                if (solution.covers(e2) == 0)
-                    p0 -= solution_penalties[e2];
-            if (s1_best == -1 || p0 <= p_best) {
-                solution.add(s1);
-                // For each neighbor s2 of s1 which is neither part of the
+            for (ElementId element_id_2: instance.set(set_id_1).elements)
+                if (solution.covers(element_id_2) == 0)
+                    p0 -= solution_penalties[element_id_2];
+            if (set_id_1_best == -1 || p0 <= p_best) {
+                solution.add(set_id_1);
+                // For each neighbor set_id_2 of set_id_1 which is neither part of the
                 // solution, nor the last set added, nor mandatory.
                 auto it_begin = (parameters.neighborhood_1 == 0)?
-                    instance.set(s1).neighbors.begin():
+                    instance.set(set_id_1).neighbors.begin():
                     neighbor_sets.begin();
                 auto it_end = (parameters.neighborhood_1 == 0)?
-                    instance.set(s1).neighbors.end():
+                    instance.set(set_id_1).neighbors.end():
                     neighbor_sets.end();
                 for (auto it = it_begin; it != it_end; ++it) {
-                    SetId s2 = *it;
-                    if (s1 == s2
-                            || s2 == component.s_last_added
-                            || instance.set(s2).mandatory
-                            || !solution.contains(s2))
+                    SetId set_id_2 = *it;
+                    if (set_id_1 == set_id_2
+                            || set_id_2 == component.set_id_last_added
+                            || instance.set(set_id_2).mandatory
+                            || !solution.contains(set_id_2))
                         continue;
                     Penalty p = p0;
-                    for (ElementId e2: instance.set(s2).elements)
-                        if (solution.covers(e2) == 1)
-                            p += solution_penalties[e2];
+                    for (ElementId element_id_2: instance.set(set_id_2).elements)
+                        if (solution.covers(element_id_2) == 1)
+                            p += solution_penalties[element_id_2];
                     // If the new solution is better, we update the best move.
-                    if (s1_best == -1
+                    if (set_id_1_best == -1
                             || p_best > p // Strictly better.
-                            // Equivalent, but s1 and s2 have not been
+                            // Equivalent, but set_id_1 and set_id_2 have not been
                             // considered for a longer time.
                             || (p_best == p
-                                && sets[s1_best].timestamp + sets[s2_best].timestamp
-                                > sets[s1].timestamp + sets[s2].timestamp)) {
-                        s1_best = s1;
-                        s2_best = s2;
+                                && sets[set_id_1_best].timestamp + sets[set_id_2_best].timestamp
+                                > sets[set_id_1].timestamp + sets[set_id_2].timestamp)) {
+                        set_id_1_best = set_id_1;
+                        set_id_2_best = set_id_2;
                         p_best = p;
                     }
                 }
-                solution.remove(s1);
+                solution.remove(set_id_1);
             }
         }
 
@@ -327,75 +335,75 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         output.neighborhood_1_time += std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0).count();
 
         if (parameters.neighborhood_2 == 1
-                || (parameters.neighborhood_2 == 2 && (s1_best == -1 || p_best >= 0))) {
-            SetId s3_best = -1;
-            SetId s4_best = -1;
+                || (parameters.neighborhood_2 == 2 && (set_id_1_best == -1 || p_best >= 0))) {
+            SetId set_id_3_best = -1;
+            SetId set_id_4_best = -1;
             Cost p3_best = -1;
             Cost p4_best = -1;
-            for (SetId s3: instance.element(e).sets) {
-                if (s3 == component.s_last_removed)
+            for (SetId set_id_3: instance.element(element_id).sets) {
+                if (set_id_3 == component.set_id_last_removed)
                     continue;
                 // If the new solution is better, we update the best move.
-                Penalty p = -sets[s3].score;
+                Penalty p = -sets[set_id_3].score;
                 //Penalty p2 = 0;
-                //for (ElementId e2: instance.set(s3).elements)
-                //    if (solution.covers(e2) == 0)
-                //        p2 -= solution_penalties[e2];
+                //for (ElementId element_id_2: instance.set(set_id_3).elements)
+                //    if (solution.covers(element_id_2) == 0)
+                //        p2 -= solution_penalties[element_id_2];
                 //if (p2 != p) {
-                //    std::cout << "s3 p2 " << p2 << " p " << p << std::endl;
+                //    std::cout << "set_id_3 p2 " << p2 << " p " << p << std::endl;
                 //}
-                if (s3_best == -1 // First move considered.
+                if (set_id_3_best == -1 // First move considered.
                         || p3_best > p // Strictly better.
-                        // Equivalent, but s1 and s2 have not been
+                        // Equivalent, but set_id_1 and set_id_2 have not been
                         // considered for a longer time.
                         || (p3_best == p
-                            && sets[s3_best].timestamp > sets[s3].timestamp)) {
-                    s3_best = s3;
+                            && sets[set_id_3_best].timestamp > sets[set_id_3].timestamp)) {
+                    set_id_3_best = set_id_3;
                     p3_best = p;
                 }
             }
-            if (s3_best != -1) {
-                for (SetId s4: solution.sets()) {
-                    if (s4 == component.s_last_added
-                            || instance.set(s4).mandatory
-                            || neighbor_sets.contains(s4)
-                            || instance.set(s4).component != c)
+            if (set_id_3_best != -1) {
+                for (SetId set_id_4: solution.sets()) {
+                    if (set_id_4 == component.set_id_last_added
+                            || instance.set(set_id_4).mandatory
+                            || neighbor_sets.contains(set_id_4)
+                            || instance.set(set_id_4).component != component_id)
                         continue;
                     // If the new solution is better, we update the best move.
-                    Penalty p = sets[s4].score;
+                    Penalty p = sets[set_id_4].score;
                     //Penalty p2 = 0;
-                    //for (ElementId e2: instance.set(s4).elements)
-                    //    if (solution.covers(e2) == 1)
-                    //        p2 += solution_penalties[e2];
+                    //for (ElementId element_id_2: instance.set(set_id_4).elements)
+                    //    if (solution.covers(element_id_2) == 1)
+                    //        p2 += solution_penalties[element_id_2];
                     //if (p2 != p) {
-                    //    std::cout << "s4 p2 " << p2 << " p " << p << std::endl;
+                    //    std::cout << "set_id_4 p2 " << p2 << " p " << p << std::endl;
                     //}
-                    if (s4_best == -1 // First move considered.
+                    if (set_id_4_best == -1 // First move considered.
                             || p4_best > p // Strictly better.
-                            // Equivalent, but s1 and s2 have not been
+                            // Equivalent, but set_id_1 and set_id_2 have not been
                             // considered for a longer time.
                             || (p4_best == p
-                                && sets[s4_best].timestamp > sets[s4].timestamp)) {
-                        s4_best = s4;
+                                && sets[set_id_4_best].timestamp > sets[set_id_4].timestamp)) {
+                        set_id_4_best = set_id_4;
                         p4_best = p;
                     }
                 }
             }
-            if (s3_best != -1 && s4_best != -1) {
+            if (set_id_3_best != -1 && set_id_4_best != -1) {
                 //std::cout
                 //    << "p3_best " << p3_best
                 //    << " p4_best " << p4_best
                 //    << " p3_best + p4_best " << p3_best + p4_best
                 //    << std::endl;
-                if (s1_best == -1
+                if (set_id_1_best == -1
                         || p_best > p3_best + p4_best
                         || (p_best == p3_best + p4_best
-                            && sets[s1_best].timestamp + sets[s2_best].timestamp
-                            > sets[s3_best].timestamp + sets[s4_best].timestamp)) {
+                            && sets[set_id_1_best].timestamp + sets[set_id_2_best].timestamp
+                            > sets[set_id_3_best].timestamp + sets[set_id_4_best].timestamp)) {
                     //std::cout << "toto" << std::endl;
                     p_best = p3_best + p4_best;
-                    s1_best = s3_best;
-                    s2_best = s4_best;
+                    set_id_1_best = set_id_3_best;
+                    set_id_2_best = set_id_4_best;
                     neighborhood_2_improvement = true;
                 }
             }
@@ -410,73 +418,73 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
             output.neighborhood_2_improvements++;
         }
 
-        if (s1_best != -1) {
-            if (instance.set(s1_best).component != c) {
+        if (set_id_1_best != -1) {
+            if (instance.set(set_id_1_best).component != component_id) {
                 throw std::runtime_error("1");
             }
-            if (instance.set(s2_best).component != c) {
+            if (instance.set(set_id_2_best).component != component_id) {
                 throw std::runtime_error("2");
             }
-            //std::cout << "s1_best " << s1_best
-            //    << " s2_best " << s2_best
+            //std::cout << "set_id_1_best " << set_id_1_best
+            //    << " set_id_2_best " << set_id_2_best
             //    << " solution_penalty " << solution_penalty
             //    << " ue " << solution.number_of_uncovered_elements()
             //    << " p_best " << p_best
             //    << std::endl;
             Penalty solution_penalty_old = solution_penalty;
             // Apply move
-            solution.add(s1_best);
+            solution.add(set_id_1_best);
             // Update scores.
-            for (ElementId e: instance.set(s1_best).elements) {
-                if (solution.covers(e) == 1) {
-                    solution_penalty -= solution_penalties[e];
-                    for (SetId s: instance.element(e).sets)
-                        if (!solution.contains(s))
-                            sets[s].score -= solution_penalties[e];
-                } else if (solution.covers(e) == 2) {
-                    for (SetId s: instance.element(e).sets)
-                        if (s != s1_best && solution.contains(s))
-                            sets[s].score -= solution_penalties[e];
+            for (ElementId element_id: instance.set(set_id_1_best).elements) {
+                if (solution.covers(element_id) == 1) {
+                    solution_penalty -= solution_penalties[element_id];
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (!solution.contains(set_id))
+                            sets[set_id].score -= solution_penalties[element_id];
+                } else if (solution.covers(element_id) == 2) {
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (set_id != set_id_1_best && solution.contains(set_id))
+                            sets[set_id].score -= solution_penalties[element_id];
                 }
             }
-            solution.remove(s2_best);
+            solution.remove(set_id_2_best);
             // Update scores.
-            for (ElementId e: instance.set(s2_best).elements) {
-                if (solution.covers(e) == 0) {
-                    solution_penalty += solution_penalties[e];
-                    for (SetId s: instance.element(e).sets)
-                        if (s != s2_best)
-                            sets[s].score += solution_penalties[e];
-                } else if (solution.covers(e) == 1) {
-                    for (SetId s: instance.element(e).sets)
-                        if (solution.contains(s))
-                            sets[s].score += solution_penalties[e];
+            for (ElementId element_id: instance.set(set_id_2_best).elements) {
+                if (solution.covers(element_id) == 0) {
+                    solution_penalty += solution_penalties[element_id];
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (set_id != set_id_2_best)
+                            sets[set_id].score += solution_penalties[element_id];
+                } else if (solution.covers(element_id) == 1) {
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (solution.contains(set_id))
+                            sets[set_id].score += solution_penalties[element_id];
                 }
             }
             if (solution_penalty_old + p_best != solution_penalty) {
                 throw std::runtime_error("\n"
-                        "* s1_best: " + std::to_string(s1_best) + "\n"
-                        "* s2_best: " + std::to_string(s2_best) + "\n"
+                        "* set_id_1_best: " + std::to_string(set_id_1_best) + "\n"
+                        "* set_id_2_best: " + std::to_string(set_id_2_best) + "\n"
                         "* solution_penalty_old: " + std::to_string(solution_penalty_old) + "\n"
                         "* p_best: " + std::to_string(p_best) + "\n"
                         "* solution_penalty: " + std::to_string(solution_penalty) + "\n"
                         );
             }
             // Update sets
-            sets[s1_best].timestamp = output.number_of_iterations;
-            sets[s2_best].timestamp = output.number_of_iterations;
-            sets[s1_best].last_addition = component.iterations;
-            sets[s2_best].last_removal  = component.iterations;
-            sets[s2_best].iterations += (component.iterations - sets[s2_best].last_addition);
+            sets[set_id_1_best].timestamp = output.number_of_iterations;
+            sets[set_id_2_best].timestamp = output.number_of_iterations;
+            sets[set_id_1_best].last_addition = component.iterations;
+            sets[set_id_2_best].last_removal  = component.iterations;
+            sets[set_id_2_best].iterations += (component.iterations - sets[set_id_2_best].last_addition);
 
             if (parameters.weights_update_strategy == 0) {
-                for (ElementId e: instance.set(s2_best).elements) {
-                    if (solution.covers(e) == 0) {
+                for (ElementId element_id: instance.set(set_id_2_best).elements) {
+                    if (solution.covers(element_id) == 0) {
                         solution_penalty++;
-                        solution_penalties[e]++;
-                        for (SetId s: instance.element(e).sets)
-                            sets[s].score++;
-                        if (solution_penalties[e] > 2e16)
+                        solution_penalties[element_id]++;
+                        for (SetId set_id: instance.element(element_id).sets)
+                            sets[set_id].score++;
+                        if (solution_penalties[element_id] > 2e16)
                             reduce = true;
                     }
                 }
@@ -488,31 +496,37 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         if (parameters.weights_update_strategy == 1 && p_best >= 0) {
             //std::cout << "Update penalties" << std::endl;
             for (auto it = solution.elements().out_begin();
-                    it != solution.elements().out_end(); ++it) {
-                ElementId e = it->first;
+                    it != solution.elements().out_end();
+                    ++it) {
+                ElementId element_id = it->first;
                 solution_penalty++;
-                solution_penalties[e]++;
-                for (SetId s: instance.element(e).sets)
-                    sets[s].score++;
-                if (solution_penalties[e] > 2e16)
+                solution_penalties[element_id]++;
+                for (SetId set_id: instance.element(element_id).sets)
+                    sets[set_id].score++;
+                if (solution_penalties[element_id] > 2e16)
                     reduce = true;
             }
         }
 
         if (reduce) {
             std::cout << "reduce" << std::endl;
-            for (ElementId e = 0; e < instance.number_of_elements(); ++e)
-                solution_penalties[e] = (solution_penalties[e] - 1) / 2 + 1;
+            for (ElementId element_id = 0;
+                    element_id < instance.number_of_elements();
+                    ++element_id) {
+                solution_penalties[element_id] = (solution_penalties[element_id] - 1) / 2 + 1;
+            }
             solution_penalty = 0;
-            for (ElementId e = 0; e < instance.number_of_elements(); ++e) {
-                if (solution.covers(e) == 1) {
-                    for (SetId s: instance.element(e).sets)
-                        if (solution.contains(s))
-                            sets[s].score += solution_penalties[e];
-                } else if (solution.covers(e) == 0) {
-                    solution_penalty += solution_penalties[e];
-                    for (SetId s: instance.element(e).sets)
-                        sets[s].score += solution_penalties[e];
+            for (ElementId element_id = 0;
+                    element_id < instance.number_of_elements();
+                    ++element_id) {
+                if (solution.covers(element_id) == 1) {
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (solution.contains(set_id))
+                            sets[set_id].score += solution_penalties[element_id];
+                } else if (solution.covers(element_id) == 0) {
+                    solution_penalty += solution_penalties[element_id];
+                    for (SetId set_id: instance.element(element_id).sets)
+                        sets[set_id].score += solution_penalties[element_id];
                 }
             }
             output.number_of_weights_reductions++;
@@ -520,11 +534,11 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         }
 
         // Update tabu
-        component.s_last_added = s1_best;
-        component.s_last_removed = s2_best;
+        component.set_id_last_added = set_id_1_best;
+        component.set_id_last_removed = set_id_2_best;
         //std::cout << "it " << component.iterations
-            //<< " s1_best " << s1_best
-            //<< " s2_best " << s2_best
+            //<< " set_id_1_best " << set_id_1_best
+            //<< " set_id_2_best " << set_id_2_best
             //<< " p " << solution.penalty()
             //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
             //<< " s " << solution.number_of_sets()
@@ -591,13 +605,16 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
     // Initialize local search structures.
     std::vector<LocalSearchRowWeighting1Set> sets(instance.number_of_sets());
     std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
-    for (ElementId e = 0; e < instance.number_of_elements(); ++e)
-        if (solution.covers(e) == 1)
-            for (SetId s: instance.element(e).sets)
-                if (solution.contains(s))
-                    sets[s].score += solution_penalties[e];
-    SetId s_last_removed = -1;
-    SetId s_last_added = -1;
+    for (ElementId element_id = 0;
+            element_id < instance.number_of_elements();
+            ++element_id) {
+        if (solution.covers(element_id) == 1)
+            for (SetId set_id: instance.element(element_id).sets)
+                if (solution.contains(set_id))
+                    sets[set_id].score += solution_penalties[element_id];
+    }
+    SetId set_id_last_removed = -1;
+    SetId set_id_last_added = -1;
 
     Counter number_of_iterations_without_improvement = 0;
     for (output.number_of_iterations = 0;
@@ -625,53 +642,53 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
             number_of_iterations_without_improvement = 0;
 
             // Find the best shift move.
-            SetId s_best = -1;
+            SetId set_id_best = -1;
             Cost score_best = -1;
-            for (SetId s: solution.sets()) {
-                if (instance.set(s).mandatory)
+            for (SetId set_id: solution.sets()) {
+                if (instance.set(set_id).mandatory)
                     continue;
-                if (s_best == -1
-                        || score_best > sets[s].score
-                        || (score_best == sets[s].score
-                            && sets[s_best].timestamp > sets[s].timestamp)) {
-                    s_best = s;
-                    score_best = sets[s].score;
+                if (set_id_best == -1
+                        || score_best > sets[set_id].score
+                        || (score_best == sets[set_id].score
+                            && sets[set_id_best].timestamp > sets[set_id].timestamp)) {
+                    set_id_best = set_id;
+                    score_best = sets[set_id].score;
                 }
             }
             // It may happen that all sets in the solution are mandatory.
-            if (s_best == -1)
+            if (set_id_best == -1)
                 return output.algorithm_end(parameters.info);
             // Apply best move
-            solution.remove(s_best);
+            solution.remove(set_id_best);
             // Update scores.
-            for (ElementId e: instance.set(s_best).elements) {
-                if (solution.covers(e) == 0) {
-                    for (SetId s: instance.element(e).sets)
-                        if (s != s_best)
-                            sets[s].score += solution_penalties[e];
-                } else if (solution.covers(e) == 1) {
-                    for (SetId s: instance.element(e).sets)
-                        if (solution.contains(s))
-                            sets[s].score += solution_penalties[e];
+            for (ElementId element_id: instance.set(set_id_best).elements) {
+                if (solution.covers(element_id) == 0) {
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (set_id != set_id_best)
+                            sets[set_id].score += solution_penalties[element_id];
+                } else if (solution.covers(element_id) == 1) {
+                    for (SetId set_id: instance.element(element_id).sets)
+                        if (solution.contains(set_id))
+                            sets[set_id].score += solution_penalties[element_id];
                 }
             }
             // Update sets
-            sets[s_best].timestamp = output.number_of_iterations;
-            sets[s_best].iterations += (output.number_of_iterations - sets[s_best].last_addition);
-            sets[s_best].last_removal = output.number_of_iterations;
+            sets[set_id_best].timestamp = output.number_of_iterations;
+            sets[set_id_best].iterations += (output.number_of_iterations - sets[set_id_best].last_addition);
+            sets[set_id_best].last_removal = output.number_of_iterations;
             // Update tabu
-            s_last_removed = -1;
-            s_last_added = -1;
+            set_id_last_removed = -1;
+            set_id_last_added = -1;
             // Update penalties.
-            for (ElementId e: instance.set(s_best).elements) {
-                if (solution.covers(e) == 0) {
-                    solution_penalties[e]++;
-                    for (SetId s: instance.element(e).sets)
-                        sets[s].score++;
+            for (ElementId element_id: instance.set(set_id_best).elements) {
+                if (solution.covers(element_id) == 0) {
+                    solution_penalties[element_id]++;
+                    for (SetId set_id: instance.element(element_id).sets)
+                        sets[set_id].score++;
                 }
             }
             //std::cout << "it " << output.iterations
-                //<< " s_best " << s_best
+                //<< " set_id_best " << set_id_best
                 //<< " p " << solution.penalty()
                 //<< " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
                 //<< " s " << solution.number_of_sets()
@@ -679,50 +696,50 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
         }
 
         // Find the cheapest set to remove.
-        SetId s1_best = -1;
+        SetId set_id_1_best = -1;
         Cost score1_best = -1;
-        for (SetId s: solution.sets()) {
-            if (s == s_last_added
-                    || instance.set(s).mandatory)
+        for (SetId set_id: solution.sets()) {
+            if (set_id == set_id_last_added
+                    || instance.set(set_id).mandatory)
                 continue;
-            if (s1_best == -1
-                    || score1_best > sets[s].score
-                    || (score1_best == sets[s].score
-                        && sets[s1_best].timestamp > sets[s].timestamp)) {
-                s1_best = s;
-                score1_best = sets[s].score;
+            if (set_id_1_best == -1
+                    || score1_best > sets[set_id].score
+                    || (score1_best == sets[set_id].score
+                        && sets[set_id_1_best].timestamp > sets[set_id].timestamp)) {
+                set_id_1_best = set_id;
+                score1_best = sets[set_id].score;
             }
         }
         // Apply move
-        solution.remove(s1_best);
+        solution.remove(set_id_1_best);
         // Update scores.
-        for (ElementId e: instance.set(s1_best).elements) {
-            if (solution.covers(e) == 0) {
-                for (SetId s: instance.element(e).sets)
-                    if (s != s1_best)
-                        sets[s].score += solution_penalties[e];
-            } else if (solution.covers(e) == 1) {
-                for (SetId s: instance.element(e).sets)
-                    if (solution.contains(s))
-                        sets[s].score += solution_penalties[e];
+        for (ElementId element_id: instance.set(set_id_1_best).elements) {
+            if (solution.covers(element_id) == 0) {
+                for (SetId set_id: instance.element(element_id).sets)
+                    if (set_id != set_id_1_best)
+                        sets[set_id].score += solution_penalties[element_id];
+            } else if (solution.covers(element_id) == 1) {
+                for (SetId set_id: instance.element(element_id).sets)
+                    if (solution.contains(set_id))
+                        sets[set_id].score += solution_penalties[element_id];
             }
         }
         // Update sets
-        sets[s1_best].timestamp = output.number_of_iterations;
-        sets[s1_best].last_removal = output.number_of_iterations;
-        sets[s1_best].iterations += (output.number_of_iterations - sets[s1_best].last_addition);
+        sets[set_id_1_best].timestamp = output.number_of_iterations;
+        sets[set_id_1_best].last_removal = output.number_of_iterations;
+        sets[set_id_1_best].iterations += (output.number_of_iterations - sets[set_id_1_best].last_addition);
         // Update tabu
-        s_last_removed = s1_best;
+        set_id_last_removed = set_id_1_best;
         // Update penalties.
-        for (ElementId e: instance.set(s1_best).elements) {
-            if (solution.covers(e) == 0) {
-                solution_penalties[e]++;
-                for (SetId s: instance.element(e).sets)
-                    sets[s].score++;
+        for (ElementId element_id: instance.set(set_id_1_best).elements) {
+            if (solution.covers(element_id) == 0) {
+                solution_penalties[element_id]++;
+                for (SetId set_id: instance.element(element_id).sets)
+                    sets[set_id].score++;
             }
         }
         //std::cout << "it " << output.number_of_iterations
-        //    << " s1_best " << s1_best
+        //    << " set_id_1_best " << set_id_1_best
         //    << " score " << score1_best
         //    << " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
         //    << " s " << solution.number_of_sets()
@@ -734,47 +751,47 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
         ElementId e_cur = (solution.elements().out_begin() + d_e(generator))->first;
         //std::cout << "it " << output.iterations
             //<< " e " << e
-            //<< " s " << instance.element(e).sets.size()
+            //<< " s " << instance.element(element_id).sets.size()
             //<< std::endl;
 
         // Find the best set to add.
-        SetId s2_best = -1;
-        Cost score2_best = -1;
-        for (SetId s: instance.element(e_cur).sets) {
-            if (s == s_last_removed)
+        SetId set_id_2_best = -1;
+        Cost scorelement_id_2_best = -1;
+        for (SetId set_id: instance.element(e_cur).sets) {
+            if (set_id == set_id_last_removed)
                 continue;
-            if (s2_best == -1
-                    || score2_best < sets[s].score
-                    || (score2_best == sets[s].score
-                        && sets[s2_best].timestamp > sets[s].timestamp)) {
-                s2_best = s;
-                score2_best = sets[s].score;
+            if (set_id_2_best == -1
+                    || scorelement_id_2_best < sets[set_id].score
+                    || (scorelement_id_2_best == sets[set_id].score
+                        && sets[set_id_2_best].timestamp > sets[set_id].timestamp)) {
+                set_id_2_best = set_id;
+                scorelement_id_2_best = sets[set_id].score;
             }
         }
-        if (s2_best == -1)
-            s2_best = s1_best;
+        if (set_id_2_best == -1)
+            set_id_2_best = set_id_1_best;
         // Apply move
-        solution.add(s2_best);
+        solution.add(set_id_2_best);
         // Update scores.
-        for (ElementId e: instance.set(s2_best).elements) {
-            if (solution.covers(e) == 1) {
-                for (SetId s: instance.element(e).sets)
-                    if (!solution.contains(s))
-                        sets[s].score -= solution_penalties[e];
-            } else if (solution.covers(e) == 2) {
-                for (SetId s: instance.element(e).sets)
-                    if (s != s2_best && solution.contains(s))
-                        sets[s].score -= solution_penalties[e];
+        for (ElementId element_id: instance.set(set_id_2_best).elements) {
+            if (solution.covers(element_id) == 1) {
+                for (SetId set_id: instance.element(element_id).sets)
+                    if (!solution.contains(set_id))
+                        sets[set_id].score -= solution_penalties[element_id];
+            } else if (solution.covers(element_id) == 2) {
+                for (SetId set_id: instance.element(element_id).sets)
+                    if (set_id != set_id_2_best && solution.contains(set_id))
+                        sets[set_id].score -= solution_penalties[element_id];
             }
         }
         // Update sets
-        sets[s2_best].timestamp = output.number_of_iterations;
-        sets[s2_best].last_addition = output.number_of_iterations;
+        sets[set_id_2_best].timestamp = output.number_of_iterations;
+        sets[set_id_2_best].last_addition = output.number_of_iterations;
         // Update tabu
-        s_last_added = s2_best;
+        set_id_last_added = set_id_2_best;
         //std::cout << "it " << output.number_of_iterations
-        //    << " s2_best " << s2_best
-        //    << " score " << score2_best
+        //    << " set_id_2_best " << set_id_2_best
+        //    << " score " << scorelement_id_2_best
         //    << " e " << instance.number_of_elements() - solution.number_of_elements() << "/" << instance.number_of_elements()
         //    << " s " << solution.number_of_sets()
         //    << std::endl;

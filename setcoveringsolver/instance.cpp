@@ -6,7 +6,9 @@
 
 using namespace setcoveringsolver;
 
-Instance::Instance(std::string instance_path, std::string format):
+Instance::Instance(
+        std::string instance_path,
+        std::string format):
     fixed_sets_(0),
     fixed_elements_(0)
 {
@@ -20,9 +22,9 @@ Instance::Instance(std::string instance_path, std::string format):
         read_geccod2020(file);
     } else if (format == "fulkerson1974" || format == "sts") {
         read_fulkerson1974(file);
-    } else if (format == "balas1980" || format == "orlibrary") {
+    } else if (format == "balaset_id_1980" || format == "orlibrary") {
         read_balas1980(file);
-    } else if (format == "balas1996") {
+    } else if (format == "balaset_id_1996") {
         read_balas1996(file);
     } else if (format == "faster1994" || format == "faster" || format == "wedelin1995" || format == "wedelin") {
         read_faster1994(file);
@@ -37,30 +39,32 @@ Instance::Instance(std::string instance_path, std::string format):
     compute_components();
 }
 
-Instance::Instance(SetId number_of_sets, ElementId number_of_elements):
+Instance::Instance(
+        SetId number_of_sets,
+        ElementId number_of_elements):
     elements_(number_of_elements),
     sets_(number_of_sets),
     total_cost_(number_of_sets),
     fixed_sets_(number_of_sets),
     fixed_elements_(number_of_elements)
 {
-    for (ElementId e = 0; e < number_of_elements; ++e)
-        elements_[e].id = e;
-    for (SetId s = 0; s < number_of_sets; ++s)
-        sets_[s].id = s;
 }
 
-void Instance::set_cost(SetId s, Cost cost)
+void Instance::set_cost(
+        SetId set_id,
+        Cost cost)
 {
-    total_cost_ -= sets_[s].cost;
-    sets_[s].cost = cost;
-    total_cost_ += sets_[s].cost;
+    total_cost_ -= sets_[set_id].cost;
+    sets_[set_id].cost = cost;
+    total_cost_ += sets_[set_id].cost;
 }
 
-void Instance::add_arc(SetId s, ElementId e)
+void Instance::add_arc(
+        SetId set_id,
+        ElementId element_id)
 {
-    elements_[e].sets.push_back(s);
-    sets_[s].elements.push_back(e);
+    elements_[element_id].sets.push_back(set_id);
+    sets_[set_id].elements.push_back(element_id);
     number_of_arcs_++;
 }
 
@@ -73,24 +77,31 @@ void Instance::fix_identical(optimizationtools::Info& info)
     optimizationtools::IndexedSet elements_to_remove(number_of_elements());
     optimizationtools::IndexedSet sets_to_remove(number_of_sets());
 
-    std::vector<ElementId> elements_sorted(fixed_elements_.out_begin(), fixed_elements_.out_end());
+    std::vector<ElementId> elements_sorted(
+            fixed_elements_.out_begin(),
+            fixed_elements_.out_end());
     sort(elements_sorted.begin(), elements_sorted.end(),
-            [this](ElementId e1, ElementId e2) -> bool
+            [this](ElementId element_id_1, ElementId element_id_2) -> bool
     {
-        if (element(e1).sets.size() != element(e2).sets.size())
-            return element(e1).sets.size() < element(e2).sets.size();
-        for (SetPos s_pos = 0; s_pos < (SetPos)element(e1).sets.size(); ++s_pos)
-            if (element(e1).sets[s_pos] != element(e2).sets[s_pos])
-                return (element(e1).sets[s_pos] < element(e2).sets[s_pos]);
-        return e2 < e1;
-    });
-    ElementId e_prec = -1;
-    for (ElementId e: elements_sorted) {
-        if (e_prec != -1) {
-            if (element(e_prec).sets == element(e).sets)
-                elements_to_remove.add(e_prec);
+        if (element(element_id_1).sets.size() != element(element_id_2).sets.size())
+            return element(element_id_1).sets.size() < element(element_id_2).sets.size();
+        for (SetPos set_pos = 0;
+                set_pos < (SetPos)element(element_id_1).sets.size();
+                ++set_pos) {
+            if (element(element_id_1).sets[set_pos]
+                    != element(element_id_2).sets[set_pos]) {
+                return (element(element_id_1).sets[set_pos] < element(element_id_2).sets[set_pos]);
+            }
         }
-        e_prec = e;
+        return element_id_2 < element_id_1;
+    });
+    ElementId element_id_pred = -1;
+    for (ElementId element_id: elements_sorted) {
+        if (element_id_pred != -1) {
+            if (element(element_id_pred).sets == element(element_id).sets)
+                elements_to_remove.add(element_id_pred);
+        }
+        element_id_pred = element_id;
     }
     remove_elements(elements_to_remove);
     info.os() << "Number of unfixed elements:  " << number_of_unfixed_elements() << "/" << number_of_elements()
@@ -100,27 +111,27 @@ void Instance::fix_identical(optimizationtools::Info& info)
     sets_to_remove.clear();
     std::vector<SetId> sets_sorted(fixed_sets_.out_begin(), fixed_sets_.out_end());
     sort(sets_sorted.begin(), sets_sorted.end(),
-            [this](SetId s1, SetId s2) -> bool
+            [this](SetId set_id_1, SetId set_id_2) -> bool
     {
-        if (set(s1).elements.size() != set(s2).elements.size())
-            return set(s1).elements.size() < set(s2).elements.size();
-        for (ElementPos e_pos = 0; e_pos < (ElementPos)set(s1).elements.size(); ++e_pos)
-            if (set(s1).elements[e_pos] != set(s2).elements[e_pos])
-                return (set(s1).elements[e_pos] < set(s2).elements[e_pos]);
-        return set(s1).cost > set(s2).cost;
+        if (set(set_id_1).elements.size() != set(set_id_2).elements.size())
+            return set(set_id_1).elements.size() < set(set_id_2).elements.size();
+        for (ElementPos element_pos = 0; element_pos < (ElementPos)set(set_id_1).elements.size(); ++element_pos)
+            if (set(set_id_1).elements[element_pos] != set(set_id_2).elements[element_pos])
+                return (set(set_id_1).elements[element_pos] < set(set_id_2).elements[element_pos]);
+        return set(set_id_1).cost > set(set_id_2).cost;
     });
-    SetId s_prec = -1;
-    for (SetId s: sets_sorted) {
-        if (set(s).elements.size() == 0) {
-            sets_to_remove.add(s);
+    SetId set_id_pred = -1;
+    for (SetId set_id: sets_sorted) {
+        if (set(set_id).elements.size() == 0) {
+            sets_to_remove.add(set_id);
             continue;
         }
-        if (s_prec != -1) {
-            if (set(s_prec).cost >= set(s).cost
-                    && set(s_prec).elements == set(s).elements)
-                sets_to_remove.add(s_prec);
+        if (set_id_pred != -1) {
+            if (set(set_id_pred).cost >= set(set_id).cost
+                    && set(set_id_pred).elements == set(set_id).elements)
+                sets_to_remove.add(set_id_pred);
         }
-        s_prec = s;
+        set_id_pred = set_id;
     }
     remove_sets(sets_to_remove, info);
     info.os()
@@ -139,24 +150,24 @@ void Instance::fix_dominated(optimizationtools::Info& info)
     elements_to_remove.clear();
     optimizationtools::IndexedSet covered_sets(number_of_sets());
     for (auto it1 = fixed_elements_.out_begin(); it1 != fixed_elements_.out_end(); ++it1) {
-        ElementId e1 = *it1;
+        ElementId element_id_1 = *it1;
         covered_sets.clear();
-        for (SetId s: element(e1).sets)
-            covered_sets.add(s);
+        for (SetId set_id: element(element_id_1).sets)
+            covered_sets.add(set_id);
         for (auto it2 = fixed_elements_.out_begin(); it2 != fixed_elements_.out_end(); ++it2) {
-            ElementId e2 = *it2;
-            if (e2 == e1 || element(e2).sets.size() > element(e1).sets.size())
+            ElementId element_id_2 = *it2;
+            if (element_id_2 == element_id_1 || element(element_id_2).sets.size() > element(element_id_1).sets.size())
                 continue;
-            // Check if e2 dominates e1
+            // Check if element_id_2 dominates element_id_1
             bool dominates = true;
-            for (SetId s: element(e2).sets) {
-                if (!covered_sets.contains(s)) {
+            for (SetId set_id: element(element_id_2).sets) {
+                if (!covered_sets.contains(set_id)) {
                     dominates = false;
                     break;
                 }
             }
             if (dominates) {
-                elements_to_remove.add(e1);
+                elements_to_remove.add(element_id_1);
                 break;
             }
         }
@@ -169,26 +180,26 @@ void Instance::fix_dominated(optimizationtools::Info& info)
     sets_to_remove.clear();
     optimizationtools::IndexedSet covered_elements(number_of_elements());
     for (auto it1 = fixed_sets_.out_begin(); it1 != fixed_sets_.out_end(); ++it1) {
-        SetId s1 = *it1;
+        SetId set_id_1 = *it1;
         covered_elements.clear();
-        for (ElementId e: set(s1).elements)
-            covered_elements.add(e);
+        for (ElementId element_id: set(set_id_1).elements)
+            covered_elements.add(element_id);
         for (auto it2 = fixed_sets_.out_begin(); it2 != fixed_sets_.out_end(); ++it2) {
-            SetId s2 = *it2;
-            if (s2 == s1
-                    || set(s1).elements.size() < set(s2).elements.size()
-                    || set(s1).cost > set(s2).cost)
+            SetId set_id_2 = *it2;
+            if (set_id_2 == set_id_1
+                    || set(set_id_1).elements.size() < set(set_id_2).elements.size()
+                    || set(set_id_1).cost > set(set_id_2).cost)
                 continue;
-            // Check if s1 dominates s2
+            // Check if set_id_1 dominates set_id_2
             bool dominates = true;
-            for (ElementId e: set(s2).elements) {
-                if (!covered_elements.contains(e)) {
+            for (ElementId element_id: set(set_id_2).elements) {
+                if (!covered_elements.contains(element_id)) {
                     dominates = false;
                     break;
                 }
             }
             if (dominates)
-                sets_to_remove.add(s2);
+                sets_to_remove.add(set_id_2);
         }
     }
     remove_sets(sets_to_remove, info);
@@ -217,30 +228,34 @@ void Instance::compute_element_neighbor_sets(
 {
     info.os() << "Compute element neighbor sets..." << std::endl << std::endl;
     optimizationtools::IndexedSet neighbors(number_of_sets());
-    for (ElementId e = 0; e < number_of_elements(); ++e) {
+    for (ElementId element_id = 0;
+            element_id < number_of_elements();
+            ++element_id) {
         neighbors.clear();
-        for (SetId s: element(e).sets) {
-            neighbors.add(s);
-            for (SetId s2: set(s).neighbors)
-                neighbors.add(s2);
+        for (SetId set_id: element(element_id).sets) {
+            neighbors.add(set_id);
+            for (SetId set_id_2: set(set_id).neighbors)
+                neighbors.add(set_id_2);
         }
-        for (SetId s: neighbors)
-            elements_[e].neighbor_sets.push_back(s);
+        for (SetId set_id: neighbors)
+            elements_[element_id].neighbor_sets.push_back(set_id);
     }
 }
 
-void Instance::compute_set_neighbors_worker(SetId s_start, SetId s_end)
+void Instance::compute_set_neighbors_worker(
+        SetId s_start,
+        SetId s_end)
 {
     optimizationtools::IndexedSet neighbors(number_of_sets());
-    for (SetId s1 = s_start; s1 < s_end; ++s1) {
+    for (SetId set_id_1 = s_start; set_id_1 < s_end; ++set_id_1) {
         neighbors.clear();
-        for (ElementId e: set(s1).elements)
-            for (SetId s2: element(e).sets)
-                neighbors.add(s2);
-        if (neighbors.contains(s1))
-            neighbors.remove(s1);
-        for (SetId s2: neighbors)
-            sets_[s1].neighbors.push_back(s2);
+        for (ElementId element_id: set(set_id_1).elements)
+            for (SetId set_id_2: element(element_id).sets)
+                neighbors.add(set_id_2);
+        if (neighbors.contains(set_id_1))
+            neighbors.remove(set_id_1);
+        for (SetId set_id_2: neighbors)
+            sets_[set_id_1].neighbors.push_back(set_id_2);
     }
 }
 
@@ -248,48 +263,49 @@ void Instance::compute_element_neighbors(optimizationtools::Info& info)
 {
     info.os() << "Compute element neighbors..." << std::endl;
     optimizationtools::IndexedSet neighbors(number_of_elements());
-    for (ElementId e1 = 0; e1 < number_of_elements(); ++e1) {
+    for (ElementId element_id_1 = 0; element_id_1 < number_of_elements(); ++element_id_1) {
         neighbors.clear();
-        for (SetId s: element(e1).sets)
-            for (ElementId e2: set(s).elements)
-                if (e2 != e1)
-                    neighbors.add(e2);
-        for (ElementId e2: neighbors)
-            elements_[e1].neighbors.push_back(e2);
+        for (SetId set_id: element(element_id_1).sets)
+            for (ElementId element_id_2: set(set_id).elements)
+                if (element_id_2 != element_id_1)
+                    neighbors.add(element_id_2);
+        for (ElementId element_id_2: neighbors)
+            elements_[element_id_1].neighbors.push_back(element_id_2);
     }
 }
 
 void Instance::compute_components()
 {
     components_.clear();
-    for (ElementId e = 0; e < number_of_elements(); ++e)
-        elements_[e].component = -1;
-    for (SetId s = 0; s < number_of_sets(); ++s)
-        sets_[s].component = -1;
+    for (ElementId element_id = 0;
+            element_id < number_of_elements();
+            ++element_id)
+        elements_[element_id].component = -1;
+    for (SetId set_id = 0; set_id < number_of_sets(); ++set_id)
+        sets_[set_id].component = -1;
 
-    for (ComponentId c = 0;; ++c) {
-        ElementId e = 0;
-        while (e < number_of_elements()
-                && (element(e).component != -1 || fixed_elements_.contains(e)))
-            e++;
-        if (e == number_of_elements())
+    for (ComponentId component_id = 0;; ++component_id) {
+        ElementId element_id = 0;
+        while (element_id < number_of_elements()
+                && (element(element_id).component != -1 || fixed_elements_.contains(element_id)))
+            element_id++;
+        if (element_id == number_of_elements())
             break;
         components_.push_back(Component());
-        components_.back().id = c;
-        std::vector<ElementId> stack {e};
-        elements_[e].component = c;
+        std::vector<ElementId> stack {element_id};
+        elements_[element_id].component = component_id;
         while (!stack.empty()) {
-            e = stack.back();
+            element_id = stack.back();
             stack.pop_back();
-            for (SetId s: element(e).sets) {
-                if (set(s).component != -1)
+            for (SetId set_id: element(element_id).sets) {
+                if (set(set_id).component != -1)
                     continue;
-                sets_[s].component = c;
-                for (ElementId e_suiv: set(s).elements) {
-                    if (element(e_suiv).component != -1)
+                sets_[set_id].component = component_id;
+                for (ElementId element_id_next: set(set_id).elements) {
+                    if (element(element_id_next).component != -1)
                         continue;
-                    elements_[e_suiv].component = c;
-                    stack.push_back(e_suiv);
+                    elements_[element_id_next].component = component_id;
+                    stack.push_back(element_id_next);
                 }
             }
         }
@@ -305,18 +321,18 @@ void Instance::compute_components()
 void Instance::remove_elements(const optimizationtools::IndexedSet& elements)
 {
     optimizationtools::IndexedSet modified_sets(number_of_sets());
-    for (ElementId e: elements) {
-        fixed_elements_.add(e);
-        for (SetId s: element(e).sets)
-            modified_sets.add(s);
-        elements_[e].sets.clear();
+    for (ElementId element_id: elements) {
+        fixed_elements_.add(element_id);
+        for (SetId set_id: element(element_id).sets)
+            modified_sets.add(set_id);
+        elements_[element_id].sets.clear();
     }
-    for (SetId s: modified_sets) {
+    for (SetId set_id: modified_sets) {
         std::vector<ElementId> s_elements_new;
-        for (ElementId e: set(s).elements)
-            if (!elements.contains(e))
-                s_elements_new.push_back(e);
-        sets_[s].elements.swap(s_elements_new);
+        for (ElementId element_id: set(set_id).elements)
+            if (!elements.contains(element_id))
+                s_elements_new.push_back(element_id);
+        sets_[set_id].elements.swap(s_elements_new);
     }
 }
 
@@ -325,25 +341,27 @@ void Instance::remove_sets(
         optimizationtools::Info& info)
 {
     optimizationtools::IndexedSet modified_elements(number_of_elements());
-    for (SetId s: sets) {
-        fixed_sets_.add(s);
-        for (ElementId e: set(s).elements)
-            modified_elements.add(e);
-        sets_[s].elements.clear();
+    for (SetId set_id: sets) {
+        fixed_sets_.add(set_id);
+        for (ElementId element_id: set(set_id).elements)
+            modified_elements.add(element_id);
+        sets_[set_id].elements.clear();
     }
-    for (ElementId e: modified_elements) {
+    for (ElementId element_id: modified_elements) {
         std::vector<SetId> e_sets_new;
-        for (SetId s: element(e).sets)
-            if (!sets.contains(s))
-                e_sets_new.push_back(s);
-        elements_[e].sets.swap(e_sets_new);
+        for (SetId set_id: element(element_id).sets)
+            if (!sets.contains(set_id))
+                e_sets_new.push_back(set_id);
+        elements_[element_id].sets.swap(e_sets_new);
     }
 
     SetPos number_of_mandatory_sets = 0;
-    for (ElementId e = 0; e < number_of_elements(); ++e) {
-        if (element(e).sets.size() == 1) {
-            if (!sets_[element(e).sets.front()].mandatory) {
-                sets_[element(e).sets.front()].mandatory = true;
+    for (ElementId element_id = 0;
+            element_id < number_of_elements();
+            ++element_id) {
+        if (element(element_id).sets.size() == 1) {
+            if (!sets_[element(element_id).sets.front()].mandatory) {
+                sets_[element(element_id).sets.front()].mandatory = true;
                 number_of_mandatory_sets++;
             }
         }
@@ -360,22 +378,22 @@ void Instance::read_geccod2020(std::ifstream& file)
     elements_.resize(number_of_elements);
     sets_.resize(number_of_sets);
 
-    for (SetId s = 0; s < number_of_sets; ++s) {
-        sets_[s].id = s;
-        sets_[s].cost = 1;
+    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
+        sets_[set_id].cost = 1;
     }
 
-    ElementId e_tmp;
-    SetId s_number;
-    SetId s;
-    for (ElementId e = 0; e < number_of_elements; ++e) {
-        elements_[e].id = e;
-        file >> e_tmp >> s_number;
-        number_of_arcs_ += s_number;
-        for (SetPos s_pos = 0; s_pos < s_number; ++s_pos) {
-            file >> s;
-            elements_[e].sets.push_back(s);
-            sets_[s].elements.push_back(e);
+    ElementId element_id_tmp;
+    SetId element_number_of_sets;
+    SetId set_id;
+    for (ElementId element_id = 0;
+            element_id < number_of_elements;
+            ++element_id) {
+        file >> element_id_tmp >> element_number_of_sets;
+        number_of_arcs_ += element_number_of_sets;
+        for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
+            file >> set_id;
+            elements_[element_id].sets.push_back(set_id);
+            sets_[set_id].elements.push_back(element_id);
         }
     }
     total_cost_ = number_of_sets;
@@ -390,20 +408,20 @@ void Instance::read_fulkerson1974(std::ifstream& file)
     sets_.resize(number_of_sets);
     elements_.resize(number_of_elements);
 
-    for (SetId s = 0; s < number_of_sets; ++s) {
-        sets_[s].id = s;
-        sets_[s].cost = 1;
+    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
+        sets_[set_id].cost = 1;
     }
 
-    SetId s;
-    for (ElementId e = 0; e < number_of_elements; ++e) {
-        elements_[e].id = e;
+    SetId set_id;
+    for (ElementId element_id = 0;
+            element_id < number_of_elements;
+            ++element_id) {
         number_of_arcs_ += 3;
-        for (SetPos s_pos = 0; s_pos < 3; ++s_pos) {
-            file >> s;
-            s--;
-            elements_[e].sets.push_back(s);
-            sets_[s].elements.push_back(e);
+        for (SetPos set_pos = 0; set_pos < 3; ++set_pos) {
+            file >> set_id;
+            set_id--;
+            elements_[element_id].sets.push_back(set_id);
+            sets_[set_id].elements.push_back(element_id);
         }
     }
     total_cost_ = number_of_sets;
@@ -419,24 +437,22 @@ void Instance::read_balas1980(std::ifstream& file)
     sets_.resize(number_of_sets);
 
     Cost cost;
-    for (SetId s = 0; s < number_of_sets; ++s) {
-        sets_[s].id = s;
+    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
         file >> cost;
-        sets_[s].cost = cost;
+        sets_[set_id].cost = cost;
         total_cost_ += cost;
     }
 
-    SetId s;
-    SetId s_number;
-    for (ElementId e = 0; e < number_of_elements; ++e) {
-        elements_[e].id = e;
-        file >> s_number;
-        number_of_arcs_ += s_number;
-        for (SetPos s_pos = 0; s_pos < s_number; ++s_pos) {
-            file >> s;
-            s--;
-            elements_[e].sets.push_back(s);
-            sets_[s].elements.push_back(e);
+    SetId set_id;
+    SetId element_number_of_sets;
+    for (ElementId element_id = 0; element_id < number_of_elements; ++element_id) {
+        file >> element_number_of_sets;
+        number_of_arcs_ += element_number_of_sets;
+        for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
+            file >> set_id;
+            set_id--;
+            elements_[element_id].sets.push_back(set_id);
+            sets_[set_id].elements.push_back(element_id);
         }
     }
 }
@@ -451,30 +467,26 @@ void Instance::read_balas1996(std::ifstream& file)
     elements_.resize(number_of_elements);
 
     Cost cost;
-    for (SetId s = 0; s < number_of_sets; ++s) {
-        sets_[s].id = s;
+    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
         file >> cost;
-        sets_[s].cost = cost;
+        sets_[set_id].cost = cost;
         total_cost_ += cost;
     }
 
-    ElementId e;
-    ElementId e_number;
-    for (SetId s = 0; s < number_of_sets; ++s) {
-        file >> e_number;
-        number_of_arcs_ += e_number;
-        for (ElementPos e_pos = 0; e_pos < e_number; ++e_pos) {
-            file >> e;
-            e--;
-            assert(e >= 0);
-            assert(e < number_of_elements);
-            sets_[s].elements.push_back(e);
-            elements_[e].sets.push_back(s);
+    ElementId element_id;
+    ElementId set_number_of_elements;
+    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
+        file >> set_number_of_elements;
+        number_of_arcs_ += set_number_of_elements;
+        for (ElementPos element_pos = 0; element_pos < set_number_of_elements; ++element_pos) {
+            file >> element_id;
+            element_id--;
+            assert(element_id >= 0);
+            assert(element_id < number_of_elements);
+            sets_[set_id].elements.push_back(element_id);
+            elements_[element_id].sets.push_back(set_id);
         }
     }
-
-    for (ElementId e = 0; e < number_of_elements; ++e)
-        elements_[e].id = e;
 }
 
 void Instance::read_faster1994(std::ifstream& file)
@@ -487,32 +499,29 @@ void Instance::read_faster1994(std::ifstream& file)
     sets_.resize(number_of_sets);
 
     Cost cost;
-    ElementId e;
-    ElementId e_number;
-    for (SetId s = 0; s < number_of_sets; ++s) {
-        file >> cost >> e_number;
-        sets_[s].cost = cost;
+    ElementId element_id;
+    ElementId set_number_of_elements;
+    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
+        file >> cost >> set_number_of_elements;
+        sets_[set_id].cost = cost;
         total_cost_ += cost;
-        number_of_arcs_ += e_number;
-        for (ElementPos e_pos = 0; e_pos < e_number; ++e_pos) {
-            file >> e;
-            e--;
-            assert(e >= 0);
-            assert(e < number_of_elements);
-            sets_[s].elements.push_back(e);
-            elements_[e].sets.push_back(s);
+        number_of_arcs_ += set_number_of_elements;
+        for (ElementPos element_pos = 0; element_pos < set_number_of_elements; ++element_pos) {
+            file >> element_id;
+            element_id--;
+            assert(element_id >= 0);
+            assert(element_id < number_of_elements);
+            sets_[set_id].elements.push_back(element_id);
+            elements_[element_id].sets.push_back(set_id);
         }
     }
-
-    for (ElementId e = 0; e < number_of_elements; ++e)
-        elements_[e].id = e;
 }
 
 void Instance::set_unicost()
 {
     total_cost_ = 0;
-    for (SetId s = 0; s < number_of_sets(); ++s) {
-        sets_[s].cost = 1;
+    for (SetId set_id = 0; set_id < number_of_sets(); ++set_id) {
+        sets_[set_id].cost = 1;
         total_cost_++;
     }
 }
@@ -549,13 +558,15 @@ void Instance::write(std::string instance_path, std::string format)
 void Instance::write_balas1980(std::ofstream& file)
 {
     file << number_of_elements() << " " << number_of_sets() << std::endl;
-    for (SetId s = 0; s < number_of_sets(); ++s)
-        file << " " << set(s).cost;
+    for (SetId set_id = 0; set_id < number_of_sets(); ++set_id)
+        file << " " << set(set_id).cost;
     file << std::endl;
 
-    for (ElementId e = 0; e < number_of_elements(); ++e) {
-        file << element(e).sets.size();
-        for (SetId s: element(e).sets)
+    for (ElementId element_id = 0;
+            element_id < number_of_elements();
+            ++element_id) {
+        file << element(element_id).sets.size();
+        for (SetId s: element(element_id).sets)
             file << " " << (s + 1);
         file << std::endl;
     }

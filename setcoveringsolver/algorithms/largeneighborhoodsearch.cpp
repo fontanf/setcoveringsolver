@@ -53,14 +53,14 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
     // Initialize local search structures.
     std::vector<LargeNeighborhoodSearchSet> sets(instance.number_of_sets());
     std::vector<Penalty> solution_penalties(instance.number_of_elements(), 1);
-    for (SetId s: solution.sets())
-        for (ElementId e: instance.set(s).elements)
-            if (solution.covers(e) == 1)
-                sets[s].score += solution_penalties[e];
+    for (SetId set_id: solution.sets())
+        for (ElementId element_id: instance.set(set_id).elements)
+            if (solution.covers(element_id) == 1)
+                sets[set_id].score += solution_penalties[element_id];
     optimizationtools::IndexedBinaryHeap<std::pair<double, Counter>> scores_in(instance.number_of_sets());
     optimizationtools::IndexedBinaryHeap<std::pair<double, Counter>> scores_out(instance.number_of_sets());
-    for (SetId s: solution.sets())
-        scores_in.update_key(s, {(double)sets[s].score / instance.set(s).cost, 0});
+    for (SetId set_id: solution.sets())
+        scores_in.update_key(set_id, {(double)sets[set_id].score / instance.set(set_id).cost, 0});
 
     optimizationtools::IndexedSet sets_in_to_update(instance.number_of_sets());
     optimizationtools::IndexedSet sets_out_to_update(instance.number_of_sets());
@@ -90,92 +90,92 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
         for (SetPos s_tmp = 0; s_tmp < number_of_removed_sets && !scores_in.empty(); ++s_tmp) {
             auto p = scores_in.top();
             scores_in.pop();
-            SetId s = p.first;
-            //std::cout << "remove " << s << " score " << p.second << " cost " << instance.set(s).cost << " e " << solution.number_of_elements() << std::endl;
-            solution.remove(s);
-            sets[s].last_removal = output.number_of_iterations;
-            sets_out_to_update.add(s);
+            SetId set_id = p.first;
+            //std::cout << "remove " << s << " score " << p.second << " cost " << instance.set(set_id).cost << " e " << solution.number_of_elements() << std::endl;
+            solution.remove(set_id);
+            sets[set_id].last_removal = output.number_of_iterations;
+            sets_out_to_update.add(set_id);
             // Update scores.
             sets_in_to_update.clear();
-            for (ElementId e: instance.set(s).elements) {
-                if (solution.covers(e) == 0) {
-                    for (SetId s2: instance.element(e).sets) {
-                        if (s2 == s)
+            for (ElementId element_id: instance.set(set_id).elements) {
+                if (solution.covers(element_id) == 0) {
+                    for (SetId set_id_2: instance.element(element_id).sets) {
+                        if (set_id_2 == set_id)
                             continue;
-                        sets[s2].score += solution_penalties[e];
-                        sets_out_to_update.add(s2);
+                        sets[set_id_2].score += solution_penalties[element_id];
+                        sets_out_to_update.add(set_id_2);
                     }
-                } else if (solution.covers(e) == 1) {
-                    for (SetId s2: instance.element(e).sets) {
-                        if (!solution.contains(s2))
+                } else if (solution.covers(element_id) == 1) {
+                    for (SetId set_id_2: instance.element(element_id).sets) {
+                        if (!solution.contains(set_id_2))
                             continue;
-                        sets[s2].score += solution_penalties[e];
-                        sets_in_to_update.add(s2);
+                        sets[set_id_2].score += solution_penalties[element_id];
+                        sets_in_to_update.add(set_id_2);
                     }
                 }
             }
-            for (SetId s2: sets_in_to_update)
-                scores_in.update_key(s2, {(double)sets[s2].score / instance.set(s2).cost, sets[s2].last_addition});
+            for (SetId set_id_2: sets_in_to_update)
+                scores_in.update_key(set_id_2, {(double)sets[set_id_2].score / instance.set(set_id_2).cost, sets[set_id_2].last_addition});
         }
-        for (SetId s2: sets_out_to_update)
-            scores_out.update_key(s2, {- (double)sets[s2].score / instance.set(s2).cost, sets[s2].last_removal});
+        for (SetId set_id_2: sets_out_to_update)
+            scores_out.update_key(set_id_2, {- (double)sets[set_id_2].score / instance.set(set_id_2).cost, sets[set_id_2].last_removal});
 
         // Update penalties: we increment the penalty of each uncovered element.
         sets_out_to_update.clear();
         for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it) {
             solution_penalties[it->first]++;
-            for (SetId s: instance.element(it->first).sets) {
-                sets[s].score++;
-                sets_out_to_update.add(s);
+            for (SetId set_id: instance.element(it->first).sets) {
+                sets[set_id].score++;
+                sets_out_to_update.add(set_id);
             }
         }
-        for (SetId s: sets_out_to_update)
-            scores_out.update_key(s, {- (double)sets[s].score / instance.set(s).cost, sets[s].last_removal});
+        for (SetId set_id: sets_out_to_update)
+            scores_out.update_key(set_id, {- (double)sets[set_id].score / instance.set(set_id).cost, sets[set_id].last_removal});
 
         // Add sets.
         sets_in_to_update.clear();
         while (!solution.feasible() && !scores_out.empty()) {
             auto p = scores_out.top();
             scores_out.pop();
-            SetId s = p.first;
-            solution.add(s);
-            //std::cout << "add " << s << " score " << p.second << " cost " << instance.set(s).cost << " e " << solution.number_of_elements() << std::endl;
+            SetId set_id = p.first;
+            solution.add(set_id);
+            //std::cout << "add " << s << " score " << p.second << " cost " << instance.set(set_id).cost << " e " << solution.number_of_elements() << std::endl;
             assert(p.second.first < 0);
-            sets[s].last_addition = output.number_of_iterations;
-            sets_in_to_update.add(s);
+            sets[set_id].last_addition = output.number_of_iterations;
+            sets_in_to_update.add(set_id);
             // Update scores.
             sets_out_to_update.clear();
-            for (ElementId e: instance.set(s).elements) {
-                if (solution.covers(e) == 1) {
-                    for (SetId s2: instance.element(e).sets) {
-                        if (solution.contains(s2))
+            for (ElementId element_id: instance.set(set_id).elements) {
+                if (solution.covers(element_id) == 1) {
+                    for (SetId set_id_2: instance.element(element_id).sets) {
+                        if (solution.contains(set_id_2))
                             continue;
-                        sets[s2].score -= solution_penalties[e];
-                        sets_out_to_update.add(s2);
+                        sets[set_id_2].score -= solution_penalties[element_id];
+                        sets_out_to_update.add(set_id_2);
                     }
-                } else if (solution.covers(e) == 2) {
-                    for (SetId s2: instance.element(e).sets) {
-                        if (s2 == s || !solution.contains(s2))
+                } else if (solution.covers(element_id) == 2) {
+                    for (SetId set_id_2: instance.element(element_id).sets) {
+                        if (set_id_2 == set_id || !solution.contains(set_id_2))
                             continue;
-                        sets[s2].score -= solution_penalties[e];
-                        sets_in_to_update.add(s2);
+                        sets[set_id_2].score -= solution_penalties[element_id];
+                        sets_in_to_update.add(set_id_2);
                     }
                 }
             }
 
             // Remove redundant sets.
-            for (ElementId e: instance.set(s).elements) {
-                for (SetId s2: instance.element(e).sets) {
-                    if (solution.contains(s2) && sets[s2].score == 0) {
-                        solution.remove(s2);
-                        sets[s2].last_removal = output.number_of_iterations;
-                        //std::cout << "> remove " << s2 << " score " << sets[s2].score << " cost " << instance.set(s2).cost << " e " << solution.number_of_elements() << " / " << instance.number_of_elements() << std::endl;
-                        for (ElementId e2: instance.set(s2).elements) {
-                            if (solution.covers(e2) == 1) {
-                                for (SetId s3: instance.element(e2).sets) {
+            for (ElementId element_id: instance.set(set_id).elements) {
+                for (SetId set_id_2: instance.element(element_id).sets) {
+                    if (solution.contains(set_id_2) && sets[set_id_2].score == 0) {
+                        solution.remove(set_id_2);
+                        sets[set_id_2].last_removal = output.number_of_iterations;
+                        //std::cout << "> remove " << set_id_2 << " score " << sets[set_id_2].score << " cost " << instance.set(set_id_2).cost << " e " << solution.number_of_elements() << " / " << instance.number_of_elements() << std::endl;
+                        for (ElementId element_id_2: instance.set(set_id_2).elements) {
+                            if (solution.covers(element_id_2) == 1) {
+                                for (SetId s3: instance.element(element_id_2).sets) {
                                     if (!solution.contains(s3))
                                         continue;
-                                    sets[s3].score += solution_penalties[e2];
+                                    sets[s3].score += solution_penalties[element_id_2];
                                     sets_in_to_update.add(s3);
                                 }
                             }
@@ -184,14 +184,14 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
                 }
             }
 
-            for (SetId s2: sets_out_to_update)
-                scores_out.update_key(s2, {- (double)sets[s2].score / instance.set(s2).cost, sets[s2].last_removal});
+            for (SetId set_id_2: sets_out_to_update)
+                scores_out.update_key(set_id_2, {- (double)sets[set_id_2].score / instance.set(set_id_2).cost, sets[set_id_2].last_removal});
         }
-        for (SetId s2: sets_in_to_update) {
-            if (solution.contains(s2)) {
-                scores_in.update_key(s2, {(double)sets[s2].score / instance.set(s2).cost, sets[s2].last_addition});
+        for (SetId set_id_2: sets_in_to_update) {
+            if (solution.contains(set_id_2)) {
+                scores_in.update_key(set_id_2, {(double)sets[set_id_2].score / instance.set(set_id_2).cost, sets[set_id_2].last_addition});
             } else {
-                scores_in.update_key(s2, {-1, -1});
+                scores_in.update_key(set_id_2, {-1, -1});
                 scores_in.pop();
             }
         }

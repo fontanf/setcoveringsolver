@@ -18,16 +18,17 @@ Output setcoveringsolver::greedy(
     Output output(instance, info);
     Solution solution(instance);
 
-    auto f = [&instance](SetId s) { return std::pair<double, SetId>{-1.0 * (double)instance.set(s).elements.size() / instance.set(s).cost, s}; };
+    auto f = [&instance](SetId set_id) { return std::pair<double, SetId>{-1.0 * (double)instance.set(set_id).elements.size() / instance.set(set_id).cost, set_id}; };
     optimizationtools::IndexedBinaryHeap<std::pair<double, SetId>> heap(instance.number_of_sets(), f);
 
     while (!solution.feasible()) {
         auto p = heap.top();
-        ElementId e_total = 0;
-        for (ElementId e: instance.set(p.first).elements)
-            if (solution.covers(e) == 0)
-                e_total--;
-        double val = (double)e_total / instance.set(p.first).cost;
+        // Number of uncovered elements covered by p.first.
+        ElementId number_of_covered_elements = 0;
+        for (ElementId element_id: instance.set(p.first).elements)
+            if (solution.covers(element_id) == 0)
+                number_of_covered_elements++;
+        double val = -(double)number_of_covered_elements / instance.set(p.first).cost;
         //std::cout << "s " << solution.number_of_sets()
             //<< " c " << solution.cost()
             //<< " e " << solution.number_of_elements() << " / " << instance.number_of_elements()
@@ -42,16 +43,16 @@ Output setcoveringsolver::greedy(
 
     // Remove redundant sets.
     for (auto it_s = solution.sets().begin(); it_s != solution.sets().end();) {
-        SetId s = *it_s;
+        SetId set_id = *it_s;
         bool remove = true;
-        for (ElementId e: instance.set(s).elements) {
-            if (solution.covers(e) == 1) {
+        for (ElementId element_id: instance.set(set_id).elements) {
+            if (solution.covers(element_id) == 1) {
                 remove = false;
                 break;
             }
         }
         if (remove) {
-            solution.remove(s);
+            solution.remove(set_id);
         } else {
             it_s++;
         }
@@ -75,13 +76,13 @@ Output setcoveringsolver::greedy_lin(
     Output output(instance, info);
     Solution solution(instance);
 
-    auto f = [&instance, &solution](SetId s)
+    auto f = [&instance, &solution](SetId set_id)
     {
         double val = 0;
-        for (ElementId e: instance.set(s).elements)
-            if (solution.covers(e) == 0)
-                val += 1.0 / instance.element(e).sets.size();
-        return - val / instance.set(s).cost;
+        for (ElementId element_id: instance.set(set_id).elements)
+            if (solution.covers(element_id) == 0)
+                val += 1.0 / instance.element(element_id).sets.size();
+        return - val / instance.set(set_id).cost;
     };
     optimizationtools::IndexedBinaryHeap<double> heap(instance.number_of_sets(), f);
 
@@ -98,16 +99,16 @@ Output setcoveringsolver::greedy_lin(
 
     // Remove redundant sets.
     for (auto it_s = solution.sets().begin(); it_s != solution.sets().end();) {
-        SetId s = *it_s;
+        SetId set_id = *it_s;
         bool remove = true;
-        for (ElementId e: instance.set(s).elements) {
-            if (solution.covers(e) == 1) {
+        for (ElementId element_id: instance.set(set_id).elements) {
+            if (solution.covers(element_id) == 1) {
                 remove = false;
                 break;
             }
         }
         if (remove) {
-            solution.remove(s);
+            solution.remove(set_id);
         } else {
             it_s++;
         }
@@ -131,40 +132,42 @@ Output setcoveringsolver::greedy_dual(
     Output output(instance, info);
     Solution solution(instance);
 
-    for (ElementId e = 0; e < instance.number_of_elements(); ++e) {
-        if (solution.covers(e) != 0)
+    for (ElementId element_id = 0;
+            element_id < instance.number_of_elements();
+            ++element_id) {
+        if (solution.covers(element_id) != 0)
             continue;
 
-        SetId s_best = -1;
+        SetId set_id_best = -1;
         double val_best;
-        for (SetId s: instance.element(e).sets) {
-            if (solution.contains(s))
+        for (SetId set_id: instance.element(element_id).sets) {
+            if (solution.contains(set_id))
                 continue;
-            ElementId e_total = 0;
-            for (ElementId e_2: instance.set(s).elements)
-                if (solution.covers(e_2) == 0)
-                    e_total++;
-            double val = (double)e_total / instance.set(s).cost;
-            if (s_best == -1 || val_best < val) {
-                s_best = s;
+            ElementId number_of_covered_elements = 0;
+            for (ElementId element_id_2: instance.set(set_id).elements)
+                if (solution.covers(element_id_2) == 0)
+                    number_of_covered_elements++;
+            double val = (double)number_of_covered_elements / instance.set(set_id).cost;
+            if (set_id_best == -1 || val_best < val) {
+                set_id_best = set_id;
                 val_best = val;
             }
         }
-        solution.add(s_best);
+        solution.add(set_id_best);
     }
 
     // Remove redundant sets.
     for (auto it_s = solution.sets().begin(); it_s != solution.sets().end();) {
-        SetId s = *it_s;
+        SetId set_id = *it_s;
         bool remove = true;
-        for (ElementId e: instance.set(s).elements) {
-            if (solution.covers(e) == 1) {
+        for (ElementId element_id: instance.set(set_id).elements) {
+            if (solution.covers(element_id) == 1) {
                 remove = false;
                 break;
             }
         }
         if (remove) {
-            solution.remove(s);
+            solution.remove(set_id);
         } else {
             it_s++;
         }

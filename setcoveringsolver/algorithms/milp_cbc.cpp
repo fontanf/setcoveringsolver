@@ -89,10 +89,13 @@ CbcEventHandler::CbcAction EventHandler::event(CbcEvent which_event)
     if (!output_.solution.feasible() || output_.solution.cost() > solver->getObjValue() + 0.5) {
         const double* solution_cbc = solver->getColSolution();
         Solution solution(instance_);
-        for (SetId s = 0; s < instance_.number_of_sets(); ++s)
-            if (solution_cbc[s] > 0.5)
-                solution.add(s);
-        output_.update_solution(solution, std::stringstream(""), parameters_.info);
+        for (SetId set_id = 0; set_id < instance_.number_of_sets(); ++set_id)
+            if (solution_cbc[set_id] > 0.5)
+                solution.add(set_id);
+        output_.update_solution(
+                solution,
+                std::stringstream(""),
+                parameters_.info);
     }
 
     return noAction;
@@ -104,18 +107,15 @@ CbcEventHandler::CbcAction EventHandler::event(CbcEvent which_event)
 
 CoinLP::CoinLP(const Instance& instance)
 {
-    SetId n = instance.number_of_sets();
-    ElementId m = instance.number_of_elements();
-
     // Variables
-    int number_of_columns = n;
+    int number_of_columns = instance.number_of_sets();
     column_lower_bounds.resize(number_of_columns, 0);
     column_upper_bounds.resize(number_of_columns, 1);
 
     // Objective
     objective = std::vector<double>(number_of_columns);
-    for (SetId s = 0; s < n; ++s)
-        objective[s] = instance.set(s).cost;
+    for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
+        objective[set_id] = instance.set(set_id).cost;
 
     // Constraints
     int number_of_rows = 0; // will be increased each time we add a constraint
@@ -125,28 +125,35 @@ CoinLP::CoinLP(const Instance& instance)
     std::vector<double> elements;
 
     // Every element needs to be covered
-    for (ElementId e = 0; e < m; ++e) {
+    for (ElementId element_id = 0;
+            element_id < instance.number_of_elements();
+            ++element_id) {
         // Initialize new row
         row_starts.push_back(elements.size());
         number_of_elements_in_rows.push_back(0);
         number_of_rows++;
         // Add sets
-        for (SetId s: instance.element(e).sets) {
+        for (SetId set_id: instance.element(element_id).sets) {
             elements.push_back(1);
-            element_columns.push_back(s);
+            element_columns.push_back(set_id);
             number_of_elements_in_rows.back()++;
         }
         // Add row bounds
         row_lower_bounds.push_back(1);
-        row_upper_bounds.push_back(n);
+        row_upper_bounds.push_back(instance.number_of_sets());
     }
 
     // Create matrix
     row_starts.push_back(elements.size());
-    matrix = CoinPackedMatrix(false,
-            number_of_columns, number_of_rows, elements.size(),
-            elements.data(), element_columns.data(),
-            row_starts.data(), number_of_elements_in_rows.data());
+    matrix = CoinPackedMatrix(
+            false,
+            number_of_columns,
+            number_of_rows,
+            elements.size(),
+            elements.data(),
+            element_columns.data(),
+            row_starts.data(),
+            number_of_elements_in_rows.data());
 }
 
 MilpCbcOutput setcoveringsolver::milp_cbc(
@@ -162,8 +169,7 @@ MilpCbcOutput setcoveringsolver::milp_cbc(
 
     MilpCbcOutput output(instance, parameters.info);
 
-    SetId n = instance.number_of_sets();
-    if (n == 0)
+    if (instance.number_of_sets() == 0)
         return output.algorithm_end(parameters.info);
 
     CoinLP problem(instance);
@@ -184,8 +190,8 @@ MilpCbcOutput setcoveringsolver::milp_cbc(
             problem.row_upper_bounds.data());
 
     // Mark integer.
-    for (SetId s = 0; s < n; ++s)
-        solver1.setInteger(s);
+    for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
+        solver1.setInteger(set_id);
 
     // Pass data and solver to CbcModel.
     CbcModel model(solver1);
@@ -202,15 +208,15 @@ MilpCbcOutput setcoveringsolver::milp_cbc(
     model.setMaximumSeconds(parameters.info.remaining_time());
 
     // Add initial solution.
-    std::vector<double> sol_init(n, 0);
+    std::vector<double> sol_init(instance.number_of_sets(), 0);
     if (parameters.initial_solution != NULL
             && parameters.initial_solution->feasible()) {
-        for (SetId s = 0; s < n; ++s)
-            if (parameters.initial_solution->contains(s))
-                sol_init[s] = 1;
+        for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
+            if (parameters.initial_solution->contains(set_id))
+                sol_init[set_id] = 1;
         model.setBestSolution(
                 sol_init.data(),
-                n,
+                instance.number_of_sets(),
                 parameters.initial_solution->cost());
     }
 
@@ -229,9 +235,9 @@ MilpCbcOutput setcoveringsolver::milp_cbc(
                 || output.solution.cost() > model.getObjValue() + 0.5) {
             const double* solution_cbc = model.solver()->getColSolution();
             Solution solution(instance);
-            for (SetId s = 0; s < n; ++s)
-                if (solution_cbc[s] > 0.5)
-                        solution.add(s);
+            for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
+                if (solution_cbc[set_id] > 0.5)
+                        solution.add(set_id);
             output.update_solution(
                     solution,
                     std::stringstream(""),
@@ -248,9 +254,9 @@ MilpCbcOutput setcoveringsolver::milp_cbc(
                 || output.solution.cost() > model.getObjValue() + 0.5) {
             const double* solution_cbc = model.solver()->getColSolution();
             Solution solution(instance);
-            for (SetId s = 0; s < n; ++s)
-                if (solution_cbc[s] > 0.5)
-                        solution.add(s);
+            for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
+                if (solution_cbc[set_id] > 0.5)
+                    solution.add(set_id);
             output.update_solution(
                     solution,
                     std::stringstream(""),

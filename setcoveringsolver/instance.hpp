@@ -10,11 +10,11 @@
 namespace setcoveringsolver
 {
 
-using ElementId = int64_t; // e
-using ElementPos = int64_t; // e_pos
-using SetId = int64_t; // s
-using SetPos = int64_t; // s_pos
-using ComponentId = int64_t; // c
+using ElementId = int64_t;
+using ElementPos = int64_t;
+using SetId = int64_t;
+using SetPos = int64_t;
+using ComponentId = int64_t;
 using Cost = int64_t;
 using Penalty = int64_t;
 using Counter = int64_t;
@@ -26,10 +26,12 @@ class Solution;
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Structure for an element.
+ */
 struct Element
 {
-    ElementId id;
-
+    /** Sets that cover the element. */
     std::vector<SetId> sets;
 
     /**
@@ -49,12 +51,15 @@ struct Element
     ComponentId component = -1;
 };
 
+/**
+ * Structure for a set.
+ */
 struct Set
 {
-    SetId id;
-
+    /** Cost. */
     Cost cost = 1;
 
+    /** Elements covered by the set. */
     std::vector<ElementId> elements;
 
     /**
@@ -74,10 +79,15 @@ struct Set
     bool mandatory = false;
 };
 
+/**
+ * Structure for a connected component.
+ */
 struct Component
 {
-    ComponentId id;
+    /** Elements. */
     std::vector<ElementId> elements;
+
+    /** Sets. */
     std::vector<SetId> sets;
 };
 
@@ -91,16 +101,24 @@ public:
      */
 
     /** Create an instance from a file. */
-    Instance(std::string instance_path, std::string format);
+    Instance(
+            std::string instance_path,
+            std::string format);
 
     /** Create an instance manually. */
-    Instance(SetId number_of_sets, ElementId number_of_elements);
+    Instance(
+            SetId number_of_sets,
+            ElementId number_of_elements);
 
     /** Set the cost of a set. */
-    void set_cost(SetId s, Cost cost);
+    void set_cost(
+            SetId set_id,
+            Cost cost);
 
-    /** Add an between set 's' and element 'e'. */
-    void add_arc(SetId s, ElementId e);
+    /** Add an between a set and an element. */
+    void add_arc(
+            SetId set_id,
+            ElementId element_id);
 
     /** Set the cost of all sets to 1. */
     void set_unicost();
@@ -119,7 +137,9 @@ public:
      *
      * They can then be retrieved with 'set(s).neighbors'.
      */
-    void compute_set_neighbors(Counter number_of_threads, optimizationtools::Info& info);
+    void compute_set_neighbors(
+            Counter number_of_threads,
+            optimizationtools::Info& info);
 
     void compute_element_neighbor_sets(optimizationtools::Info& info);
 
@@ -149,14 +169,14 @@ public:
     /** Get the total cost of the sets. */
     inline Cost total_cost() const { return total_cost_; }
 
-    /** Get element 'e'. */
-    inline const Element& element(ElementId e) const { return elements_[e]; }
+    /** Get an element. */
+    inline const Element& element(ElementId element_id) const { return elements_[element_id]; }
 
-    /** Get set 's'. */
-    inline const Set& set(SetId s) const { return sets_[s]; }
+    /** Get a set. */
+    inline const Set& set(SetId set_id) const { return sets_[set_id]; }
 
-    /** Get component 'c'. */
-    inline const Component& component(ComponentId c) const { return components_[c]; }
+    /** Get a component. */
+    inline const Component& component(ComponentId component_id) const { return components_[component_id]; }
 
     /** Get the number of unfixed elements. */
     inline ElementId number_of_unfixed_elements() const { return elements_.size() - fixed_elements_.size(); }
@@ -167,8 +187,8 @@ public:
     /** Get the set of fixed elements. */
     inline const optimizationtools::IndexedSet& fixed_elements() const { return fixed_elements_; }
 
-    /** Get the number of elements in component 'c'. */
-    inline ElementId number_of_elements(ComponentId c) const { return components_[c].elements.size(); }
+    /** Get the number of elements in a component. */
+    inline ElementId number_of_elements(ComponentId component_id) const { return components_[component_id].elements.size(); }
 
     /*
      * Export.
@@ -181,12 +201,12 @@ public:
      * Checkers.
      */
 
-    /** Check if set index 's' is within the correct range. */
-    inline void check_set_index(SetId s) const
+    /** Check if a set index is within the correct range. */
+    inline void check_set_index(SetId set_id) const
     {
-        if (s < 0 || s >= number_of_sets())
+        if (set_id < 0 || set_id >= number_of_sets())
             throw std::out_of_range(
-                    "Invalid set index: \"" + std::to_string(s) + "\"."
+                    "Invalid set index: \"" + std::to_string(set_id) + "\"."
                     + " Set indices should belong to [0, "
                     + std::to_string(number_of_sets() - 1) + "].");
     }
@@ -240,7 +260,9 @@ private:
     /** Write an instance in 'balas1980' format. */
     void write_balas1980(std::ofstream& file);
 
-    void compute_set_neighbors_worker(SetId s_start, SetId s_end);
+    void compute_set_neighbors_worker(
+            SetId set_id_start,
+            SetId set_id_end);
 
     void remove_elements(const optimizationtools::IndexedSet& elements);
 
