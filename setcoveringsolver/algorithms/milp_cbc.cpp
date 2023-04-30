@@ -157,17 +157,32 @@ CoinLP::CoinLP(const Instance& instance)
 }
 
 MilpCbcOutput setcoveringsolver::milp_cbc(
-        const Instance& instance,
+        const Instance& original_instance,
         MilpCbcOptionalParameters parameters)
 {
-    init_display(instance, parameters.info);
+    init_display(original_instance, parameters.info);
     parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "MILP (CBC)" << std::endl
             << std::endl;
 
-    MilpCbcOutput output(instance, parameters.info);
+    // Reduction.
+    std::unique_ptr<Instance> reduced_instance = nullptr;
+    if (parameters.reduction_parameters.reduce) {
+        reduced_instance = std::unique_ptr<Instance>(
+                new Instance(
+                    original_instance.reduce(
+                        parameters.reduction_parameters)));
+        parameters.info.os()
+            << "Reduced instance" << std::endl
+            << "----------------" << std::endl;
+        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
+        parameters.info.os() << std::endl;
+    }
+    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+
+    MilpCbcOutput output(original_instance, parameters.info);
 
     if (instance.number_of_sets() == 0)
         return output.algorithm_end(parameters.info);

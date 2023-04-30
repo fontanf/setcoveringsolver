@@ -11,8 +11,6 @@ Solution::Solution(const Instance& instance):
     component_number_of_elements_(instance.number_of_components(), 0),
     component_costs_(instance.number_of_components(), 0)
 {
-    for (ElementId element_id: instance.fixed_elements())
-        elements_.set(element_id, 1);
 }
 
 Solution::Solution(
@@ -28,15 +26,55 @@ Solution::Solution(
                 "Unable to open file \"" + certificate_path + "\".");
     }
 
-    for (ElementId element_id: instance.fixed_elements())
-        elements_.set(element_id, 1);
-
     SetId number_of_sets;
     SetId set_id;
     file >> number_of_sets;
     for (SetPos set_pos = 0; set_pos < number_of_sets; ++set_pos) {
         file >> set_id;
         add(set_id);
+    }
+}
+
+void Solution::update(const Solution& solution)
+{
+    if (&instance() != &solution.instance()
+            && &instance() != solution.instance().original_instance()) {
+        throw std::runtime_error(
+                "Cannot update a solution with a solution from a different instance.");
+    }
+
+    if (solution.instance().is_reduced()
+            && solution.instance().original_instance() == &instance()) {
+        for (SetId set_id = 0;
+                set_id < instance().number_of_sets();
+                ++set_id) {
+            if (contains(set_id))
+                remove(set_id);
+        }
+        for (SetId set_id: solution.instance().unreduction_info().mandatory_sets) {
+            //std::cout << "mandatory " << set_id << std::endl;
+            add(set_id);
+        }
+        for (SetId set_id = 0;
+                set_id < solution.instance().number_of_sets();
+                ++set_id) {
+            if (solution.contains(set_id)) {
+                SetId set_id_2 = solution.instance().unreduction_info().unreduction_operations[set_id];
+                add(set_id_2);
+            }
+        }
+        if (cost() != solution.cost() + solution.instance().unreduction_info().extra_cost) {
+            throw std::runtime_error(
+                    "Wrong cost after unreduction. Weight: "
+                    + std::to_string(cost())
+                    + "; reduced solution cost: "
+                    + std::to_string(solution.cost())
+                    + "; extra cost: "
+                    + std::to_string(solution.instance().unreduction_info().extra_cost)
+                    + ".");
+        }
+    } else {
+        *this = solution;
     }
 }
 
@@ -55,6 +93,21 @@ void Solution::write(std::string certificate_path)
         if (contains(set_id))
             file << set_id << " ";
     file.close();
+}
+
+bool Solution::is_strictly_better_than(const Solution& solution) const
+{
+    if (!feasible())
+        return false;
+    if (!solution.feasible())
+        return true;
+    Cost c1 = cost();
+    if (instance().is_reduced())
+        c1 += instance().unreduction_info().extra_cost;
+    Cost c2 = solution.cost();
+    //if (instance().is_reduced())
+    //    w2 += solution.instance().unreduction_info().extra_cost;
+    return c1 < c2;
 }
 
 std::ostream& setcoveringsolver::operator<<(std::ostream& os, const Solution& solution)
@@ -119,42 +172,13 @@ void Output::print(
 
 void Output::update_solution(
         const Solution& solution_new,
-        ComponentId component_id,
         const std::stringstream& s,
         optimizationtools::Info& info)
 {
     info.lock();
 
-    bool ok = false;
-    if (component_id == -1) {
-        if (solution_new.feasible() && (!solution.feasible() || solution.cost() > solution_new.cost()))
-            ok = true;
-    } else {
-        if (solution_new.feasible(component_id)
-                && solution.cost(component_id) > solution_new.cost(component_id))
-            ok = true;
-    }
-
-    if (ok) {
-        if (component_id == -1) {
-            for (SetId set_id = 0;
-                    set_id < solution.instance().number_of_sets();
-                    ++set_id) {
-                if (solution.contains(set_id) && !solution_new.contains(set_id)) {
-                    solution.remove(set_id);
-                } else if (!solution.contains(set_id) && solution_new.contains(set_id)) {
-                    solution.add(set_id);
-                }
-            }
-        } else {
-            for (SetId set_id: solution.instance().component(component_id).sets) {
-                if (solution.contains(set_id) && !solution_new.contains(set_id)) {
-                    solution.remove(set_id);
-                } else if (!solution.contains(set_id) && solution_new.contains(set_id)) {
-                    solution.add(set_id);
-                }
-            }
-        }
+    if (solution_new.is_strictly_better_than(solution)) {
+        solution.update(solution_new);
         print(info, s);
 
         info.output->number_of_solutions++;

@@ -26,10 +26,10 @@ struct LargeNeighborhoodSearchSet
 };
 
 LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
-        Instance& instance,
+        Instance& original_instance,
         LargeNeighborhoodSearchOptionalParameters parameters)
 {
-    init_display(instance, parameters.info);
+    init_display(original_instance, parameters.info);
     parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
@@ -41,11 +41,26 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
             << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
             << std::endl;
 
-    instance.fix_identical(parameters.info);
-    //instance.fix_dominated(parameters.info);
+    // Reduction.
+    std::unique_ptr<Instance> reduced_instance = nullptr;
+    if (parameters.reduction_parameters.reduce) {
+        reduced_instance = std::unique_ptr<Instance>(
+                new Instance(
+                    original_instance.reduce(
+                        parameters.reduction_parameters)));
+        parameters.info.os()
+            << "Reduced instance" << std::endl
+            << "----------------" << std::endl;
+        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
+        parameters.info.os() << std::endl;
+    }
+    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 
-    LargeNeighborhoodSearchOutput output(instance, parameters.info);
-    Solution solution = greedy(instance).solution;
+    LargeNeighborhoodSearchOutput output(original_instance, parameters.info);
+
+    GreedyOptionalParameters greedy_parameters;
+    greedy_parameters.reduction_parameters.reduce = false;
+    Solution solution = greedy(instance, greedy_parameters).solution;
     std::stringstream ss;
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);

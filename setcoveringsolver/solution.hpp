@@ -27,6 +27,8 @@ public:
             const Instance& instance,
             std::string certificate_path);
 
+    void update(const Solution& solution);
+
     /*
      * Getters
      */
@@ -69,6 +71,8 @@ public:
 
     /** Get the set of sets of the solution. */
     const optimizationtools::IndexedSet& sets() const { return sets_; };
+
+    bool is_strictly_better_than(const Solution& solution) const;
 
     /*
      * Setters
@@ -177,15 +181,6 @@ struct Output
 
     void update_solution(
             const Solution& solution_new,
-            const std::stringstream& s,
-            optimizationtools::Info& info)
-    {
-        update_solution(solution_new, -1, s, info);
-    }
-
-    void update_solution(
-            const Solution& solution_new,
-            ComponentId component_id,
             const std::stringstream& s,
             optimizationtools::Info& info);
 

@@ -5,17 +5,26 @@
 namespace setcoveringsolver
 {
 
+struct GreedyOptionalParameters
+{
+    /** Reduction parameters. */
+    ReductionParameters reduction_parameters;
+
+    /** Info structure. */
+    optimizationtools::Info info = optimizationtools::Info();
+};
+
 Output greedy(
         const Instance& instance,
-        optimizationtools::Info info = optimizationtools::Info());
+        GreedyOptionalParameters parameters = {});
 
 Output greedy_lin(
         const Instance& instance,
-        optimizationtools::Info info = optimizationtools::Info());
+        GreedyOptionalParameters parameters = {});
 
 Output greedy_dual(
         const Instance& instance,
-        optimizationtools::Info info = optimizationtools::Info());
+        GreedyOptionalParameters parameters = {});
 
 }
 

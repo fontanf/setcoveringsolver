@@ -13,6 +13,9 @@ struct LocalSearchRowWeighting1OptionalParameters
     /** Maximum number of iterations without improvement. */
     Counter maximum_number_of_iterations_without_improvement = -1;
 
+    /** Reduction parameters. */
+    ReductionParameters reduction_parameters;
+
     /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();
 };
@@ -86,6 +89,9 @@ struct LocalSearchRowWeighting2OptionalParameters
 
     /** Maximum number of iterations without improvement. */
     Counter maximum_number_of_iterations_without_improvement = -1;
+
+    /** Reduction parameters. */
+    ReductionParameters reduction_parameters;
 
     /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();

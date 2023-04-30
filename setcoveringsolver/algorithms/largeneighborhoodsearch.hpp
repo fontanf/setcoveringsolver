@@ -16,6 +16,9 @@ struct LargeNeighborhoodSearchOptionalParameters
     /** Goal. */
     Cost goal;
 
+    /** Reduction parameters. */
+    ReductionParameters reduction_parameters;
+
     /** Info structure. */
     optimizationtools::Info info = optimizationtools::Info();
 };

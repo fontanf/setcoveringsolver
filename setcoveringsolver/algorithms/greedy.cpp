@@ -5,17 +5,33 @@
 using namespace setcoveringsolver;
 
 Output setcoveringsolver::greedy(
-        const Instance& instance,
-        optimizationtools::Info info)
+        const Instance& original_instance,
+        GreedyOptionalParameters parameters)
 {
-    init_display(instance, info);
-    info.os()
+    init_display(original_instance, parameters.info);
+    parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Greedy" << std::endl
             << std::endl;
 
-    Output output(instance, info);
+    // Reduction.
+    std::unique_ptr<Instance> reduced_instance = nullptr;
+    if (parameters.reduction_parameters.reduce) {
+        reduced_instance = std::unique_ptr<Instance>(
+                new Instance(
+                    original_instance.reduce(
+                        parameters.reduction_parameters)));
+        parameters.info.os()
+            << "Reduced instance" << std::endl
+            << "----------------" << std::endl;
+        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
+        parameters.info.os() << std::endl;
+    }
+    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+
+    Output output(original_instance, parameters.info);
+
     Solution solution(instance);
 
     auto f = [&instance](SetId set_id) { return std::pair<double, SetId>{-1.0 * (double)instance.set(set_id).elements.size() / instance.set(set_id).cost, set_id}; };
@@ -58,22 +74,38 @@ Output setcoveringsolver::greedy(
         }
     }
 
-    output.update_solution(solution, std::stringstream(), info);
-    return output.algorithm_end(info);
+    output.update_solution(solution, std::stringstream(), parameters.info);
+    return output.algorithm_end(parameters.info);
 }
 
 Output setcoveringsolver::greedy_lin(
-        const Instance& instance,
-        optimizationtools::Info info)
+        const Instance& original_instance,
+        GreedyOptionalParameters parameters)
 {
-    init_display(instance, info);
-    info.os()
+    init_display(original_instance, parameters.info);
+    parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Greedy Lin" << std::endl
             << std::endl;
 
-    Output output(instance, info);
+    // Reduction.
+    std::unique_ptr<Instance> reduced_instance = nullptr;
+    if (parameters.reduction_parameters.reduce) {
+        reduced_instance = std::unique_ptr<Instance>(
+                new Instance(
+                    original_instance.reduce(
+                        parameters.reduction_parameters)));
+        parameters.info.os()
+            << "Reduced instance" << std::endl
+            << "----------------" << std::endl;
+        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
+        parameters.info.os() << std::endl;
+    }
+    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+
+    Output output(original_instance, parameters.info);
+
     Solution solution(instance);
 
     auto f = [&instance, &solution](SetId set_id)
@@ -114,22 +146,38 @@ Output setcoveringsolver::greedy_lin(
         }
     }
 
-    output.update_solution(solution, std::stringstream(), info);
-    return output.algorithm_end(info);
+    output.update_solution(solution, std::stringstream(), parameters.info);
+    return output.algorithm_end(parameters.info);
 }
 
 Output setcoveringsolver::greedy_dual(
-        const Instance& instance,
-        optimizationtools::Info info)
+        const Instance& original_instance,
+        GreedyOptionalParameters parameters)
 {
-    init_display(instance, info);
-    info.os()
+    init_display(original_instance, parameters.info);
+    parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Dual Greedy" << std::endl
             << std::endl;
 
-    Output output(instance, info);
+    // Reduction.
+    std::unique_ptr<Instance> reduced_instance = nullptr;
+    if (parameters.reduction_parameters.reduce) {
+        reduced_instance = std::unique_ptr<Instance>(
+                new Instance(
+                    original_instance.reduce(
+                        parameters.reduction_parameters)));
+        parameters.info.os()
+            << "Reduced instance" << std::endl
+            << "----------------" << std::endl;
+        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
+        parameters.info.os() << std::endl;
+    }
+    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+
+    Output output(original_instance, parameters.info);
+
     Solution solution(instance);
 
     for (ElementId element_id = 0;
@@ -173,7 +221,7 @@ Output setcoveringsolver::greedy_dual(
         }
     }
 
-    output.update_solution(solution, std::stringstream(), info);
-    return output.algorithm_end(info);
+    output.update_solution(solution, std::stringstream(), parameters.info);
+    return output.algorithm_end(parameters.info);
 }
 

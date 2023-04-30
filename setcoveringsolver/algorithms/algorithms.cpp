@@ -81,11 +81,17 @@ Output setcoveringsolver::run(
         throw std::invalid_argument("Missing algorithm.");
 
     } else if (algorithm_args[0] == "greedy") {
-        return greedy(instance, info);
+        GreedyOptionalParameters parameters;
+        parameters.info = info;
+        return greedy(instance, parameters);
     } else if (algorithm_args[0] == "greedy_lin") {
-        return greedy_lin(instance, info);
+        GreedyOptionalParameters parameters;
+        parameters.info = info;
+        return greedy_lin(instance, parameters);
     } else if (algorithm_args[0] == "greedy_dual") {
-        return greedy_dual(instance, info);
+        GreedyOptionalParameters parameters;
+        parameters.info = info;
+        return greedy_dual(instance, parameters);
 #if COINOR_FOUND
     } else if (algorithm_args[0] == "milp_cbc") {
         MilpCbcOptionalParameters parameters;

@@ -20,12 +20,6 @@ using Penalty = int64_t;
 using Counter = int64_t;
 using Seed = int64_t;
 
-class Solution;
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
 /**
  * Structure for an element.
  */
@@ -75,8 +69,6 @@ struct Set
      * This attribute is not computed by default, use instance.compute_components().
      */
     ComponentId component = -1;
-
-    bool mandatory = false;
 };
 
 /**
@@ -91,13 +83,57 @@ struct Component
     std::vector<SetId> sets;
 };
 
-class Instance 
+class Instance;
+
+struct UnreductionInfo
+{
+    /** Pointer to the original instance. */
+    const Instance* original_instance = nullptr;
+
+    /** For each set, the corresponding set in the original instance. */
+    std::vector<SetId> unreduction_operations;
+
+    /** Mandatory sets (from the original instance). */
+    std::vector<SetId> mandatory_sets;
+
+    /**
+     * Cost to add to a solution of the reduced instance to get the cost of
+     * the corresponding solution of the original instance.
+     **/
+    Cost extra_cost;
+};
+
+/**
+ * Structure passed as parameters of the reduction algorithm and the other
+ * algorithm to determine whether and how to reduce.
+ */
+struct ReductionParameters
+{
+    /** Boolean indicating if the reduction should be performed. */
+    bool reduce = true;
+
+    /** Maximum number of rounds. */
+    Counter maximum_number_of_rounds = 10;
+
+    /**
+     * Booelean indicating if the dominated sets/elements removal should be
+     * performed.
+     *
+     * These reduction operations are expensive on large problems.
+     */
+    bool remove_domianted = false;
+};
+
+/**
+ * Instance class for a Set Covering problem.
+ */
+class Instance
 {
 
 public:
 
     /*
-     * Constructors and destructor.
+     * Constructors and destructor
      */
 
     /** Create an instance from a file. */
@@ -126,12 +162,6 @@ public:
     /** Compute the connected components of the instance. */
     void compute_components();
 
-    /** Fix identical sets and elements. */
-    void fix_identical(optimizationtools::Info& info);
-
-    /** Fix dominanted sets and elements. */
-    void fix_dominated(optimizationtools::Info& info);
-
     /**
      * Compute the neighbors of the sets.
      *
@@ -149,6 +179,9 @@ public:
      * They can then be retrieved with 'element(e).neighbors'.
      */
     void compute_element_neighbors(optimizationtools::Info& info);
+
+    /** Reduce. */
+    Instance reduce(ReductionParameters parameters) const;
 
     /*
      * Getters.
@@ -178,27 +211,36 @@ public:
     /** Get a component. */
     inline const Component& component(ComponentId component_id) const { return components_[component_id]; }
 
-    /** Get the number of unfixed elements. */
-    inline ElementId number_of_unfixed_elements() const { return elements_.size() - fixed_elements_.size(); }
-
-    /** Get the number of unfixed sets. */
-    inline SetId number_of_unfixed_sets() const { return sets_.size() - fixed_sets_.size(); }
-
-    /** Get the set of fixed elements. */
-    inline const optimizationtools::IndexedSet& fixed_elements() const { return fixed_elements_; }
-
     /** Get the number of elements in a component. */
     inline ElementId number_of_elements(ComponentId component_id) const { return components_[component_id].elements.size(); }
 
     /*
-     * Export.
+     * Reduction information
      */
+
+    /** Get the original instance. */
+    inline const Instance* original_instance() const { return (is_reduced())? unreduction_info().original_instance: this; }
+
+    /** Return 'true' iff the instance is a reduced instance. */
+    inline bool is_reduced() const { return unreduction_info_.original_instance != nullptr; }
+
+    /** Get the unreduction info of the instance; */
+    inline const UnreductionInfo& unreduction_info() const { return unreduction_info_; }
+
+    /*
+     * Export
+     */
+
+    /** Print the instance. */
+    std::ostream& print(
+            std::ostream& os,
+            int verbose = 1) const;
 
     /** Write the instance to a file. */
     void write(std::string instance_path, std::string format);
 
     /*
-     * Checkers.
+     * Checkers
      */
 
     /** Check if a set index is within the correct range. */
@@ -229,17 +271,18 @@ private:
     /** Number of arcs. */
     ElementPos number_of_arcs_ = 0;
 
-    /** Set of fixed sets. */
-    optimizationtools::IndexedSet fixed_sets_;
-
-    /** Set of fixed elements. */
-    optimizationtools::IndexedSet fixed_elements_;
-
     /** Components. */
     std::vector<Component> components_;
 
+    /** Reduction structure. */
+    UnreductionInfo unreduction_info_;
+
     /*
      * Private methods.
+     */
+
+    /*
+     * Read input file
      */
 
     /** Read an instance file in 'fulkerson1974' format. */
@@ -257,18 +300,36 @@ private:
     /** Read an instance file in 'geccod2020' format. */
     void read_geccod2020(std::ifstream& file);
 
+    /*
+     * Write to a file
+     */
+
     /** Write an instance in 'balas1980' format. */
     void write_balas1980(std::ofstream& file);
+
+    /*
+     * Reductions
+     */
+
+    /** Remove mandatory sets. */
+    bool reduce_mandatory_sets();
+
+    /** Remove identical elements. */
+    bool reduce_identical_elements();
+
+    /** Remove identical sets. */
+    bool reduce_identical_sets();
+
+    /** Remove dominated elements. */
+    bool reduce_domianted_elements();
+
+    /** Remove dominated sets. */
+    bool reduce_domianted_sets();
+
 
     void compute_set_neighbors_worker(
             SetId set_id_start,
             SetId set_id_end);
-
-    void remove_elements(const optimizationtools::IndexedSet& elements);
-
-    void remove_sets(
-            const optimizationtools::IndexedSet& sets,
-            optimizationtools::Info& info);
 
 };
 

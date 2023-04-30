@@ -63,11 +63,11 @@ struct LocalSearchRowWeightingSet
 };
 
 LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
-        Instance& instance,
+        Instance& original_instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting2OptionalParameters parameters)
 {
-    init_display(instance, parameters.info);
+    init_display(original_instance, parameters.info);
     parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
@@ -82,21 +82,38 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
             << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
             << std::endl;
 
+    // Reduction.
+    std::unique_ptr<Instance> reduced_instance = nullptr;
+    if (parameters.reduction_parameters.reduce) {
+        reduced_instance = std::unique_ptr<Instance>(
+                new Instance(
+                    original_instance.reduce(
+                        parameters.reduction_parameters)));
+        parameters.info.os()
+            << "Reduced instance" << std::endl
+            << "----------------" << std::endl;
+        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
+        parameters.info.os() << std::endl;
+    }
+    Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+
     // Instance pre-processing.
-    instance.fix_identical(parameters.info);
     instance.compute_set_neighbors(6, parameters.info);
     if (parameters.neighborhood_1 == 1 || parameters.neighborhood_2 == 1)
         instance.compute_element_neighbor_sets(parameters.info);
-    instance.compute_components();
 
-    LocalSearchRowWeighting2Output output(instance, parameters.info);
+    LocalSearchRowWeighting2Output output(original_instance, parameters.info);
 
     // Compute initial greedy solution.
-    Solution solution = greedy(instance).solution;
+    GreedyOptionalParameters greedy_parameters;
+    greedy_parameters.reduction_parameters.reduce = false;
+    Solution solution = greedy(instance, greedy_parameters).solution;
     //Solution solution = greedy_lin(instance).solution;
     std::stringstream ss;
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);
+
+    Solution solution_best(solution);
 
     // Initialize local search structures.
     std::vector<LocalSearchRowWeightingSet> sets(instance.number_of_sets());
@@ -164,10 +181,19 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         while (solution.feasible(component_id)) {
             // New best solution
             if (output.solution.cost(component_id) > solution.cost(component_id)) {
-                // Update best solution
+                // Update solution_best.
+                for (SetId set_id: instance.component(component_id).sets) {
+                    if (solution_best.contains(set_id)
+                            && !solution.contains(set_id)) {
+                        solution_best.remove(set_id);
+                    } else if (!solution_best.contains(set_id)
+                            && solution.contains(set_id)) {
+                        solution_best.add(set_id);
+                    }
+                }
                 std::stringstream ss;
                 ss << "it " << output.number_of_iterations << " comp " << component_id;
-                output.update_solution(solution, component_id, ss, parameters.info);
+                output.update_solution(solution, ss, parameters.info);
             }
             // Update statistics
             number_of_iterations_without_improvement = 0;
@@ -180,8 +206,7 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
             // For each set s of the current solution which belongs to the
             // currently considered component and is not mandatory.
             for (SetId set_id: solution.sets()) {
-                if (instance.set(set_id).component != component_id
-                        || instance.set(set_id).mandatory)
+                if (instance.set(set_id).component != component_id)
                     continue;
                 Penalty p = -sets[set_id].score;
                 // Update best move.
@@ -307,7 +332,6 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
                     SetId set_id_2 = *it;
                     if (set_id_1 == set_id_2
                             || set_id_2 == component.set_id_last_added
-                            || instance.set(set_id_2).mandatory
                             || !solution.contains(set_id_2))
                         continue;
                     Penalty p = p0;
@@ -365,7 +389,6 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
             if (set_id_3_best != -1) {
                 for (SetId set_id_4: solution.sets()) {
                     if (set_id_4 == component.set_id_last_added
-                            || instance.set(set_id_4).mandatory
                             || neighbor_sets.contains(set_id_4)
                             || instance.set(set_id_4).component != component_id)
                         continue;
@@ -575,11 +598,11 @@ struct LocalSearchRowWeighting1Set
 };
 
 LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
-        Instance& instance,
+        Instance& original_instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting1OptionalParameters parameters)
 {
-    init_display(instance, parameters.info);
+    init_display(original_instance, parameters.info);
     parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
@@ -591,13 +614,27 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
             << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
             << std::endl;
 
-    // Instance pre-processing.
-    instance.fix_identical(parameters.info);
+    // Reduction.
+    std::unique_ptr<Instance> reduced_instance = nullptr;
+    if (parameters.reduction_parameters.reduce) {
+        reduced_instance = std::unique_ptr<Instance>(
+                new Instance(
+                    original_instance.reduce(
+                        parameters.reduction_parameters)));
+        parameters.info.os()
+            << "Reduced instance" << std::endl
+            << "----------------" << std::endl;
+        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
+        parameters.info.os() << std::endl;
+    }
+    Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 
-    LocalSearchRowWeighting1Output output(instance, parameters.info);
+    LocalSearchRowWeighting1Output output(original_instance, parameters.info);
 
     // Compute initial greedy solution.
-    Solution solution = greedy(instance).solution;
+    GreedyOptionalParameters greedy_parameters;
+    greedy_parameters.reduction_parameters.reduce = false;
+    Solution solution = greedy(instance, greedy_parameters).solution;
     std::stringstream ss;
     ss << "initial solution";
     output.update_solution(solution, ss, parameters.info);
@@ -645,8 +682,6 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
             SetId set_id_best = -1;
             Cost score_best = -1;
             for (SetId set_id: solution.sets()) {
-                if (instance.set(set_id).mandatory)
-                    continue;
                 if (set_id_best == -1
                         || score_best > sets[set_id].score
                         || (score_best == sets[set_id].score
@@ -699,8 +734,7 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
         SetId set_id_1_best = -1;
         Cost score1_best = -1;
         for (SetId set_id: solution.sets()) {
-            if (set_id == set_id_last_added
-                    || instance.set(set_id).mandatory)
+            if (set_id == set_id_last_added)
                 continue;
             if (set_id_1_best == -1
                     || score1_best > sets[set_id].score

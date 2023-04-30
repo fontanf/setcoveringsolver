@@ -19,11 +19,11 @@ class MilpGurobiCallback: public GRBCallback
 public:
 
     MilpGurobiCallback(
-            const Instance& ins,
-            MilpGurobiOptionalParameters& p,
+            const Instance& instance,
+            MilpGurobiOptionalParameters& parameters,
             MilpGurobiOutput& output,
             GRBVar* x):
-        instance_(ins), p_(p), output_(output), x_(x) { }
+        instance_(instance), parameters_(parameters), output_(output), x_(x) { }
 
 protected:
 
@@ -33,9 +33,13 @@ protected:
             return;
 
         SetId lb = std::ceil(getDoubleInfo(GRB_CB_MIPSOL_OBJBND) - FFOT_TOL);
-        output_.update_lower_bound(lb, std::stringstream(""), p_.info);
+        output_.update_lower_bound(
+                lb,
+                std::stringstream(""),
+                parameters_.info);
 
-        if (!output_.solution.feasible() || output_.solution.cost() > getDoubleInfo(GRB_CB_MIPSOL_OBJ) + 0.5) {
+        if (!output_.solution.feasible()
+                || output_.solution.cost() > getDoubleInfo(GRB_CB_MIPSOL_OBJ) + 0.5) {
             Solution solution(instance_);
             double* x = getSolution(x_, instance_.number_of_sets());
             for (SetId set_id = 0;
@@ -45,32 +49,50 @@ protected:
                     solution.add(set_id);
             }
             std::stringstream ss;
-            output_.update_solution(solution, std::stringstream(""), p_.info);
+            output_.update_solution(
+                    solution,
+                    std::stringstream(""),
+                    parameters_.info);
         }
     }
 
 private:
 
     const Instance& instance_;
-    MilpGurobiOptionalParameters& p_;
+    MilpGurobiOptionalParameters& parameters_;
     MilpGurobiOutput& output_;
     GRBVar* x_;
 
 };
 
 MilpGurobiOutput setcoveringsolver::milp_gurobi(
-        const Instance& instance,
+        const Instance& original_instance,
         MilpGurobiOptionalParameters parameters)
 {
     GRBEnv env;
-    init_display(instance, parameters.info);
+    init_display(original_instance, parameters.info);
     parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "MILP (Gurobi)" << std::endl
             << std::endl;
 
-    MilpGurobiOutput output(instance, parameters.info);
+    // Reduction.
+    std::unique_ptr<Instance> reduced_instance = nullptr;
+    if (parameters.reduction_parameters.reduce) {
+        reduced_instance = std::unique_ptr<Instance>(
+                new Instance(
+                    original_instance.reduce(
+                        parameters.reduction_parameters)));
+        parameters.info.os()
+            << "Reduced instance" << std::endl
+            << "----------------" << std::endl;
+        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
+        parameters.info.os() << std::endl;
+    }
+    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+
+    MilpGurobiOutput output(original_instance, parameters.info);
 
     GRBModel model(env);
 
