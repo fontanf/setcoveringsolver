@@ -454,58 +454,61 @@ bool Instance::reduce_mandatory_sets()
     if (fixed_sets.size() == 0)
         return false;
 
-    UnreductionInfo unreduction_info_new;
-    unreduction_info_new.original_instance = unreduction_info_.original_instance;
+    UnreductionInfo new_unreduction_info;
+    new_unreduction_info.original_instance = unreduction_info_.original_instance;
 
     // Update mandatory_sets.
-    unreduction_info_new.mandatory_sets = unreduction_info_.mandatory_sets;
+    new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     for (SetId set_id: fixed_sets) {
-        SetId set_id_2 = unreduction_info_.unreduction_operations[set_id];
-        unreduction_info_new.mandatory_sets.push_back(set_id_2);
+        SetId orig_item_id = unreduction_info_.unreduction_operations[set_id];
+        new_unreduction_info.mandatory_sets.push_back(orig_item_id);
     }
     // Create new instance and compute unreduction_operations.
-    SetId n = number_of_sets() - fixed_sets.size();
-    Instance instance_new(n, number_of_elements() - elements_to_remove.size());
-    unreduction_info_new.unreduction_operations = std::vector<SetId>(n);
+    SetId new_number_of_sets = number_of_sets() - fixed_sets.size();
+    SetId new_number_of_elements = number_of_elements() - elements_to_remove.size();
+    Instance new_instance(
+            new_number_of_sets,
+            new_number_of_elements);
+    new_unreduction_info.unreduction_operations = std::vector<SetId>(new_number_of_sets);
     // Add sets.
     std::vector<SetId> sets_original2reduced(number_of_sets(), -1);
     std::vector<ElementId> elements_original2reduced(number_of_elements(), -1);
-    ElementId element_id_new = 0;
+    ElementId new_element_id = 0;
     for (auto it = elements_to_remove.out_begin();
             it != elements_to_remove.out_end();
             ++it) {
         ElementId element_id = *it;
-        elements_original2reduced[element_id] = element_id_new;
-        element_id_new++;
+        elements_original2reduced[element_id] = new_element_id;
+        new_element_id++;
     }
-    SetId set_id_new = 0;
+    SetId new_set_id = 0;
     for (auto it = fixed_sets.out_begin(); it != fixed_sets.out_end(); ++it) {
         SetId set_id = *it;
-        sets_original2reduced[set_id] = set_id_new;
-        instance_new.set_cost(set_id_new, set(set_id).cost);
-        unreduction_info_new.unreduction_operations[set_id_new]
+        sets_original2reduced[set_id] = new_set_id;
+        new_instance.set_cost(new_set_id, set(set_id).cost);
+        new_unreduction_info.unreduction_operations[new_set_id]
             = unreduction_info_.unreduction_operations[set_id];
-        set_id_new++;
+        new_set_id++;
     }
     // Add arcs.
     for (auto it = fixed_sets.out_begin(); it != fixed_sets.out_end(); ++it) {
         SetId set_id = *it;
-        SetId set_id_new = sets_original2reduced[set_id];
-        if (set_id_new == -1)
+        SetId new_set_id = sets_original2reduced[set_id];
+        if (new_set_id == -1)
             continue;
         for (ElementId element_id: set(set_id).elements) {
-            ElementId element_id_new = elements_original2reduced[element_id];
-            if (element_id_new == -1)
+            ElementId new_element_id = elements_original2reduced[element_id];
+            if (new_element_id == -1)
                 continue;
-            instance_new.add_arc(
-                    set_id_new,
-                    element_id_new);
+            new_instance.add_arc(
+                    new_set_id,
+                    new_element_id);
         }
     }
 
-    instance_new.unreduction_info_ = unreduction_info_new;
-    instance_new.compute_components();
-    *this = instance_new;
+    new_instance.unreduction_info_ = new_unreduction_info;
+    new_instance.compute_components();
+    *this = new_instance;
     //print(std::cout, 1);
     return true;
 }
@@ -544,43 +547,44 @@ bool Instance::reduce_identical_elements()
     if (elements_to_remove.size() == 0)
         return false;
 
-    UnreductionInfo unreduction_info_new;
-    unreduction_info_new.original_instance = unreduction_info_.original_instance;
+    UnreductionInfo new_unreduction_info;
+    new_unreduction_info.original_instance = unreduction_info_.original_instance;
 
     // Update mandatory_sets.
-    unreduction_info_new.mandatory_sets = unreduction_info_.mandatory_sets;
+    new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     // Create new instance and compute unreduction_operations.
-    Instance instance_new(
+    ElementId new_number_of_elements = number_of_elements() - elements_to_remove.size();
+    Instance new_instance(
             number_of_sets(),
-            number_of_elements() - elements_to_remove.size());
-    unreduction_info_new.unreduction_operations = std::vector<SetId>(number_of_sets());
+            new_number_of_elements);
+    new_unreduction_info.unreduction_operations = std::vector<SetId>(number_of_sets());
     std::vector<ElementId> original2reduced(number_of_elements(), -1);
-    ElementId element_id_new = 0;
+    ElementId new_element_id = 0;
     for (auto it = elements_to_remove.out_begin();
             it != elements_to_remove.out_end();
             ++it) {
         ElementId element_id = *it;
-        original2reduced[element_id] = element_id_new;
-        element_id_new++;
+        original2reduced[element_id] = new_element_id;
+        new_element_id++;
     }
     // Add sets and arcs.
     for (SetId set_id = 0; set_id < number_of_sets(); ++set_id) {
-        instance_new.set_cost(set_id, set(set_id).cost);
-        unreduction_info_new.unreduction_operations[set_id]
+        new_instance.set_cost(set_id, set(set_id).cost);
+        new_unreduction_info.unreduction_operations[set_id]
             = unreduction_info_.unreduction_operations[set_id];
         for (ElementId element_id: set(set_id).elements) {
-            ElementId element_id_new = original2reduced[element_id];
-            if (element_id_new == -1)
+            ElementId new_element_id = original2reduced[element_id];
+            if (new_element_id == -1)
                 continue;
-            instance_new.add_arc(
+            new_instance.add_arc(
                     set_id,
-                    element_id_new);
+                    new_element_id);
         }
     }
 
-    instance_new.unreduction_info_ = unreduction_info_new;
-    instance_new.compute_components();
-    *this = instance_new;
+    new_instance.unreduction_info_ = new_unreduction_info;
+    new_instance.compute_components();
+    *this = new_instance;
     //print(std::cout, 1);
     return true;
 }
@@ -619,45 +623,45 @@ bool Instance::reduce_identical_sets()
     if (sets_to_remove.size() == 0)
         return false;
 
-    UnreductionInfo unreduction_info_new;
-    unreduction_info_new.original_instance = unreduction_info_.original_instance;
+    UnreductionInfo new_unreduction_info;
+    new_unreduction_info.original_instance = unreduction_info_.original_instance;
 
     // Update mandatory_sets.
-    unreduction_info_new.mandatory_sets = unreduction_info_.mandatory_sets;
+    new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     // Create new instance and compute unreduction_operations.
-    SetId n = number_of_sets() - sets_to_remove.size();
-    Instance instance_new(n, number_of_elements());
-    unreduction_info_new.unreduction_operations = std::vector<SetId>(n);
+    SetId new_number_of_sets = number_of_sets() - sets_to_remove.size();
+    Instance new_instance(new_number_of_sets, number_of_elements());
+    new_unreduction_info.unreduction_operations = std::vector<SetId>(new_number_of_sets);
     // Add sets.
     std::vector<SetId> original2reduced(number_of_sets(), -1);
-    SetId set_id_new = 0;
+    SetId new_set_id = 0;
     for (auto it = sets_to_remove.out_begin();
             it != sets_to_remove.out_end(); ++it) {
         SetId set_id = *it;
-        original2reduced[set_id] = set_id_new;
-        instance_new.set_cost(set_id_new, set(set_id).cost);
-        unreduction_info_new.unreduction_operations[set_id_new]
+        original2reduced[set_id] = new_set_id;
+        new_instance.set_cost(new_set_id, set(set_id).cost);
+        new_unreduction_info.unreduction_operations[new_set_id]
             = unreduction_info_.unreduction_operations[set_id];
-        set_id_new++;
+        new_set_id++;
     }
     // Add arcs.
     for (auto it = sets_to_remove.out_begin();
             it != sets_to_remove.out_end();
             ++it) {
         SetId set_id = *it;
-        SetId set_id_new = original2reduced[set_id];
-        if (set_id_new == -1)
+        SetId new_set_id = original2reduced[set_id];
+        if (new_set_id == -1)
             continue;
         for (ElementId element_id: set(set_id).elements) {
-            instance_new.add_arc(
-                    set_id_new,
+            new_instance.add_arc(
+                    new_set_id,
                     element_id);
         }
     }
 
-    instance_new.unreduction_info_ = unreduction_info_new;
-    instance_new.compute_components();
-    *this = instance_new;
+    new_instance.unreduction_info_ = new_unreduction_info;
+    new_instance.compute_components();
+    *this = new_instance;
     //print(std::cout, 1);
     return true;
 }
@@ -699,43 +703,43 @@ bool Instance::reduce_domianted_elements()
     if (elements_to_remove.size() == 0)
         return false;
 
-    UnreductionInfo unreduction_info_new;
-    unreduction_info_new.original_instance = unreduction_info_.original_instance;
+    UnreductionInfo new_unreduction_info;
+    new_unreduction_info.original_instance = unreduction_info_.original_instance;
 
     // Update mandatory_sets.
-    unreduction_info_new.mandatory_sets = unreduction_info_.mandatory_sets;
+    new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     // Create new instance and compute unreduction_operations.
-    Instance instance_new(
+    Instance new_instance(
             number_of_sets(),
             number_of_elements() - elements_to_remove.size());
-    unreduction_info_new.unreduction_operations = std::vector<SetId>(number_of_sets());
+    new_unreduction_info.unreduction_operations = std::vector<SetId>(number_of_sets());
     std::vector<ElementId> original2reduced(number_of_elements(), -1);
-    ElementId element_id_new = 0;
+    ElementId new_element_id = 0;
     for (auto it = elements_to_remove.out_begin();
             it != elements_to_remove.out_end();
             ++it) {
         ElementId element_id = *it;
-        original2reduced[element_id] = element_id_new;
-        element_id_new++;
+        original2reduced[element_id] = new_element_id;
+        new_element_id++;
     }
     // Add sets and arcs.
     for (SetId set_id = 0; set_id < number_of_sets(); ++set_id) {
-        instance_new.set_cost(set_id, set(set_id).cost);
-        unreduction_info_new.unreduction_operations[set_id]
+        new_instance.set_cost(set_id, set(set_id).cost);
+        new_unreduction_info.unreduction_operations[set_id]
             = unreduction_info_.unreduction_operations[set_id];
         for (ElementId element_id: set(set_id).elements) {
-            ElementId element_id_new = original2reduced[element_id];
-            if (element_id_new == -1)
+            ElementId new_element_id = original2reduced[element_id];
+            if (new_element_id == -1)
                 continue;
-            instance_new.add_arc(
+            new_instance.add_arc(
                     set_id,
-                    element_id_new);
+                    new_element_id);
         }
     }
 
-    instance_new.unreduction_info_ = unreduction_info_new;
-    instance_new.compute_components();
-    *this = instance_new;
+    new_instance.unreduction_info_ = new_unreduction_info;
+    new_instance.compute_components();
+    *this = new_instance;
     return true;
 }
 
@@ -775,83 +779,83 @@ bool Instance::reduce_domianted_sets()
     if (sets_to_remove.size() == 0)
         return false;
 
-    UnreductionInfo unreduction_info_new;
-    unreduction_info_new.original_instance = unreduction_info_.original_instance;
+    UnreductionInfo new_unreduction_info;
+    new_unreduction_info.original_instance = unreduction_info_.original_instance;
 
     // Update mandatory_sets.
-    unreduction_info_new.mandatory_sets = unreduction_info_.mandatory_sets;
+    new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     // Create new instance and compute unreduction_operations.
-    SetId n = number_of_sets() - sets_to_remove.size();
-    Instance instance_new(n, number_of_elements());
-    unreduction_info_new.unreduction_operations = std::vector<SetId>(n);
+    SetId new_number_of_sets = number_of_sets() - sets_to_remove.size();
+    Instance new_instance(new_number_of_sets, number_of_elements());
+    new_unreduction_info.unreduction_operations = std::vector<SetId>(new_number_of_sets);
     // Add sets.
     std::vector<SetId> original2reduced(number_of_sets(), -1);
-    SetId set_id_new = 0;
+    SetId new_set_id = 0;
     for (auto it = sets_to_remove.out_begin();
             it != sets_to_remove.out_end(); ++it) {
         SetId set_id = *it;
-        original2reduced[set_id] = set_id_new;
-        instance_new.set_cost(set_id_new, set(set_id).cost);
-        unreduction_info_new.unreduction_operations[set_id_new]
+        original2reduced[set_id] = new_set_id;
+        new_instance.set_cost(new_set_id, set(set_id).cost);
+        new_unreduction_info.unreduction_operations[new_set_id]
             = unreduction_info_.unreduction_operations[set_id];
-        set_id_new++;
+        new_set_id++;
     }
     // Add arcs.
     for (auto it = sets_to_remove.out_begin();
             it != sets_to_remove.out_end();
             ++it) {
         SetId set_id = *it;
-        SetId set_id_new = original2reduced[set_id];
-        if (set_id_new == -1)
+        SetId new_set_id = original2reduced[set_id];
+        if (new_set_id == -1)
             continue;
         for (ElementId element_id: set(set_id).elements) {
-            instance_new.add_arc(
-                    set_id_new,
+            new_instance.add_arc(
+                    new_set_id,
                     element_id);
         }
     }
 
-    instance_new.unreduction_info_ = unreduction_info_new;
-    instance_new.compute_components();
-    *this = instance_new;
+    new_instance.unreduction_info_ = new_unreduction_info;
+    new_instance.compute_components();
+    *this = new_instance;
     return true;
 }
 
 Instance Instance::reduce(ReductionParameters parameters) const
 {
     // Initialize reduced instance.
-    Instance instance_new = *this;
-    instance_new.unreduction_info_ = UnreductionInfo();
-    instance_new.unreduction_info_.original_instance = this;
-    instance_new.unreduction_info_.unreduction_operations = std::vector<SetId>(number_of_sets());
+    Instance new_instance = *this;
+    new_instance.unreduction_info_ = UnreductionInfo();
+    new_instance.unreduction_info_.original_instance = this;
+    new_instance.unreduction_info_.unreduction_operations = std::vector<SetId>(number_of_sets());
     for (SetId set_id = 0;
             set_id < number_of_sets();
             ++set_id) {
-        instance_new.unreduction_info_.unreduction_operations[set_id] = set_id;
+        new_instance.unreduction_info_.unreduction_operations[set_id] = set_id;
     }
 
     for (Counter round_number = 0;
             round_number < parameters.maximum_number_of_rounds;
             ++round_number) {
         bool found = false;
-        found |= instance_new.reduce_mandatory_sets();
-        found |= instance_new.reduce_identical_elements();
-        found |= instance_new.reduce_identical_sets();
+        found |= new_instance.reduce_mandatory_sets();
+        found |= new_instance.reduce_identical_elements();
+        found |= new_instance.reduce_identical_sets();
         if (found)
             continue;
         if (parameters.remove_domianted) {
-            found |= instance_new.reduce_domianted_elements();
-            found |= instance_new.reduce_domianted_sets();
+            found |= new_instance.reduce_domianted_elements();
+            found |= new_instance.reduce_domianted_sets();
         }
         if (!found)
             break;
     }
 
-    instance_new.unreduction_info_.extra_cost = 0;
-    for (SetId set_id: instance_new.unreduction_info_.mandatory_sets)
-        instance_new.unreduction_info_.extra_cost += set(set_id).cost;
+    new_instance.unreduction_info_.extra_cost = 0;
+    for (SetId orig_set_id: new_instance.unreduction_info_.mandatory_sets)
+        new_instance.unreduction_info_.extra_cost += set(orig_set_id).cost;
 
-    return instance_new;
+    return new_instance;
 }
 
 void setcoveringsolver::init_display(
