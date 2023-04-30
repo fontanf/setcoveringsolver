@@ -56,6 +56,9 @@ void Instance::add_arc(
         SetId set_id,
         ElementId element_id)
 {
+    check_set_index(set_id);
+    check_element_index(element_id);
+
     elements_[element_id].sets.push_back(set_id);
     sets_[set_id].elements.push_back(element_id);
     number_of_arcs_++;
@@ -184,9 +187,8 @@ void Instance::read_geccod2020(std::ifstream& file)
     elements_.resize(number_of_elements);
     sets_.resize(number_of_sets);
 
-    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        sets_[set_id].cost = 1;
-    }
+    for (SetId set_id = 0; set_id < number_of_sets; ++set_id)
+        set_cost(set_id, 1);
 
     ElementId element_id_tmp;
     SetId element_number_of_sets;
@@ -195,14 +197,11 @@ void Instance::read_geccod2020(std::ifstream& file)
             element_id < number_of_elements;
             ++element_id) {
         file >> element_id_tmp >> element_number_of_sets;
-        number_of_arcs_ += element_number_of_sets;
         for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
             file >> set_id;
-            elements_[element_id].sets.push_back(set_id);
-            sets_[set_id].elements.push_back(element_id);
+            add_arc(set_id, element_id);
         }
     }
-    total_cost_ = number_of_sets;
 }
 
 void Instance::read_fulkerson1974(std::ifstream& file)
@@ -214,23 +213,18 @@ void Instance::read_fulkerson1974(std::ifstream& file)
     sets_.resize(number_of_sets);
     elements_.resize(number_of_elements);
 
-    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        sets_[set_id].cost = 1;
-    }
+    for (SetId set_id = 0; set_id < number_of_sets; ++set_id)
+        set_cost(set_id, 1);
 
     SetId set_id;
     for (ElementId element_id = 0;
             element_id < number_of_elements;
             ++element_id) {
-        number_of_arcs_ += 3;
         for (SetPos set_pos = 0; set_pos < 3; ++set_pos) {
             file >> set_id;
-            set_id--;
-            elements_[element_id].sets.push_back(set_id);
-            sets_[set_id].elements.push_back(element_id);
+            add_arc(set_id - 1, element_id);
         }
     }
-    total_cost_ = number_of_sets;
 }
 
 void Instance::read_balas1980(std::ifstream& file)
@@ -245,20 +239,18 @@ void Instance::read_balas1980(std::ifstream& file)
     Cost cost;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
         file >> cost;
-        sets_[set_id].cost = cost;
-        total_cost_ += cost;
+        set_cost(set_id, cost);
     }
 
     SetId set_id;
     SetId element_number_of_sets;
-    for (ElementId element_id = 0; element_id < number_of_elements; ++element_id) {
+    for (ElementId element_id = 0;
+            element_id < number_of_elements;
+            ++element_id) {
         file >> element_number_of_sets;
-        number_of_arcs_ += element_number_of_sets;
         for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
             file >> set_id;
-            set_id--;
-            elements_[element_id].sets.push_back(set_id);
-            sets_[set_id].elements.push_back(element_id);
+            add_arc(set_id - 1, element_id);
         }
     }
 }
@@ -275,22 +267,19 @@ void Instance::read_balas1996(std::ifstream& file)
     Cost cost;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
         file >> cost;
-        sets_[set_id].cost = cost;
-        total_cost_ += cost;
+        set_cost(set_id, cost);
     }
 
     ElementId element_id;
     ElementId set_number_of_elements;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
         file >> set_number_of_elements;
-        number_of_arcs_ += set_number_of_elements;
-        for (ElementPos element_pos = 0; element_pos < set_number_of_elements; ++element_pos) {
+        for (ElementPos element_pos = 0;
+                element_pos < set_number_of_elements;
+                ++element_pos) {
             file >> element_id;
             element_id--;
-            assert(element_id >= 0);
-            assert(element_id < number_of_elements);
-            sets_[set_id].elements.push_back(element_id);
-            elements_[element_id].sets.push_back(set_id);
+            add_arc(set_id, element_id - 1);
         }
     }
 }
@@ -310,12 +299,11 @@ void Instance::read_faster1994(std::ifstream& file)
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
         file >> cost >> set_number_of_elements;
         set_cost(set_id, cost);
-        for (ElementPos element_pos = 0; element_pos < set_number_of_elements; ++element_pos) {
+        for (ElementPos element_pos = 0;
+                element_pos < set_number_of_elements;
+                ++element_pos) {
             file >> element_id;
-            element_id--;
-            assert(element_id >= 0);
-            assert(element_id < number_of_elements);
-            add_arc(set_id, element_id);
+            add_arc(set_id, element_id - 1);
         }
     }
 }

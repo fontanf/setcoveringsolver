@@ -253,6 +253,16 @@ public:
                     + std::to_string(number_of_sets() - 1) + "].");
     }
 
+    /** Check if a element index is within the correct range. */
+    inline void check_element_index(ElementId element_id) const
+    {
+        if (element_id < 0 || element_id >= number_of_elements())
+            throw std::out_of_range(
+                    "Invalid element index: \"" + std::to_string(element_id) + "\"."
+                    + " Element indices should belong to [0, "
+                    + std::to_string(number_of_elements() - 1) + "].");
+    }
+
 private:
 
     /*
