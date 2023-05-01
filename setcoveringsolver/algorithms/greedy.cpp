@@ -2,6 +2,8 @@
 
 #include "optimizationtools/containers/indexed_binary_heap.hpp"
 
+#include <set>
+
 using namespace setcoveringsolver;
 
 Output setcoveringsolver::greedy(

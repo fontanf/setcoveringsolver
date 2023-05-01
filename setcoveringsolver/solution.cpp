@@ -1,5 +1,7 @@
 #include "setcoveringsolver/solution.hpp"
 
+#include "optimizationtools/utils/utils.hpp"
+
 #include <iomanip>
 
 using namespace setcoveringsolver;
@@ -78,6 +80,38 @@ void Solution::update(const Solution& solution)
     }
 }
 
+std::ostream& Solution::print(
+        std::ostream& os,
+        int verbose) const
+{
+    if (verbose >= 1) {
+        os
+            << "Number of sets:                " << optimizationtools::Ratio<SetId>(number_of_sets(), instance().number_of_sets()) << std::endl
+            << "Number of uncovered elements:  " << optimizationtools::Ratio<SetId>(number_of_uncovered_elements(), instance().number_of_elements()) << std::endl
+            << "Feasible:                      " << feasible() << std::endl
+            << "Cost:                          " << cost() << std::endl
+            ;
+    }
+
+    if (verbose >= 2) {
+        os << std::endl
+            << std::setw(12) << "Set"
+            << std::setw(12) << "Cost"
+            << std::endl
+            << std::setw(12) << "--------"
+            << std::setw(12) << "---"
+            << std::endl;
+        for (SetId set_id: sets_) {
+            os
+                << std::setw(12) << set_id
+                << std::setw(12) << instance().set(set_id).cost
+                << std::endl;
+        }
+    }
+
+    return os;
+}
+
 void Solution::write(std::string certificate_path)
 {
     if (certificate_path.empty())
@@ -131,20 +165,20 @@ Output::Output(
     solution(instance)
 {
     info.os()
-            << std::setw(12) << "T (s)"
-            << std::setw(12) << "UB"
-            << std::setw(12) << "LB"
-            << std::setw(12) << "GAP"
-            << std::setw(12) << "GAP (%)"
-            << std::setw(24) << "Comment"
-            << std::endl
-            << std::setw(12) << "-----"
-            << std::setw(12) << "--"
-            << std::setw(12) << "--"
-            << std::setw(12) << "---"
-            << std::setw(12) << "-------"
-            << std::setw(24) << "-------"
-            << std::endl;
+        << std::setw(12) << "T (s)"
+        << std::setw(12) << "UB"
+        << std::setw(12) << "LB"
+        << std::setw(12) << "GAP"
+        << std::setw(12) << "GAP (%)"
+        << std::setw(24) << "Comment"
+        << std::endl
+        << std::setw(12) << "-----"
+        << std::setw(12) << "--"
+        << std::setw(12) << "--"
+        << std::setw(12) << "---"
+        << std::setw(12) << "-------"
+        << std::setw(24) << "-------"
+        << std::endl;
     print(info, std::stringstream(""));
 }
 
@@ -152,18 +186,29 @@ void Output::print(
         optimizationtools::Info& info,
         const std::stringstream& s) const
 {
-    double gap = (lower_bound == 0)?
-        std::numeric_limits<double>::infinity():
-        (double)(upper_bound() - lower_bound) / lower_bound * 100;
-
+    std::string solution_value = optimizationtools::solution_value(
+            optimizationtools::ObjectiveDirection::Minimize,
+            solution.feasible(),
+            solution.cost());
+    double absolute_optimality_gap = optimizationtools::absolute_optimality_gap(
+            optimizationtools::ObjectiveDirection::Minimize,
+            solution.feasible(),
+            solution.cost(),
+            bound);
+    double relative_optimality_gap = optimizationtools::relative_optimality_gap(
+            optimizationtools::ObjectiveDirection::Minimize,
+            solution.feasible(),
+            solution.cost(),
+            bound);
     double t = info.elapsed_time();
     std::streamsize precision = std::cout.precision();
+
     info.os()
         << std::setw(12) << std::fixed << std::setprecision(3) << t << std::defaultfloat << std::setprecision(precision)
-        << std::setw(12) << upper_bound()
-        << std::setw(12) << lower_bound
-        << std::setw(12) << upper_bound() - lower_bound
-        << std::setw(12) << gap
+        << std::setw(12) << solution_value
+        << std::setw(12) << bound
+        << std::setw(12) << absolute_optimality_gap
+        << std::setw(12) << std::fixed << std::setprecision(2) << relative_optimality_gap * 100 << std::defaultfloat << std::setprecision(precision)
         << std::setw(24) << s.str() << std::endl;
 
     if (!info.output->only_write_at_the_end)
@@ -181,10 +226,15 @@ void Output::update_solution(
         solution.update(solution_new);
         print(info, s);
 
-        info.output->number_of_solutions++;
+        std::string solution_value = optimizationtools::solution_value(
+                optimizationtools::ObjectiveDirection::Minimize,
+                solution.feasible(),
+                solution.cost());
         double t = info.elapsed_time();
+
+        info.output->number_of_solutions++;
         std::string sol_str = "Solution" + std::to_string(info.output->number_of_solutions);
-        info.add_to_json(sol_str, "Value", solution.cost());
+        info.add_to_json(sol_str, "Value", solution_value);
         info.add_to_json(sol_str, "Time", t);
         info.add_to_json(sol_str, "String", s.str());
         if (!info.output->only_write_at_the_end) {
@@ -196,24 +246,24 @@ void Output::update_solution(
     info.unlock();
 }
 
-void Output::update_lower_bound(
-        Cost lower_bound_new,
+void Output::update_bound(
+        Cost bound_new,
         const std::stringstream& s,
         optimizationtools::Info& info)
 {
-    if (lower_bound >= lower_bound_new)
+    if (bound >= bound_new)
         return;
 
     info.lock();
 
-    if (lower_bound < lower_bound_new) {
-        lower_bound = lower_bound_new;
+    if (bound < bound_new) {
+        bound = bound_new;
         print(info, s);
 
-        info.output->number_of_bounds++;
         double t = info.elapsed_time();
+        info.output->number_of_bounds++;
         std::string sol_str = "Bound" + std::to_string(info.output->number_of_bounds);
-        info.add_to_json(sol_str, "Bound", lower_bound);
+        info.add_to_json(sol_str, "Bound", bound);
         info.add_to_json(sol_str, "Time", t);
         info.add_to_json(sol_str, "String", s.str());
         if (!info.output->only_write_at_the_end)
@@ -225,41 +275,43 @@ void Output::update_lower_bound(
 
 Output& Output::algorithm_end(optimizationtools::Info& info)
 {
-    double t = info.elapsed_time();
-    double gap = (lower_bound == 0)?
-        std::numeric_limits<double>::infinity():
-        (double)(upper_bound() - lower_bound) / lower_bound * 100;
-    info.add_to_json("Solution", "Value", upper_bound());
-    info.add_to_json("Bound", "Value", lower_bound);
-    info.add_to_json("Solution", "Time", t);
-    info.add_to_json("Bound", "Time", t);
+    std::string solution_value = optimizationtools::solution_value(
+            optimizationtools::ObjectiveDirection::Minimize,
+            solution.feasible(),
+            solution.cost());
+    double absolute_optimality_gap = optimizationtools::absolute_optimality_gap(
+            optimizationtools::ObjectiveDirection::Minimize,
+            solution.feasible(),
+            solution.cost(),
+            bound);
+    double relative_optimality_gap = optimizationtools::relative_optimality_gap(
+            optimizationtools::ObjectiveDirection::Minimize,
+            solution.feasible(),
+            solution.cost(),
+            bound);
+    time = info.elapsed_time();
+
+    info.add_to_json("Solution", "Value", solution_value);
+    info.add_to_json("Bound", "Value", bound);
+    info.add_to_json("Solution", "Time", time);
+    info.add_to_json("Bound", "Time", time);
     info.os()
-            << std::endl
-            << "Final statistics" << std::endl
-            << "----------------" << std::endl
-            << "Value:                         " << upper_bound() << std::endl
-            << "Bound:                         " << lower_bound << std::endl
-            << "Gap:                           " << upper_bound() - lower_bound << std::endl
-            << "Gap (%):                       " << gap << std::endl
-            << "Time (s):                      " << t << std::endl;
+        << std::endl
+        << "Final statistics" << std::endl
+        << "----------------" << std::endl
+        << "Value:                         " << solution_value << std::endl
+        << "Bound:                         " << bound << std::endl
+        << "Absolute optimality gap:       " << absolute_optimality_gap << std::endl
+        << "Relative optimality gap (%):   " << relative_optimality_gap * 100 << std::endl
+        << "Time (s):                      " << time << std::endl
+        ;
+    print_statistics(info);
+    info.os() << std::endl
+        << "Solution" << std::endl
+        << "--------" << std::endl ;
+    solution.print(info.os(), info.verbosity_level());
 
     info.write_json_output();
     solution.write(info.output->certificate_path);
     return *this;
 }
-
-Cost setcoveringsolver::algorithm_end(
-        Cost lower_bound,
-        optimizationtools::Info& info)
-{
-    double t = info.elapsed_time();
-    info.add_to_json("Bound", "Value", lower_bound);
-    info.add_to_json("Bound", "Time", t);
-    info.os() << "---" << std::endl
-            << "Bound:                         " << lower_bound << std::endl
-            << "Time (s):                      " << t << std::endl;
-
-    info.write_json_output();
-    return lower_bound;
-}
-

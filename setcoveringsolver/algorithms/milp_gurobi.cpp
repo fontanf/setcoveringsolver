@@ -6,13 +6,6 @@
 
 using namespace setcoveringsolver;
 
-MilpGurobiOutput& MilpGurobiOutput::algorithm_end(
-        optimizationtools::Info& info)
-{
-    Output::algorithm_end(info);
-    return *this;
-}
-
 class MilpGurobiCallback: public GRBCallback
 {
 
@@ -21,7 +14,7 @@ public:
     MilpGurobiCallback(
             const Instance& instance,
             MilpGurobiOptionalParameters& parameters,
-            MilpGurobiOutput& output,
+            Output& output,
             GRBVar* x):
         instance_(instance), parameters_(parameters), output_(output), x_(x) { }
 
@@ -33,7 +26,7 @@ protected:
             return;
 
         SetId lb = std::ceil(getDoubleInfo(GRB_CB_MIPSOL_OBJBND) - FFOT_TOL);
-        output_.update_lower_bound(
+        output_.update_bound(
                 lb,
                 std::stringstream(""),
                 parameters_.info);
@@ -60,12 +53,12 @@ private:
 
     const Instance& instance_;
     MilpGurobiOptionalParameters& parameters_;
-    MilpGurobiOutput& output_;
+    Output& output_;
     GRBVar* x_;
 
 };
 
-MilpGurobiOutput setcoveringsolver::milp_gurobi(
+Output setcoveringsolver::milp_gurobi(
         const Instance& original_instance,
         MilpGurobiOptionalParameters parameters)
 {
@@ -92,7 +85,7 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 
-    MilpGurobiOutput output(original_instance, parameters.info);
+    Output output(original_instance, parameters.info);
 
     GRBModel model(env);
 
@@ -144,7 +137,7 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
 
     int optimstatus = model.get(GRB_IntAttr_Status);
     if (optimstatus == GRB_INFEASIBLE) {
-        output.update_lower_bound(
+        output.update_bound(
                 instance.total_cost() + 1,
                 std::stringstream(""),
                 parameters.info);
@@ -157,7 +150,7 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
                 solution,
                 std::stringstream(""),
                 parameters.info);
-        output.update_lower_bound(
+        output.update_bound(
                 solution.cost(),
                 std::stringstream(""),
                 parameters.info);
@@ -171,10 +164,10 @@ MilpGurobiOutput setcoveringsolver::milp_gurobi(
                 std::stringstream(""),
                 parameters.info);
         SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
-        output.update_lower_bound(lb, std::stringstream(""), parameters.info);
+        output.update_bound(lb, std::stringstream(""), parameters.info);
     } else {
         SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
-        output.update_lower_bound(lb, std::stringstream(""), parameters.info);
+        output.update_bound(lb, std::stringstream(""), parameters.info);
     }
 
     return output.algorithm_end(parameters.info);

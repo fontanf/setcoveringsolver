@@ -5,8 +5,6 @@
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_map.hpp"
 
-#include <functional>
-
 namespace setcoveringsolver
 {
 
@@ -88,6 +86,11 @@ public:
      * Export
      */
 
+    /** Print the instance. */
+    std::ostream& print(
+            std::ostream& os,
+            int verbose = 1) const;
+
     /** Write the solution to a file. */
     void write(std::string certificate_path);
 
@@ -163,38 +166,52 @@ std::ostream& operator<<(std::ostream& os, const Solution& solution);
 //////////////////////////////////// Output ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Output structure for a set covering problem.
+ */
 struct Output
 {
+    /** Constructor. */
     Output(
             const Instance& instance,
             optimizationtools::Info& info);
+
+    /** Solution. */
     Solution solution;
-    Cost lower_bound = 0;
+
+    /** Bound. */
+    Cost bound = 0;
+
+    /** Elapsed time. */
     double time = -1;
 
-    bool optimal() const { return solution.feasible() && solution.cost() == lower_bound; }
-    Cost upper_bound() const { return (solution.feasible())? solution.cost(): solution.instance().total_cost(); }
-    double gap() const;
+    /** Return 'true' iff the solution is optimal. */
+    bool optimal() const { return solution.feasible() && solution.cost() == bound; }
+
+    /** Print current state. */
     void print(
             optimizationtools::Info& info,
             const std::stringstream& s) const;
 
+    /** Update the solution. */
     void update_solution(
             const Solution& solution_new,
             const std::stringstream& s,
             optimizationtools::Info& info);
 
-    void update_lower_bound(
-            Cost lower_bound_new,
+    /** Update the bound. */
+    void update_bound(
+            Cost bound_new,
             const std::stringstream& s,
             optimizationtools::Info& info);
 
+    /** Print the algorithm statistics. */
+    virtual void print_statistics(
+            optimizationtools::Info& info) const { (void)info; }
+
+    /** Method to call at the end of the algorithm. */
     Output& algorithm_end(optimizationtools::Info& info);
 };
-
-Cost algorithm_end(
-        Cost lower_bound,
-        optimizationtools::Info& info);
 
 }
 

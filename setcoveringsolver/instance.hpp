@@ -1,11 +1,6 @@
 #pragma once
 
 #include "optimizationtools/utils/info.hpp"
-#include "optimizationtools/containers/indexed_set.hpp"
-#include "optimizationtools/containers/indexed_map.hpp"
-
-#include <random>
-#include <set>
 
 namespace setcoveringsolver
 {

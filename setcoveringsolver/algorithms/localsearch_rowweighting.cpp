@@ -10,18 +10,20 @@
 
 using namespace setcoveringsolver;
 
-LocalSearchRowWeighting2Output& LocalSearchRowWeighting2Output::algorithm_end(
-        optimizationtools::Info& info)
+void LocalSearchRowWeighting2Output::print_statistics(
+        optimizationtools::Info& info) const
 {
+    if (info.verbosity_level() >= 1) {
+        info.os()
+            << "Number of iterations:           " << number_of_iterations << std::endl
+            << "Neighborhood 1 improvements:    " << neighborhood_1_improvements << std::endl
+            << "Neighborhood 2 improvements:    " << neighborhood_2_improvements << std::endl
+            << "Neighborhood 1 time:            " << neighborhood_1_time << std::endl
+            << "Neighborhood 2 time:            " << neighborhood_2_time << std::endl
+            << "Number of weights reductions:   " << neighborhood_2_time << std::endl
+            ;
+    }
     info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
-    Output::algorithm_end(info);
-    info.os() << "Number of iterations:          " << number_of_iterations << std::endl;
-    info.os() << "Neighborhood 1 improvements:   " << neighborhood_1_improvements << std::endl;
-    info.os() << "Neighborhood 2 improvements:   " << neighborhood_2_improvements << std::endl;
-    info.os() << "Neighborhood 1 time:           " << neighborhood_1_time << std::endl;
-    info.os() << "Neighborhood 2 time:           " << neighborhood_2_time << std::endl;
-    info.os() << "Number of weights reductions:  " << neighborhood_2_time << std::endl;
-    return *this;
 }
 
 struct LocalSearchRowWeightingComponent
@@ -241,8 +243,10 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
                         components[component_id + 1].itmode_start = components[component_id].itmode_end;
                 }
                 // If all components are optimal, stop here.
-                if (all_component_optimal)
-                    return output.algorithm_end(parameters.info);
+                if (all_component_optimal) {
+                    output.algorithm_end(parameters.info);
+                    return output;
+                }
                 break;
             }
             // Apply best move
@@ -572,20 +576,23 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
         component.iterations_without_improvment++;
     }
 
-    return output.algorithm_end(parameters.info);
+    output.algorithm_end(parameters.info);
+    return output;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-LocalSearchRowWeighting1Output& LocalSearchRowWeighting1Output::algorithm_end(
-        optimizationtools::Info& info)
+void LocalSearchRowWeighting1Output::print_statistics(
+        optimizationtools::Info& info) const
 {
+    if (info.verbosity_level() >= 1) {
+        info.os()
+            << "Number of iterations:          " << number_of_iterations << std::endl
+            ;
+    }
     info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
-    Output::algorithm_end(info);
-    info.os() << "Number of iterations:          " << number_of_iterations << std::endl;
-    return *this;
 }
 
 struct LocalSearchRowWeighting1Set
@@ -691,8 +698,10 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
                 }
             }
             // It may happen that all sets in the solution are mandatory.
-            if (set_id_best == -1)
-                return output.algorithm_end(parameters.info);
+            if (set_id_best == -1) {
+                output.algorithm_end(parameters.info);
+                return output;
+            }
             // Apply best move
             solution.remove(set_id_best);
             // Update scores.
@@ -831,6 +840,7 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
         //    << std::endl;
     }
 
-    return output.algorithm_end(parameters.info);
+    output.algorithm_end(parameters.info);
+    return output;
 }
 

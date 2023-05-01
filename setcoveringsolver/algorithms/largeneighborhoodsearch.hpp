@@ -30,8 +30,8 @@ struct LargeNeighborhoodSearchOutput: Output
             optimizationtools::Info& info):
         Output(instance, info) { }
 
-    LargeNeighborhoodSearchOutput& algorithm_end(
-            optimizationtools::Info& info);
+    void print_statistics(
+            optimizationtools::Info& info) const override;
 
     /** Number of iterations. */
     Counter number_of_iterations = 0;

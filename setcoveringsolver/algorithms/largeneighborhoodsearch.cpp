@@ -7,13 +7,15 @@
 
 using namespace setcoveringsolver;
 
-LargeNeighborhoodSearchOutput& LargeNeighborhoodSearchOutput::algorithm_end(
-        optimizationtools::Info& info)
+void LargeNeighborhoodSearchOutput::print_statistics(
+        optimizationtools::Info& info) const
 {
+    if (info.verbosity_level() >= 1) {
+        info.os()
+            << "Number of iterations:          " << number_of_iterations << std::endl
+            ;
+    }
     info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
-    Output::algorithm_end(info);
-    info.os() << "Iterations:                    " << number_of_iterations << std::endl;
-    return *this;
 }
 
 struct LargeNeighborhoodSearchSet
@@ -221,6 +223,7 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
         }
     }
 
-    return output.algorithm_end(parameters.info);
+    output.algorithm_end(parameters.info);
+    return output;
 }
 

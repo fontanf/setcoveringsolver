@@ -1,5 +1,10 @@
 #include "setcoveringsolver/instance.hpp"
 
+#include "optimizationtools/containers/indexed_set.hpp"
+#include "optimizationtools/containers/indexed_map.hpp"
+
+#include <random>
+#include <set>
 #include <sstream>
 #include <iomanip>
 #include <thread>
@@ -184,8 +189,7 @@ void Instance::read_geccod2020(std::ifstream& file)
     SetId number_of_sets;
     file >> number_of_elements >> number_of_sets;
 
-    elements_.resize(number_of_elements);
-    sets_.resize(number_of_sets);
+    *this = Instance(number_of_sets, number_of_elements);
 
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id)
         set_cost(set_id, 1);
@@ -210,8 +214,7 @@ void Instance::read_fulkerson1974(std::ifstream& file)
     ElementId number_of_elements;
     file >> number_of_sets >> number_of_elements;
 
-    sets_.resize(number_of_sets);
-    elements_.resize(number_of_elements);
+    *this = Instance(number_of_sets, number_of_elements);
 
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id)
         set_cost(set_id, 1);
@@ -233,8 +236,7 @@ void Instance::read_balas1980(std::ifstream& file)
     SetId number_of_sets;
     file >> number_of_elements >> number_of_sets;
 
-    elements_.resize(number_of_elements);
-    sets_.resize(number_of_sets);
+    *this = Instance(number_of_sets, number_of_elements);
 
     Cost cost;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
@@ -261,8 +263,7 @@ void Instance::read_balas1996(std::ifstream& file)
     ElementId number_of_elements;
     file >> number_of_sets >> number_of_elements;
 
-    sets_.resize(number_of_sets);
-    elements_.resize(number_of_elements);
+    *this = Instance(number_of_sets, number_of_elements);
 
     Cost cost;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
@@ -290,8 +291,7 @@ void Instance::read_faster1994(std::ifstream& file)
     SetId number_of_sets;
     file >> number_of_elements >> number_of_sets;
 
-    elements_.resize(number_of_elements);
-    sets_.resize(number_of_sets);
+    *this = Instance(number_of_sets, number_of_elements);
 
     Cost cost;
     ElementId element_id;

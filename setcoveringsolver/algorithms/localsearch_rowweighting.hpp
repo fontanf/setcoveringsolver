@@ -27,8 +27,8 @@ struct LocalSearchRowWeighting1Output: Output
             optimizationtools::Info& info):
         Output(instance, info) { }
 
-    LocalSearchRowWeighting1Output& algorithm_end(
-            optimizationtools::Info& info);
+    void print_statistics(
+            optimizationtools::Info& info) const override;
 
     /** Number of iterations. */
     Counter number_of_iterations = 0;
@@ -104,8 +104,8 @@ struct LocalSearchRowWeighting2Output: Output
             optimizationtools::Info& info):
         Output(instance, info) { }
 
-    LocalSearchRowWeighting2Output& algorithm_end(
-            optimizationtools::Info& info);
+    void print_statistics(
+            optimizationtools::Info& info) const override;
 
     /** Number of improvements due to the first part of the neighborhood. */
     Counter neighborhood_1_improvements = 0;
