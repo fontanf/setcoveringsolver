@@ -15,12 +15,12 @@ void LocalSearchRowWeighting2Output::print_statistics(
 {
     if (info.verbosity_level() >= 1) {
         info.os()
-            << "Number of iterations:           " << number_of_iterations << std::endl
-            << "Neighborhood 1 improvements:    " << neighborhood_1_improvements << std::endl
-            << "Neighborhood 2 improvements:    " << neighborhood_2_improvements << std::endl
-            << "Neighborhood 1 time:            " << neighborhood_1_time << std::endl
-            << "Neighborhood 2 time:            " << neighborhood_2_time << std::endl
-            << "Number of weights reductions:   " << neighborhood_2_time << std::endl
+            << "Number of iterations:          " << number_of_iterations << std::endl
+            << "Neighborhood 1 improvements:   " << neighborhood_1_improvements << std::endl
+            << "Neighborhood 2 improvements:   " << neighborhood_2_improvements << std::endl
+            << "Neighborhood 1 time:           " << neighborhood_1_time << std::endl
+            << "Neighborhood 2 time:           " << neighborhood_2_time << std::endl
+            << "Number of weights reductions:  " << neighborhood_2_time << std::endl
             ;
     }
     info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
@@ -100,9 +100,10 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
     Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 
     // Instance pre-processing.
-    instance.compute_set_neighbors(6, parameters.info);
+    const auto& set_neighbors = instance.set_neighbors();
+    const std::vector<std::vector<SetId>>* element_set_neighbors = nullptr;
     if (parameters.neighborhood_1 == 1 || parameters.neighborhood_2 == 1)
-        instance.compute_element_neighbor_sets(parameters.info);
+        element_set_neighbors = &instance.element_set_neighbors();
 
     LocalSearchRowWeighting2Output output(original_instance, parameters.info);
 
@@ -309,7 +310,7 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
 
         if (parameters.neighborhood_1 == 1 || parameters.neighborhood_2 == 1) {
             neighbor_sets.clear();
-            for (SetId set_id: instance.element(element_id).neighbor_sets)
+            for (SetId set_id: (*element_set_neighbors)[element_id])
                 neighbor_sets.add(set_id);
         }
 
@@ -327,10 +328,10 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
                 // For each neighbor set_id_2 of set_id_1 which is neither part of the
                 // solution, nor the last set added, nor mandatory.
                 auto it_begin = (parameters.neighborhood_1 == 0)?
-                    instance.set(set_id_1).neighbors.begin():
+                    set_neighbors[set_id_1].begin():
                     neighbor_sets.begin();
                 auto it_end = (parameters.neighborhood_1 == 0)?
-                    instance.set(set_id_1).neighbors.end():
+                    set_neighbors[set_id_1].end():
                     neighbor_sets.end();
                 for (auto it = it_begin; it != it_end; ++it) {
                     SetId set_id_2 = *it;

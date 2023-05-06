@@ -24,16 +24,6 @@ struct Element
     std::vector<SetId> sets;
 
     /**
-     * Neighbors of the element.
-     * Two elements are neighbors if there exists a set which covers both of them.
-     * This attribute is not computed by default, use instance.compute_element_neighbors().
-     * This might require a large amount of memory for large instances.
-     */
-    std::vector<ElementId> neighbors;
-
-    std::vector<SetId> neighbor_sets;
-
-    /**
      * Index of the connected component in which the element belongs.
      * This attribute is not computed by default, use instance.compute_components().
      */
@@ -50,14 +40,6 @@ struct Set
 
     /** Elements covered by the set. */
     std::vector<ElementId> elements;
-
-    /**
-     * Neighbors of the set.
-     * Two sets are neighbors if there exists an element which they both cover.
-     * This attribute is not computed by default, use instance.compute_set_neighbors().
-     * This might require a large amount of memory for large instances.
-     */
-    std::vector<SetId> neighbors;
 
     /**
      * Index of the connected component in which the set belongs.
@@ -127,54 +109,6 @@ class Instance
 
 public:
 
-    /*
-     * Constructors and destructor
-     */
-
-    /** Create an instance from a file. */
-    Instance(
-            std::string instance_path,
-            std::string format);
-
-    /** Create an instance manually. */
-    Instance(
-            SetId number_of_sets,
-            ElementId number_of_elements);
-
-    /** Set the cost of a set. */
-    void set_cost(
-            SetId set_id,
-            Cost cost);
-
-    /** Add an between a set and an element. */
-    void add_arc(
-            SetId set_id,
-            ElementId element_id);
-
-    /** Set the cost of all sets to 1. */
-    void set_unicost();
-
-    /** Compute the connected components of the instance. */
-    void compute_components();
-
-    /**
-     * Compute the neighbors of the sets.
-     *
-     * They can then be retrieved with 'set(s).neighbors'.
-     */
-    void compute_set_neighbors(
-            Counter number_of_threads,
-            optimizationtools::Info& info);
-
-    void compute_element_neighbor_sets(optimizationtools::Info& info);
-
-    /**
-     * Compute the neighbors of the elements.
-     *
-     * They can then be retrieved with 'element(e).neighbors'.
-     */
-    void compute_element_neighbors(optimizationtools::Info& info);
-
     /** Reduce. */
     Instance reduce(ReductionParameters parameters) const;
 
@@ -208,6 +142,15 @@ public:
 
     /** Get the number of elements in a component. */
     inline ElementId number_of_elements(ComponentId component_id) const { return components_[component_id].elements.size(); }
+
+    /** Get set neighbors. */
+    const std::vector<std::vector<SetId>>& set_neighbors();
+
+    /** Get element neighbors. */
+    const std::vector<std::vector<ElementId>>& element_neighbors();
+
+    /** Get element set neighbors. */
+    const std::vector<std::vector<ElementId>>& element_set_neighbors();
 
     /*
      * Reduction information
@@ -279,6 +222,15 @@ private:
     /** Components. */
     std::vector<Component> components_;
 
+    /** Set neighbors. */
+    std::vector<std::vector<SetId>> set_neighbors_;
+
+    /** Element neighbors. */
+    std::vector<std::vector<ElementId>> element_neighbors_;
+
+    /** Element set neighbors. */
+    std::vector<std::vector<ElementId>> element_set_neighbors_;
+
     /** Reduction structure. */
     UnreductionInfo unreduction_info_;
 
@@ -286,24 +238,22 @@ private:
      * Private methods.
      */
 
-    /*
-     * Read input file
-     */
+    /** Create an instance manually. */
+    Instance() { }
 
-    /** Read an instance file in 'fulkerson1974' format. */
-    void read_fulkerson1974(std::ifstream& file);
+    /** Compute the neighbors of the sets. */
+    void compute_set_neighbors(
+            Counter number_of_threads);
 
-    /** Read an instance file in 'balas1980' format. */
-    void read_balas1980(std::ifstream& file);
+    void compute_set_neighbors_worker(
+            SetId set_id_start,
+            SetId set_id_end);
 
-    /** Read an instance file in 'balas1996' format. */
-    void read_balas1996(std::ifstream& file);
+    /** Compute the neighbors of the elements. */
+    void compute_element_neighbors();
 
-    /** Read an instance file in 'faster1994' format. */
-    void read_faster1994(std::ifstream& file);
-
-    /** Read an instance file in 'geccod2020' format. */
-    void read_geccod2020(std::ifstream& file);
+    /** Compute the set neighbors of the elements. */
+    void compute_element_set_neighbors();
 
     /*
      * Write to a file
@@ -331,14 +281,9 @@ private:
     /** Remove dominated sets. */
     bool reduce_domianted_sets();
 
-
-    void compute_set_neighbors_worker(
-            SetId set_id_start,
-            SetId set_id_end);
+    friend class InstanceBuilder;
 
 };
-
-std::ostream& operator<<(std::ostream &os, const Instance& ins);
 
 void init_display(
         const Instance& instance,

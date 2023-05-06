@@ -1,4 +1,5 @@
 #include "setcoveringsolver/instance.hpp"
+#include "setcoveringsolver/instance_builder.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_map.hpp"
@@ -11,69 +12,31 @@
 
 using namespace setcoveringsolver;
 
-Instance::Instance(
-        std::string instance_path,
-        std::string format)
+const std::vector<std::vector<SetId>>& Instance::set_neighbors()
 {
-    std::ifstream file(instance_path);
-    if (!file.good()) {
-        throw std::runtime_error(
-                "Unable to open file \"" + instance_path + "\".");
-    }
-
-    if (format == "gecco2020" || format == "gecco") {
-        read_geccod2020(file);
-    } else if (format == "fulkerson1974" || format == "sts") {
-        read_fulkerson1974(file);
-    } else if (format == "balaset_id_1980" || format == "orlibrary") {
-        read_balas1980(file);
-    } else if (format == "balaset_id_1996") {
-        read_balas1996(file);
-    } else if (format == "faster1994" || format == "faster" || format == "wedelin1995" || format == "wedelin") {
-        read_faster1994(file);
-    } else {
-        throw std::invalid_argument(
-                "Unknown instance format \"" + format + "\".");
-    }
-
-    compute_components();
+    if (set_neighbors_.empty())
+        compute_set_neighbors(4);
+    return set_neighbors_;
 }
 
-Instance::Instance(
-        SetId number_of_sets,
-        ElementId number_of_elements):
-    elements_(number_of_elements),
-    sets_(number_of_sets),
-    total_cost_(number_of_sets)
+const std::vector<std::vector<ElementId>>& Instance::element_neighbors()
 {
+    if (element_neighbors_.empty())
+        compute_element_neighbors();
+    return element_neighbors_;
 }
 
-void Instance::set_cost(
-        SetId set_id,
-        Cost cost)
+const std::vector<std::vector<ElementId>>& Instance::element_set_neighbors()
 {
-    total_cost_ -= sets_[set_id].cost;
-    sets_[set_id].cost = cost;
-    total_cost_ += sets_[set_id].cost;
-}
-
-void Instance::add_arc(
-        SetId set_id,
-        ElementId element_id)
-{
-    check_set_index(set_id);
-    check_element_index(element_id);
-
-    elements_[element_id].sets.push_back(set_id);
-    sets_[set_id].elements.push_back(element_id);
-    number_of_arcs_++;
+    if (element_set_neighbors_.empty())
+        compute_element_set_neighbors();
+    return element_set_neighbors_;
 }
 
 void Instance::compute_set_neighbors(
-        Counter number_of_threads,
-        optimizationtools::Info& info)
+        Counter number_of_threads)
 {
-    info.os() << "Compute set neighbors..." << std::endl << std::endl;
+    set_neighbors_ = std::vector<std::vector<SetId>>(number_of_sets());
     std::vector<std::thread> threads;
     for (Counter thread_id = 0; thread_id < number_of_threads; ++thread_id)
         threads.push_back(std::thread(&Instance::compute_set_neighbors_worker,
@@ -82,25 +45,6 @@ void Instance::compute_set_neighbors(
                     (thread_id + 1) * number_of_sets() / number_of_threads));
     for (Counter thread_id = 0; thread_id < number_of_threads; ++thread_id)
         threads[thread_id].join();
-}
-
-void Instance::compute_element_neighbor_sets(
-        optimizationtools::Info& info)
-{
-    info.os() << "Compute element neighbor sets..." << std::endl << std::endl;
-    optimizationtools::IndexedSet neighbors(number_of_sets());
-    for (ElementId element_id = 0;
-            element_id < number_of_elements();
-            ++element_id) {
-        neighbors.clear();
-        for (SetId set_id: element(element_id).sets) {
-            neighbors.add(set_id);
-            for (SetId set_id_2: set(set_id).neighbors)
-                neighbors.add(set_id_2);
-        }
-        for (SetId set_id: neighbors)
-            elements_[element_id].neighbor_sets.push_back(set_id);
-    }
 }
 
 void Instance::compute_set_neighbors_worker(
@@ -116,13 +60,13 @@ void Instance::compute_set_neighbors_worker(
         if (neighbors.contains(set_id_1))
             neighbors.remove(set_id_1);
         for (SetId set_id_2: neighbors)
-            sets_[set_id_1].neighbors.push_back(set_id_2);
+            set_neighbors_[set_id_1].push_back(set_id_2);
     }
 }
 
-void Instance::compute_element_neighbors(optimizationtools::Info& info)
+void Instance::compute_element_neighbors()
 {
-    info.os() << "Compute element neighbors..." << std::endl;
+    element_neighbors_ = std::vector<std::vector<ElementId>>(number_of_elements());
     optimizationtools::IndexedSet neighbors(number_of_elements());
     for (ElementId element_id_1 = 0; element_id_1 < number_of_elements(); ++element_id_1) {
         neighbors.clear();
@@ -131,187 +75,26 @@ void Instance::compute_element_neighbors(optimizationtools::Info& info)
                 if (element_id_2 != element_id_1)
                     neighbors.add(element_id_2);
         for (ElementId element_id_2: neighbors)
-            elements_[element_id_1].neighbors.push_back(element_id_2);
+            element_neighbors_[element_id_1].push_back(element_id_2);
     }
 }
 
-void Instance::compute_components()
+void Instance::compute_element_set_neighbors()
 {
-    components_.clear();
-    for (ElementId element_id = 0;
-            element_id < number_of_elements();
-            ++element_id)
-        elements_[element_id].component = -1;
-    for (SetId set_id = 0; set_id < number_of_sets(); ++set_id)
-        sets_[set_id].component = -1;
-
-    for (ComponentId component_id = 0;; ++component_id) {
-        ElementId element_id = 0;
-        while (element_id < number_of_elements()
-                && (element(element_id).component != -1))
-            element_id++;
-        if (element_id == number_of_elements())
-            break;
-        components_.push_back(Component());
-        std::vector<ElementId> stack {element_id};
-        elements_[element_id].component = component_id;
-        while (!stack.empty()) {
-            element_id = stack.back();
-            stack.pop_back();
-            for (SetId set_id: element(element_id).sets) {
-                if (set(set_id).component != -1)
-                    continue;
-                sets_[set_id].component = component_id;
-                for (ElementId element_id_next: set(set_id).elements) {
-                    if (element(element_id_next).component != -1)
-                        continue;
-                    elements_[element_id_next].component = component_id;
-                    stack.push_back(element_id_next);
-                }
-            }
-        }
-    }
-
+    element_set_neighbors_ = std::vector<std::vector<SetId>>(number_of_elements());
+    const auto& set_neighbors = this->set_neighbors();
+    optimizationtools::IndexedSet neighbors(number_of_sets());
     for (ElementId element_id = 0;
             element_id < number_of_elements();
             ++element_id) {
-        components_[element(element_id).component].elements.push_back(element_id);
-    }
-    for (SetId set_id = 0; set_id < number_of_sets(); ++set_id) {
-        if (set(set_id).component != -1)
-            components_[set(set_id).component].sets.push_back(set_id);
-    }
-}
-
-void Instance::read_geccod2020(std::ifstream& file)
-{
-    ElementId number_of_elements;
-    SetId number_of_sets;
-    file >> number_of_elements >> number_of_sets;
-
-    *this = Instance(number_of_sets, number_of_elements);
-
-    for (SetId set_id = 0; set_id < number_of_sets; ++set_id)
-        set_cost(set_id, 1);
-
-    ElementId element_id_tmp;
-    SetId element_number_of_sets;
-    SetId set_id;
-    for (ElementId element_id = 0;
-            element_id < number_of_elements;
-            ++element_id) {
-        file >> element_id_tmp >> element_number_of_sets;
-        for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
-            file >> set_id;
-            add_arc(set_id, element_id);
+        neighbors.clear();
+        for (SetId set_id: element(element_id).sets) {
+            neighbors.add(set_id);
+            for (SetId set_id_2: set_neighbors[set_id])
+                neighbors.add(set_id_2);
         }
-    }
-}
-
-void Instance::read_fulkerson1974(std::ifstream& file)
-{
-    SetId number_of_sets;
-    ElementId number_of_elements;
-    file >> number_of_sets >> number_of_elements;
-
-    *this = Instance(number_of_sets, number_of_elements);
-
-    for (SetId set_id = 0; set_id < number_of_sets; ++set_id)
-        set_cost(set_id, 1);
-
-    SetId set_id;
-    for (ElementId element_id = 0;
-            element_id < number_of_elements;
-            ++element_id) {
-        for (SetPos set_pos = 0; set_pos < 3; ++set_pos) {
-            file >> set_id;
-            add_arc(set_id - 1, element_id);
-        }
-    }
-}
-
-void Instance::read_balas1980(std::ifstream& file)
-{
-    ElementId number_of_elements;
-    SetId number_of_sets;
-    file >> number_of_elements >> number_of_sets;
-
-    *this = Instance(number_of_sets, number_of_elements);
-
-    Cost cost;
-    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        file >> cost;
-        set_cost(set_id, cost);
-    }
-
-    SetId set_id;
-    SetId element_number_of_sets;
-    for (ElementId element_id = 0;
-            element_id < number_of_elements;
-            ++element_id) {
-        file >> element_number_of_sets;
-        for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
-            file >> set_id;
-            add_arc(set_id - 1, element_id);
-        }
-    }
-}
-
-void Instance::read_balas1996(std::ifstream& file)
-{
-    SetId number_of_sets;
-    ElementId number_of_elements;
-    file >> number_of_sets >> number_of_elements;
-
-    *this = Instance(number_of_sets, number_of_elements);
-
-    Cost cost;
-    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        file >> cost;
-        set_cost(set_id, cost);
-    }
-
-    ElementId element_id;
-    ElementId set_number_of_elements;
-    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        file >> set_number_of_elements;
-        for (ElementPos element_pos = 0;
-                element_pos < set_number_of_elements;
-                ++element_pos) {
-            file >> element_id;
-            element_id--;
-            add_arc(set_id, element_id - 1);
-        }
-    }
-}
-
-void Instance::read_faster1994(std::ifstream& file)
-{
-    ElementId number_of_elements;
-    SetId number_of_sets;
-    file >> number_of_elements >> number_of_sets;
-
-    *this = Instance(number_of_sets, number_of_elements);
-
-    Cost cost;
-    ElementId element_id;
-    ElementId set_number_of_elements;
-    for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        file >> cost >> set_number_of_elements;
-        set_cost(set_id, cost);
-        for (ElementPos element_pos = 0;
-                element_pos < set_number_of_elements;
-                ++element_pos) {
-            file >> element_id;
-            add_arc(set_id, element_id - 1);
-        }
-    }
-}
-
-void Instance::set_unicost()
-{
-    for (SetId set_id = 0; set_id < number_of_sets(); ++set_id) {
-        set_cost(set_id, 1);
+        for (SetId set_id: neighbors)
+            element_set_neighbors_[element_id].push_back(set_id);
     }
 }
 
@@ -399,8 +182,6 @@ void Instance::write(std::string instance_path, std::string format)
         throw std::invalid_argument(
                 "Unknown instance format \"" + format + "\".");
     }
-
-    compute_components();
 }
 
 void Instance::write_balas1980(std::ofstream& file)
@@ -454,9 +235,9 @@ bool Instance::reduce_mandatory_sets()
     // Create new instance and compute unreduction_operations.
     SetId new_number_of_sets = number_of_sets() - fixed_sets.size();
     SetId new_number_of_elements = number_of_elements() - elements_to_remove.size();
-    Instance new_instance(
-            new_number_of_sets,
-            new_number_of_elements);
+    InstanceBuilder new_instance_builder;
+    new_instance_builder.add_sets(new_number_of_sets);
+    new_instance_builder.add_elements(new_number_of_elements);
     new_unreduction_info.unreduction_operations = std::vector<SetId>(new_number_of_sets);
     // Add sets.
     std::vector<SetId> sets_original2reduced(number_of_sets(), -1);
@@ -473,7 +254,7 @@ bool Instance::reduce_mandatory_sets()
     for (auto it = fixed_sets.out_begin(); it != fixed_sets.out_end(); ++it) {
         SetId set_id = *it;
         sets_original2reduced[set_id] = new_set_id;
-        new_instance.set_cost(new_set_id, set(set_id).cost);
+        new_instance_builder.set_cost(new_set_id, set(set_id).cost);
         new_unreduction_info.unreduction_operations[new_set_id]
             = unreduction_info_.unreduction_operations[set_id];
         new_set_id++;
@@ -488,16 +269,14 @@ bool Instance::reduce_mandatory_sets()
             ElementId new_element_id = elements_original2reduced[element_id];
             if (new_element_id == -1)
                 continue;
-            new_instance.add_arc(
+            new_instance_builder.add_arc(
                     new_set_id,
                     new_element_id);
         }
     }
 
-    new_instance.unreduction_info_ = new_unreduction_info;
-    new_instance.compute_components();
-    *this = new_instance;
-    //print(std::cout, 1);
+    *this = new_instance_builder.build();
+    unreduction_info_ = new_unreduction_info;
     return true;
 }
 
@@ -542,9 +321,9 @@ bool Instance::reduce_identical_elements()
     new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     // Create new instance and compute unreduction_operations.
     ElementId new_number_of_elements = number_of_elements() - elements_to_remove.size();
-    Instance new_instance(
-            number_of_sets(),
-            new_number_of_elements);
+    InstanceBuilder new_instance_builder;
+    new_instance_builder.add_sets(number_of_sets());
+    new_instance_builder.add_elements(new_number_of_elements);
     new_unreduction_info.unreduction_operations = std::vector<SetId>(number_of_sets());
     std::vector<ElementId> original2reduced(number_of_elements(), -1);
     ElementId new_element_id = 0;
@@ -557,23 +336,21 @@ bool Instance::reduce_identical_elements()
     }
     // Add sets and arcs.
     for (SetId set_id = 0; set_id < number_of_sets(); ++set_id) {
-        new_instance.set_cost(set_id, set(set_id).cost);
+        new_instance_builder.set_cost(set_id, set(set_id).cost);
         new_unreduction_info.unreduction_operations[set_id]
             = unreduction_info_.unreduction_operations[set_id];
         for (ElementId element_id: set(set_id).elements) {
             ElementId new_element_id = original2reduced[element_id];
             if (new_element_id == -1)
                 continue;
-            new_instance.add_arc(
+            new_instance_builder.add_arc(
                     set_id,
                     new_element_id);
         }
     }
 
-    new_instance.unreduction_info_ = new_unreduction_info;
-    new_instance.compute_components();
-    *this = new_instance;
-    //print(std::cout, 1);
+    *this = new_instance_builder.build();
+    unreduction_info_ = new_unreduction_info;
     return true;
 }
 
@@ -618,7 +395,9 @@ bool Instance::reduce_identical_sets()
     new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     // Create new instance and compute unreduction_operations.
     SetId new_number_of_sets = number_of_sets() - sets_to_remove.size();
-    Instance new_instance(new_number_of_sets, number_of_elements());
+    InstanceBuilder new_instance_builder;
+    new_instance_builder.add_sets(new_number_of_sets);
+    new_instance_builder.add_elements(number_of_elements());
     new_unreduction_info.unreduction_operations = std::vector<SetId>(new_number_of_sets);
     // Add sets.
     std::vector<SetId> original2reduced(number_of_sets(), -1);
@@ -627,7 +406,7 @@ bool Instance::reduce_identical_sets()
             it != sets_to_remove.out_end(); ++it) {
         SetId set_id = *it;
         original2reduced[set_id] = new_set_id;
-        new_instance.set_cost(new_set_id, set(set_id).cost);
+        new_instance_builder.set_cost(new_set_id, set(set_id).cost);
         new_unreduction_info.unreduction_operations[new_set_id]
             = unreduction_info_.unreduction_operations[set_id];
         new_set_id++;
@@ -641,16 +420,14 @@ bool Instance::reduce_identical_sets()
         if (new_set_id == -1)
             continue;
         for (ElementId element_id: set(set_id).elements) {
-            new_instance.add_arc(
+            new_instance_builder.add_arc(
                     new_set_id,
                     element_id);
         }
     }
 
-    new_instance.unreduction_info_ = new_unreduction_info;
-    new_instance.compute_components();
-    *this = new_instance;
-    //print(std::cout, 1);
+    *this = new_instance_builder.build();
+    unreduction_info_ = new_unreduction_info;
     return true;
 }
 
@@ -697,9 +474,10 @@ bool Instance::reduce_domianted_elements()
     // Update mandatory_sets.
     new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     // Create new instance and compute unreduction_operations.
-    Instance new_instance(
-            number_of_sets(),
-            number_of_elements() - elements_to_remove.size());
+    ElementId new_number_of_elements = number_of_elements() - elements_to_remove.size();
+    InstanceBuilder new_instance_builder;
+    new_instance_builder.add_sets(number_of_sets());
+    new_instance_builder.add_elements(new_number_of_elements);
     new_unreduction_info.unreduction_operations = std::vector<SetId>(number_of_sets());
     std::vector<ElementId> original2reduced(number_of_elements(), -1);
     ElementId new_element_id = 0;
@@ -712,22 +490,21 @@ bool Instance::reduce_domianted_elements()
     }
     // Add sets and arcs.
     for (SetId set_id = 0; set_id < number_of_sets(); ++set_id) {
-        new_instance.set_cost(set_id, set(set_id).cost);
+        new_instance_builder.set_cost(set_id, set(set_id).cost);
         new_unreduction_info.unreduction_operations[set_id]
             = unreduction_info_.unreduction_operations[set_id];
         for (ElementId element_id: set(set_id).elements) {
             ElementId new_element_id = original2reduced[element_id];
             if (new_element_id == -1)
                 continue;
-            new_instance.add_arc(
+            new_instance_builder.add_arc(
                     set_id,
                     new_element_id);
         }
     }
 
-    new_instance.unreduction_info_ = new_unreduction_info;
-    new_instance.compute_components();
-    *this = new_instance;
+    *this = new_instance_builder.build();
+    unreduction_info_ = new_unreduction_info;
     return true;
 }
 
@@ -774,7 +551,9 @@ bool Instance::reduce_domianted_sets()
     new_unreduction_info.mandatory_sets = unreduction_info_.mandatory_sets;
     // Create new instance and compute unreduction_operations.
     SetId new_number_of_sets = number_of_sets() - sets_to_remove.size();
-    Instance new_instance(new_number_of_sets, number_of_elements());
+    InstanceBuilder new_instance_builder;
+    new_instance_builder.add_sets(new_number_of_sets);
+    new_instance_builder.add_elements(number_of_elements());
     new_unreduction_info.unreduction_operations = std::vector<SetId>(new_number_of_sets);
     // Add sets.
     std::vector<SetId> original2reduced(number_of_sets(), -1);
@@ -783,7 +562,7 @@ bool Instance::reduce_domianted_sets()
             it != sets_to_remove.out_end(); ++it) {
         SetId set_id = *it;
         original2reduced[set_id] = new_set_id;
-        new_instance.set_cost(new_set_id, set(set_id).cost);
+        new_instance_builder.set_cost(new_set_id, set(set_id).cost);
         new_unreduction_info.unreduction_operations[new_set_id]
             = unreduction_info_.unreduction_operations[set_id];
         new_set_id++;
@@ -797,53 +576,52 @@ bool Instance::reduce_domianted_sets()
         if (new_set_id == -1)
             continue;
         for (ElementId element_id: set(set_id).elements) {
-            new_instance.add_arc(
+            new_instance_builder.add_arc(
                     new_set_id,
                     element_id);
         }
     }
 
-    new_instance.unreduction_info_ = new_unreduction_info;
-    new_instance.compute_components();
-    *this = new_instance;
+    *this = new_instance_builder.build();
+    unreduction_info_ = new_unreduction_info;
     return true;
 }
 
 Instance Instance::reduce(ReductionParameters parameters) const
 {
     // Initialize reduced instance.
-    Instance new_instance = *this;
-    new_instance.unreduction_info_ = UnreductionInfo();
-    new_instance.unreduction_info_.original_instance = this;
-    new_instance.unreduction_info_.unreduction_operations = std::vector<SetId>(number_of_sets());
+    Instance new_instance_builder = *this;
+    new_instance_builder.unreduction_info_ = UnreductionInfo();
+    new_instance_builder.unreduction_info_.original_instance = this;
+    new_instance_builder.unreduction_info_.unreduction_operations = std::vector<SetId>(number_of_sets());
     for (SetId set_id = 0;
             set_id < number_of_sets();
             ++set_id) {
-        new_instance.unreduction_info_.unreduction_operations[set_id] = set_id;
+        new_instance_builder.unreduction_info_.unreduction_operations[set_id] = set_id;
     }
 
     for (Counter round_number = 0;
             round_number < parameters.maximum_number_of_rounds;
             ++round_number) {
         bool found = false;
-        found |= new_instance.reduce_mandatory_sets();
-        found |= new_instance.reduce_identical_elements();
-        found |= new_instance.reduce_identical_sets();
+        found |= new_instance_builder.reduce_mandatory_sets();
+        found |= new_instance_builder.reduce_identical_elements();
+        found |= new_instance_builder.reduce_identical_sets();
         if (found)
             continue;
         if (parameters.remove_domianted) {
-            found |= new_instance.reduce_domianted_elements();
-            found |= new_instance.reduce_domianted_sets();
+            found |= new_instance_builder.reduce_domianted_elements();
+            found |= new_instance_builder.reduce_domianted_sets();
         }
         if (!found)
             break;
     }
 
-    new_instance.unreduction_info_.extra_cost = 0;
-    for (SetId orig_set_id: new_instance.unreduction_info_.mandatory_sets)
-        new_instance.unreduction_info_.extra_cost += set(orig_set_id).cost;
+    new_instance_builder.unreduction_info_.extra_cost = 0;
+    for (SetId orig_set_id: new_instance_builder.unreduction_info_.mandatory_sets)
+        new_instance_builder.unreduction_info_.extra_cost += set(orig_set_id).cost;
 
-    return new_instance;
+    return new_instance_builder;
 }
 
 void setcoveringsolver::init_display(

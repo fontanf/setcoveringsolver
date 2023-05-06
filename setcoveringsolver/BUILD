@@ -8,10 +8,12 @@ cc_library(
         name = "setcoveringsolver",
         hdrs = [
                 "instance.hpp",
+                "instance_builder.hpp",
                 "solution.hpp"
         ],
         srcs = [
                 "instance.cpp",
+                "instance_builder.cpp",
                 "solution.cpp",
         ],
         deps = [

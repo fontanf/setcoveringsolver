@@ -1,4 +1,5 @@
 #include "setcoveringsolver/algorithms/algorithms.hpp"
+#include "setcoveringsolver/instance_builder.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -56,9 +57,12 @@ int main(int argc, char *argv[])
 
     // Run algorithm
 
-    Instance instance(instance_path, format);
+    InstanceBuilder instance_builder;
+    instance_builder.read(instance_path, format);
     if (vm.count("unicost"))
-        instance.set_unicost();
+        instance_builder.set_unicost();
+
+    Instance instance = instance_builder.build();
 
     optimizationtools::Info info = optimizationtools::Info()
         .set_verbosity_level(verbosity_level)
