@@ -34,9 +34,9 @@ cc_library(
 )
 
 cc_library(
-        name = "localsearch_rowweighting",
-        hdrs = ["localsearch_rowweighting.hpp"],
-        srcs = ["localsearch_rowweighting.cpp"],
+        name = "local_search_row_weighting",
+        hdrs = ["local_search_row_weighting.hpp"],
+        srcs = ["local_search_row_weighting.cpp"],
         deps = [
                 ":greedy",
                 "//setcoveringsolver:setcoveringsolver",
@@ -46,9 +46,9 @@ cc_library(
 )
 
 cc_library(
-        name = "largeneighborhoodsearch",
-        hdrs = ["largeneighborhoodsearch.hpp"],
-        srcs = ["largeneighborhoodsearch.cpp"],
+        name = "large_neighborhood_search",
+        hdrs = ["large_neighborhood_search.hpp"],
+        srcs = ["large_neighborhood_search.cpp"],
         deps = [
                 ":greedy",
                 "//setcoveringsolver:setcoveringsolver",
@@ -64,8 +64,8 @@ cc_library(
                 ":greedy",
                 ":milp_cbc",
                 ":milp_gurobi",
-                ":localsearch_rowweighting",
-                ":largeneighborhoodsearch",
+                ":local_search_row_weighting",
+                ":large_neighborhood_search",
                 "@boost//:program_options",
         ] + COINOR_DEP + GUROBI_DEP,
         copts = COINOR_COPTS + GUROBI_COPTS,

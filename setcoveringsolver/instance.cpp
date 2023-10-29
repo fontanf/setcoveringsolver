@@ -630,7 +630,7 @@ void setcoveringsolver::init_display(
 {
     info.os()
         << "=====================================" << std::endl
-        << "         Set Covering Solver         " << std::endl
+        << "          SetCoveringSolver          " << std::endl
         << "=====================================" << std::endl
         << std::endl
         << "Instance" << std::endl

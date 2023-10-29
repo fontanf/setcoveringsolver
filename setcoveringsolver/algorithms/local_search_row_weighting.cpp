@@ -1,4 +1,4 @@
-#include "setcoveringsolver/algorithms/localsearch_rowweighting.hpp"
+#include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
 
 #include "setcoveringsolver/algorithms/greedy.hpp"
 
@@ -64,7 +64,7 @@ struct LocalSearchRowWeightingSet
     Cost score = 0;
 };
 
-LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
+LocalSearchRowWeighting2Output setcoveringsolver::local_search_row_weighting_2(
         Instance& original_instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting2OptionalParameters parameters)
@@ -73,7 +73,7 @@ LocalSearchRowWeighting2Output setcoveringsolver::localsearch_rowweighting_2(
     parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
-            << "Row Weighting Local Search 2" << std::endl
+            << "Row weighting local search 2" << std::endl
             << std::endl
             << "Parameters" << std::endl
             << "----------" << std::endl
@@ -605,7 +605,7 @@ struct LocalSearchRowWeighting1Set
     Cost score = 0;
 };
 
-LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
+LocalSearchRowWeighting1Output setcoveringsolver::local_search_row_weighting_1(
         Instance& original_instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting1OptionalParameters parameters)
@@ -614,7 +614,7 @@ LocalSearchRowWeighting1Output setcoveringsolver::localsearch_rowweighting_1(
     parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
-            << "Row Weighting Local Search 1" << std::endl
+            << "Row weighting local search 1" << std::endl
             << std::endl
             << "Parameters" << std::endl
             << "----------" << std::endl

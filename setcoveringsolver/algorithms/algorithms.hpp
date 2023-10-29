@@ -5,8 +5,8 @@
 #include "setcoveringsolver/algorithms/greedy.hpp"
 #include "setcoveringsolver/algorithms/milp_cbc.hpp"
 #include "setcoveringsolver/algorithms/milp_gurobi.hpp"
-#include "setcoveringsolver/algorithms/localsearch_rowweighting.hpp"
-#include "setcoveringsolver/algorithms/largeneighborhoodsearch.hpp"
+#include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
+#include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
 
 namespace setcoveringsolver
 {

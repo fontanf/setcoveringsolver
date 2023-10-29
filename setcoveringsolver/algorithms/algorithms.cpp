@@ -5,7 +5,7 @@
 using namespace setcoveringsolver;
 namespace po = boost::program_options;
 
-LocalSearchRowWeighting1OptionalParameters read_localsearch_rowweighting_1_args(const std::vector<char*>& argv)
+LocalSearchRowWeighting1OptionalParameters read_local_search_row_weighting_1_args(const std::vector<char*>& argv)
 {
     LocalSearchRowWeighting1OptionalParameters parameters;
     po::options_description desc("Allowed options");
@@ -24,7 +24,7 @@ LocalSearchRowWeighting1OptionalParameters read_localsearch_rowweighting_1_args(
     return parameters;
 }
 
-LocalSearchRowWeighting2OptionalParameters read_localsearch_rowweighting_2_args(const std::vector<char*>& argv)
+LocalSearchRowWeighting2OptionalParameters read_local_search_row_weighting_2_args(const std::vector<char*>& argv)
 {
     LocalSearchRowWeighting2OptionalParameters parameters;
     po::options_description desc("Allowed options");
@@ -46,7 +46,7 @@ LocalSearchRowWeighting2OptionalParameters read_localsearch_rowweighting_2_args(
     return parameters;
 }
 
-LargeNeighborhoodSearchOptionalParameters read_largeneighborhoodsearch_args(const std::vector<char*>& argv)
+LargeNeighborhoodSearchOptionalParameters read_large_neighborhood_search_args(const std::vector<char*>& argv)
 {
     LargeNeighborhoodSearchOptionalParameters parameters;
     po::options_description desc("Allowed options");
@@ -84,40 +84,40 @@ Output setcoveringsolver::run(
         GreedyOptionalParameters parameters;
         parameters.info = info;
         return greedy(instance, parameters);
-    } else if (algorithm_args[0] == "greedy_lin") {
+    } else if (algorithm_args[0] == "greedy-lin") {
         GreedyOptionalParameters parameters;
         parameters.info = info;
         return greedy_lin(instance, parameters);
-    } else if (algorithm_args[0] == "greedy_dual") {
+    } else if (algorithm_args[0] == "greedy-dual") {
         GreedyOptionalParameters parameters;
         parameters.info = info;
         return greedy_dual(instance, parameters);
 #if COINOR_FOUND
-    } else if (algorithm_args[0] == "milp_cbc") {
+    } else if (algorithm_args[0] == "milp-cbc") {
         MilpCbcOptionalParameters parameters;
         parameters.info = info;
         return milp_cbc(instance, parameters);
 #endif
 #if GUROBI_FOUND
-    } else if (algorithm_args[0] == "milp_gurobi") {
+    } else if (algorithm_args[0] == "milp-gurobi") {
         MilpGurobiOptionalParameters parameters;
         parameters.info = info;
         return milp_gurobi(instance, parameters);
 #endif
-    } else if (algorithm_args[0] == "localsearch_rowweighting_1") {
-        auto parameters = read_localsearch_rowweighting_1_args(algorithm_argv);
+    } else if (algorithm_args[0] == "local-search-row-weighting-1") {
+        auto parameters = read_local_search_row_weighting_1_args(algorithm_argv);
         parameters.info = info;
-        return localsearch_rowweighting_1(instance, generator, parameters);
-    } else if (algorithm_args[0] == "localsearch_rowweighting_2") {
-        auto parameters = read_localsearch_rowweighting_2_args(algorithm_argv);
+        return local_search_row_weighting_1(instance, generator, parameters);
+    } else if (algorithm_args[0] == "local-search-row-weighting-2") {
+        auto parameters = read_local_search_row_weighting_2_args(algorithm_argv);
         parameters.info = info;
-        return localsearch_rowweighting_2(instance, generator, parameters);
-    } else if (algorithm_args[0] == "largeneighborhoodsearch"
-            || algorithm_args[0] == "largeneighborhoodsearch_2") {
-        auto parameters = read_largeneighborhoodsearch_args(algorithm_argv);
+        return local_search_row_weighting_2(instance, generator, parameters);
+    } else if (algorithm_args[0] == "large-neighborhood-search"
+            || algorithm_args[0] == "large-neighborhood-search-2") {
+        auto parameters = read_large_neighborhood_search_args(algorithm_argv);
         parameters.goal = goal;
         parameters.info = info;
-        return largeneighborhoodsearch(instance, parameters);
+        return large_neighborhood_search(instance, parameters);
 
     } else {
         throw std::invalid_argument(

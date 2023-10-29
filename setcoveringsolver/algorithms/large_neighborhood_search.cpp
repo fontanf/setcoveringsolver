@@ -1,4 +1,4 @@
-#include "setcoveringsolver/algorithms/largeneighborhoodsearch.hpp"
+#include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
 
 #include "setcoveringsolver/algorithms/greedy.hpp"
 
@@ -27,7 +27,7 @@ struct LargeNeighborhoodSearchSet
     Cost score = 0;
 };
 
-LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
+LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search(
         Instance& original_instance,
         LargeNeighborhoodSearchOptionalParameters parameters)
 {
@@ -35,7 +35,7 @@ LargeNeighborhoodSearchOutput setcoveringsolver::largeneighborhoodsearch(
     parameters.info.os()
             << "Algorithm" << std::endl
             << "---------" << std::endl
-            << "Large Neighborhood Search" << std::endl
+            << "Large neighborhood search" << std::endl
             << std::endl
             << "Parameters" << std::endl
             << "----------" << std::endl
