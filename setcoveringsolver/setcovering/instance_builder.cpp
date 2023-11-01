@@ -1,6 +1,6 @@
-#include "setcoveringsolver/instance_builder.hpp"
+#include "setcoveringsolver/setcovering/instance_builder.hpp"
 
-using namespace setcoveringsolver;
+using namespace setcoveringsolver::setcovering;
 
 void InstanceBuilder::add_sets(SetId number_of_sets)
 {

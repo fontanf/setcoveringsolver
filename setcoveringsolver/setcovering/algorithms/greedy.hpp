@@ -1,8 +1,10 @@
 #pragma once
 
-#include "setcoveringsolver/solution.hpp"
+#include "setcoveringsolver/setcovering/solution.hpp"
 
 namespace setcoveringsolver
+{
+namespace setcovering
 {
 
 struct GreedyOptionalParameters
@@ -26,5 +28,6 @@ Output greedy_dual(
         const Instance& instance,
         GreedyOptionalParameters parameters = {});
 
+}
 }
 

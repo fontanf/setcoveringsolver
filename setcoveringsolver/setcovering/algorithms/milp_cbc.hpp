@@ -1,15 +1,15 @@
 #pragma once
 
-#if COINOR_FOUND
+#if CBC_FOUND
 
-#include "setcoveringsolver/solution.hpp"
+#include "setcoveringsolver/setcovering/solution.hpp"
 
-#include <coin/CbcModel.hpp>
-#include <coin/OsiCbcSolverInterface.hpp>
-#include <coin/CglKnapsackCover.hpp>
-#include <coin/CglClique.hpp>
+#include <CbcModel.hpp>
+#include <OsiCbcSolverInterface.hpp>
 
 namespace setcoveringsolver
+{
+namespace setcovering
 {
 
 struct CoinLP
@@ -41,6 +41,7 @@ Output milp_cbc(
         const Instance& instance,
         MilpCbcOptionalParameters parameters = {});
 
+}
 }
 
 #endif

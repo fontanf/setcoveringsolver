@@ -1,11 +1,13 @@
 #pragma once
 
-#include "setcoveringsolver/instance.hpp"
+#include "setcoveringsolver/setcovering/instance.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_map.hpp"
 
 namespace setcoveringsolver
+{
+namespace setcovering
 {
 
 class Solution
@@ -213,5 +215,6 @@ struct Output
     Output& algorithm_end(optimizationtools::Info& info);
 };
 
+}
 }
 

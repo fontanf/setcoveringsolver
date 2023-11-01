@@ -44,7 +44,7 @@ bazel build --define gurobi=true -- //...
 Run:
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/wedelin1995/sasd9imp2.dat -f wedelin1995 -a milp-cbc
+./bazel-bin/setcoveringsolver/setcovering/main -v 1 -i data/wedelin1995/sasd9imp2.dat -f wedelin1995 -a milp-cbc
 ```
 ```
 =====================================
@@ -103,7 +103,7 @@ Cost:                          5262040
 ```
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/beasley1990/scpnrh5.txt -f orlibrary -a large-neighborhood-search -t 0.3
+./bazel-bin/setcoveringsolver/setcovering/main -v 1 -i data/beasley1990/scpnrh5.txt -f orlibrary -a large-neighborhood-search -t 0.3
 ```
 ```
 =====================================
@@ -167,7 +167,7 @@ Cost:                          55
 ```
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a local-search-row-weighting-1 -c solution.txt -t 2
+./bazel-bin/setcoveringsolver/setcovering/main -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a local-search-row-weighting-1 -c solution.txt -t 2
 ```
 ```
 =====================================
@@ -249,7 +249,7 @@ Cost:                          130
 ```
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a local-search-row-weighting-2 -t 10 -c solution.txt
+./bazel-bin/setcoveringsolver/setcovering/main -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a local-search-row-weighting-2 -t 10 -c solution.txt
 ```
 ```
 =====================================

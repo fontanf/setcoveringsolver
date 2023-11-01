@@ -1,5 +1,5 @@
-#include "setcoveringsolver/instance.hpp"
-#include "setcoveringsolver/instance_builder.hpp"
+#include "setcoveringsolver/setcovering/instance.hpp"
+#include "setcoveringsolver/setcovering/instance_builder.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_map.hpp"
@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <thread>
 
-using namespace setcoveringsolver;
+using namespace setcoveringsolver::setcovering;
 
 const std::vector<std::vector<SetId>>& Instance::set_neighbors()
 {
@@ -624,7 +624,7 @@ Instance Instance::reduce(ReductionParameters parameters) const
     return new_instance_builder;
 }
 
-void setcoveringsolver::init_display(
+void setcoveringsolver::setcovering::init_display(
         const Instance& instance,
         optimizationtools::Info& info)
 {

@@ -1,11 +1,11 @@
-#include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
+#include "setcoveringsolver/setcovering/algorithms/large_neighborhood_search.hpp"
 
-#include "setcoveringsolver/algorithms/greedy.hpp"
+#include "setcoveringsolver/setcovering/algorithms/greedy.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_binary_heap.hpp"
 
-using namespace setcoveringsolver;
+using namespace setcoveringsolver::setcovering;
 
 void LargeNeighborhoodSearchOutput::print_statistics(
         optimizationtools::Info& info) const
@@ -27,7 +27,7 @@ struct LargeNeighborhoodSearchSet
     Cost score = 0;
 };
 
-LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search(
+LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighborhood_search(
         Instance& original_instance,
         LargeNeighborhoodSearchOptionalParameters parameters)
 {

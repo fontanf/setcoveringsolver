@@ -1,10 +1,10 @@
-#include "setcoveringsolver/solution.hpp"
+#include "setcoveringsolver/setcovering/solution.hpp"
 
 #include "optimizationtools/utils/utils.hpp"
 
 #include <iomanip>
 
-using namespace setcoveringsolver;
+using namespace setcoveringsolver::setcovering;
 
 Solution::Solution(const Instance& instance):
     instance_(&instance),
@@ -144,7 +144,7 @@ bool Solution::is_strictly_better_than(const Solution& solution) const
     return c1 < c2;
 }
 
-std::ostream& setcoveringsolver::operator<<(std::ostream& os, const Solution& solution)
+std::ostream& setcoveringsolver::setcovering::operator<<(std::ostream& os, const Solution& solution)
 {
     os << solution.number_of_sets() << std::endl;
     for (SetId set_id = 0;

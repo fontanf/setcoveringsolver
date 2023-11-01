@@ -1,8 +1,10 @@
 #pragma once
 
-#include "setcoveringsolver/solution.hpp"
+#include "setcoveringsolver/setcovering/solution.hpp"
 
 namespace setcoveringsolver
+{
+namespace setcovering
 {
 
 struct LocalSearchRowWeighting1OptionalParameters
@@ -131,5 +133,6 @@ LocalSearchRowWeighting2Output local_search_row_weighting_2(
         std::mt19937_64& generator,
         LocalSearchRowWeighting2OptionalParameters parameters = {});
 
+}
 }
 

@@ -1,12 +1,12 @@
-#include "setcoveringsolver/algorithms/greedy.hpp"
+#include "setcoveringsolver/setcovering/algorithms/greedy.hpp"
 
 #include "optimizationtools/containers/indexed_binary_heap.hpp"
 
 #include <set>
 
-using namespace setcoveringsolver;
+using namespace setcoveringsolver::setcovering;
 
-Output setcoveringsolver::greedy(
+Output setcoveringsolver::setcovering::greedy(
         const Instance& original_instance,
         GreedyOptionalParameters parameters)
 {
@@ -80,7 +80,7 @@ Output setcoveringsolver::greedy(
     return output.algorithm_end(parameters.info);
 }
 
-Output setcoveringsolver::greedy_lin(
+Output setcoveringsolver::setcovering::greedy_lin(
         const Instance& original_instance,
         GreedyOptionalParameters parameters)
 {
@@ -152,7 +152,7 @@ Output setcoveringsolver::greedy_lin(
     return output.algorithm_end(parameters.info);
 }
 
-Output setcoveringsolver::greedy_dual(
+Output setcoveringsolver::setcovering::greedy_dual(
         const Instance& original_instance,
         GreedyOptionalParameters parameters)
 {

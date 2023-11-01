@@ -19,9 +19,9 @@ def Settings( **kwargs ):
                 # '-I', './../'
                 'optimizationtools/',
 
-                # COIN-OR
-                '-DCOINOR_FOUND',
-                '-I', '/home/florian/Programmes/coinbrew/dist/include/',
+                # CBC
+                '-DCBC_FOUND',
+                '-I', './bazel-setcoveringsolver/external/cbc_linux/include/coin/',
 
                 # Gurobi
                 '-DGUROBI_FOUND',

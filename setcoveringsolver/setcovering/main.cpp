@@ -1,9 +1,9 @@
-#include "setcoveringsolver/algorithms/algorithms.hpp"
-#include "setcoveringsolver/instance_builder.hpp"
+#include "setcoveringsolver/setcovering/algorithms/algorithms.hpp"
+#include "setcoveringsolver/setcovering/instance_builder.hpp"
 
 #include <boost/program_options.hpp>
 
-using namespace setcoveringsolver;
+using namespace setcoveringsolver::setcovering;
 
 int main(int argc, char *argv[])
 {

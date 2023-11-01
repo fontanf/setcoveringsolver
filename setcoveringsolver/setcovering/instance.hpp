@@ -4,6 +4,8 @@
 
 namespace setcoveringsolver
 {
+namespace setcovering
+{
 
 using ElementId = int64_t;
 using ElementPos = int64_t;
@@ -289,5 +291,6 @@ void init_display(
         const Instance& instance,
         optimizationtools::Info& info);
 
+}
 }
 

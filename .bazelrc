@@ -7,3 +7,4 @@ build --compilation_mode=opt
 
 #build --define gurobi=true
 #build --define cplex=true
+#build --define cbc=true

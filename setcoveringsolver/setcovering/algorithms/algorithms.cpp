@@ -1,8 +1,8 @@
-#include "setcoveringsolver/algorithms/algorithms.hpp"
+#include "setcoveringsolver/setcovering/algorithms/algorithms.hpp"
 
 #include <boost/program_options.hpp>
 
-using namespace setcoveringsolver;
+using namespace setcoveringsolver::setcovering;
 namespace po = boost::program_options;
 
 LocalSearchRowWeighting1OptionalParameters read_local_search_row_weighting_1_args(const std::vector<char*>& argv)
@@ -65,7 +65,7 @@ LargeNeighborhoodSearchOptionalParameters read_large_neighborhood_search_args(co
     return parameters;
 }
 
-Output setcoveringsolver::run(
+Output setcoveringsolver::setcovering::run(
         std::string algorithm,
         Instance& instance,
         Cost goal,
@@ -92,7 +92,7 @@ Output setcoveringsolver::run(
         GreedyOptionalParameters parameters;
         parameters.info = info;
         return greedy_dual(instance, parameters);
-#if COINOR_FOUND
+#if CBC_FOUND
     } else if (algorithm_args[0] == "milp-cbc") {
         MilpCbcOptionalParameters parameters;
         parameters.info = info;

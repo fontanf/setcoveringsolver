@@ -1,5 +1,5 @@
 load("//setcoveringsolver:variables.bzl", "STDCPP",
-         "COINOR_COPTS", "COINOR_DEP",
+         "CBC_COPTS", "CBC_DEP",
          "CPLEX_COPTS", "CPLEX_DEP",
          "GUROBI_COPTS", "GUROBI_DEP")
 
@@ -7,7 +7,7 @@ cc_library(
         name = "greedy",
         hdrs = ["greedy.hpp"],
         srcs = ["greedy.cpp"],
-        deps = ["//setcoveringsolver:setcoveringsolver"],
+        deps = ["//setcoveringsolver/setcovering:setcoveringsolver"],
         visibility = ["//visibility:public"],
 )
 
@@ -16,9 +16,9 @@ cc_library(
         hdrs = ["milp_cbc.hpp"],
         srcs = ["milp_cbc.cpp"],
         deps = [
-                "//setcoveringsolver:setcoveringsolver",
-        ] + COINOR_DEP,
-        copts = COINOR_COPTS,
+                "//setcoveringsolver/setcovering:setcoveringsolver",
+        ] + CBC_DEP,
+        copts = CBC_COPTS,
         visibility = ["//visibility:public"],
 )
 
@@ -27,7 +27,7 @@ cc_library(
         hdrs = ["milp_gurobi.hpp"],
         srcs = ["milp_gurobi.cpp"],
         deps = [
-                "//setcoveringsolver:setcoveringsolver",
+                "//setcoveringsolver/setcovering:setcoveringsolver",
         ] + GUROBI_DEP,
         copts = GUROBI_COPTS,
         visibility = ["//visibility:public"],
@@ -39,7 +39,7 @@ cc_library(
         srcs = ["local_search_row_weighting.cpp"],
         deps = [
                 ":greedy",
-                "//setcoveringsolver:setcoveringsolver",
+                "//setcoveringsolver/setcovering:setcoveringsolver",
                 "@optimizationtools//optimizationtools/utils:utils",
         ],
         visibility = ["//visibility:public"],
@@ -51,7 +51,7 @@ cc_library(
         srcs = ["large_neighborhood_search.cpp"],
         deps = [
                 ":greedy",
-                "//setcoveringsolver:setcoveringsolver",
+                "//setcoveringsolver/setcovering:setcoveringsolver",
         ],
         visibility = ["//visibility:public"],
 )
@@ -67,8 +67,8 @@ cc_library(
                 ":local_search_row_weighting",
                 ":large_neighborhood_search",
                 "@boost//:program_options",
-        ] + COINOR_DEP + GUROBI_DEP,
-        copts = COINOR_COPTS + GUROBI_COPTS,
+        ] + CBC_DEP + GUROBI_DEP,
+        copts = CBC_COPTS + GUROBI_COPTS,
         visibility = ["//visibility:public"],
 )
 
