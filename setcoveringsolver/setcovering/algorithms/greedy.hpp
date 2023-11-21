@@ -16,15 +16,15 @@ struct GreedyOptionalParameters
     optimizationtools::Info info = optimizationtools::Info();
 };
 
-Output greedy(
+const Output greedy(
         const Instance& instance,
         GreedyOptionalParameters parameters = {});
 
-Output greedy_lin(
+const Output greedy_lin(
         const Instance& instance,
         GreedyOptionalParameters parameters = {});
 
-Output greedy_dual(
+const Output greedy_dual(
         const Instance& instance,
         GreedyOptionalParameters parameters = {});
 

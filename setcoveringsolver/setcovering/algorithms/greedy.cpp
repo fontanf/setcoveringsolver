@@ -6,7 +6,7 @@
 
 using namespace setcoveringsolver::setcovering;
 
-Output setcoveringsolver::setcovering::greedy(
+const Output setcoveringsolver::setcovering::greedy(
         const Instance& original_instance,
         GreedyOptionalParameters parameters)
 {
@@ -80,7 +80,7 @@ Output setcoveringsolver::setcovering::greedy(
     return output.algorithm_end(parameters.info);
 }
 
-Output setcoveringsolver::setcovering::greedy_lin(
+const Output setcoveringsolver::setcovering::greedy_lin(
         const Instance& original_instance,
         GreedyOptionalParameters parameters)
 {
@@ -152,7 +152,7 @@ Output setcoveringsolver::setcovering::greedy_lin(
     return output.algorithm_end(parameters.info);
 }
 
-Output setcoveringsolver::setcovering::greedy_dual(
+const Output setcoveringsolver::setcovering::greedy_dual(
         const Instance& original_instance,
         GreedyOptionalParameters parameters)
 {

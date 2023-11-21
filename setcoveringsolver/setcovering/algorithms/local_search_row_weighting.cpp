@@ -64,7 +64,7 @@ struct LocalSearchRowWeightingSet
     Cost score = 0;
 };
 
-LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_search_row_weighting_2(
+const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_search_row_weighting_2(
         Instance& original_instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting2OptionalParameters parameters)
@@ -605,7 +605,7 @@ struct LocalSearchRowWeighting1Set
     Cost score = 0;
 };
 
-LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_search_row_weighting_1(
+const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_search_row_weighting_1(
         Instance& original_instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting1OptionalParameters parameters)

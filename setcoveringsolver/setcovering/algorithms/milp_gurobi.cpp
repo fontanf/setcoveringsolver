@@ -58,7 +58,7 @@ private:
 
 };
 
-Output setcoveringsolver::setcovering::milp_gurobi(
+const Output setcoveringsolver::setcovering::milp_gurobi(
         const Instance& original_instance,
         MilpGurobiOptionalParameters parameters)
 {

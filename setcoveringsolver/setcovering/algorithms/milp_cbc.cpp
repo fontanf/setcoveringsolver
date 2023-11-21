@@ -148,7 +148,7 @@ CoinLP::CoinLP(const Instance& instance)
             number_of_elements_in_rows.data());
 }
 
-Output setcoveringsolver::setcovering::milp_cbc(
+const Output setcoveringsolver::setcovering::milp_cbc(
         const Instance& original_instance,
         MilpCbcOptionalParameters parameters)
 {

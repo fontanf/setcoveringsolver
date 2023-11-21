@@ -21,7 +21,7 @@ struct MilpGurobiOptionalParameters
     optimizationtools::Info info = optimizationtools::Info();
 };
 
-Output milp_gurobi(
+const Output milp_gurobi(
         const Instance& instance,
         MilpGurobiOptionalParameters parameters = {});
 

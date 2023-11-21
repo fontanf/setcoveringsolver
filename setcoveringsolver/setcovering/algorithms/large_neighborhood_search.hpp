@@ -39,7 +39,7 @@ struct LargeNeighborhoodSearchOutput: Output
     Counter number_of_iterations = 0;
 };
 
-LargeNeighborhoodSearchOutput large_neighborhood_search(
+const LargeNeighborhoodSearchOutput large_neighborhood_search(
         Instance& instance,
         LargeNeighborhoodSearchOptionalParameters parameters = {});
 

@@ -36,7 +36,7 @@ struct LocalSearchRowWeighting1Output: Output
     Counter number_of_iterations = 0;
 };
 
-LocalSearchRowWeighting1Output local_search_row_weighting_1(
+const LocalSearchRowWeighting1Output local_search_row_weighting_1(
         Instance& instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting1OptionalParameters parameters = {});
@@ -128,7 +128,7 @@ struct LocalSearchRowWeighting2Output: Output
     Counter number_of_iterations = 0;
 };
 
-LocalSearchRowWeighting2Output local_search_row_weighting_2(
+const LocalSearchRowWeighting2Output local_search_row_weighting_2(
         Instance& instance,
         std::mt19937_64& generator,
         LocalSearchRowWeighting2OptionalParameters parameters = {});

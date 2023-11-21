@@ -27,7 +27,7 @@ struct LargeNeighborhoodSearchSet
     Cost score = 0;
 };
 
-LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighborhood_search(
+const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighborhood_search(
         Instance& original_instance,
         LargeNeighborhoodSearchOptionalParameters parameters)
 {

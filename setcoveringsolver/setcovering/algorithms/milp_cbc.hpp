@@ -37,7 +37,7 @@ struct MilpCbcOptionalParameters
     optimizationtools::Info info = optimizationtools::Info();
 };
 
-Output milp_cbc(
+const Output milp_cbc(
         const Instance& instance,
         MilpCbcOptionalParameters parameters = {});
 
