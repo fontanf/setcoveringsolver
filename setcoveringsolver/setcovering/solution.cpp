@@ -80,38 +80,6 @@ void Solution::update(const Solution& solution)
     }
 }
 
-std::ostream& Solution::print(
-        std::ostream& os,
-        int verbose) const
-{
-    if (verbose >= 1) {
-        os
-            << "Number of sets:                " << optimizationtools::Ratio<SetId>(number_of_sets(), instance().number_of_sets()) << std::endl
-            << "Number of uncovered elements:  " << optimizationtools::Ratio<SetId>(number_of_uncovered_elements(), instance().number_of_elements()) << std::endl
-            << "Feasible:                      " << feasible() << std::endl
-            << "Cost:                          " << cost() << std::endl
-            ;
-    }
-
-    if (verbose >= 2) {
-        os << std::endl
-            << std::setw(12) << "Set"
-            << std::setw(12) << "Cost"
-            << std::endl
-            << std::setw(12) << "--------"
-            << std::setw(12) << "---"
-            << std::endl;
-        for (SetId set_id: sets_) {
-            os
-                << std::setw(12) << set_id
-                << std::setw(12) << instance().set(set_id).cost
-                << std::endl;
-        }
-    }
-
-    return os;
-}
-
 void Solution::write(std::string certificate_path)
 {
     if (certificate_path.empty())
@@ -164,7 +132,7 @@ Output::Output(
         optimizationtools::Info& info):
     solution(instance)
 {
-    info.os()
+    info.output()
         << std::setw(12) << "T (s)"
         << std::setw(12) << "UB"
         << std::setw(12) << "LB"
@@ -203,7 +171,7 @@ void Output::print(
     double t = info.elapsed_time();
     std::streamsize precision = std::cout.precision();
 
-    info.os()
+    info.output()
         << std::setw(12) << std::fixed << std::setprecision(3) << t << std::defaultfloat << std::setprecision(precision)
         << std::setw(12) << solution_value
         << std::setw(12) << bound
@@ -211,8 +179,8 @@ void Output::print(
         << std::setw(12) << std::fixed << std::setprecision(2) << relative_optimality_gap * 100 << std::defaultfloat << std::setprecision(precision)
         << std::setw(24) << s.str() << std::endl;
 
-    if (!info.output->only_write_at_the_end)
-        info.write_json_output();
+    if (!info.output().only_write_at_the_end())
+        info.output().write_json_output();
 }
 
 void Output::update_solution(
@@ -220,7 +188,7 @@ void Output::update_solution(
         const std::stringstream& s,
         optimizationtools::Info& info)
 {
-    info.lock();
+    info.output().lock();
 
     if (solution_new.is_strictly_better_than(solution)) {
         solution.update(solution_new);
@@ -232,18 +200,17 @@ void Output::update_solution(
                 solution.cost());
         double t = info.elapsed_time();
 
-        info.output->number_of_solutions++;
-        std::string sol_str = "Solution" + std::to_string(info.output->number_of_solutions);
-        info.add_to_json(sol_str, "Value", solution_value);
-        info.add_to_json(sol_str, "Time", t);
-        info.add_to_json(sol_str, "String", s.str());
-        if (!info.output->only_write_at_the_end) {
-            info.write_json_output();
-            solution.write(info.output->certificate_path);
+        std::string sol_str = "Solution" + std::to_string(info.output().next_number_of_solutions());
+        info.output().add_to_json(sol_str, "Value", solution_value);
+        info.output().add_to_json(sol_str, "Time", t);
+        info.output().add_to_json(sol_str, "String", s.str());
+        if (!info.output().only_write_at_the_end()) {
+            info.output().write_json_output();
+            solution.write(info.output().certificate_path());
         }
     }
 
-    info.unlock();
+    info.output().unlock();
 }
 
 void Output::update_bound(
@@ -254,23 +221,22 @@ void Output::update_bound(
     if (bound >= bound_new)
         return;
 
-    info.lock();
+    info.output().lock();
 
     if (bound < bound_new) {
         bound = bound_new;
         print(info, s);
 
         double t = info.elapsed_time();
-        info.output->number_of_bounds++;
-        std::string sol_str = "Bound" + std::to_string(info.output->number_of_bounds);
-        info.add_to_json(sol_str, "Bound", bound);
-        info.add_to_json(sol_str, "Time", t);
-        info.add_to_json(sol_str, "String", s.str());
-        if (!info.output->only_write_at_the_end)
-            solution.write(info.output->certificate_path);
+        std::string sol_str = "Bound" + std::to_string(info.output().next_number_of_bounds());
+        info.output().add_to_json(sol_str, "Bound", bound);
+        info.output().add_to_json(sol_str, "Time", t);
+        info.output().add_to_json(sol_str, "String", s.str());
+        if (!info.output().only_write_at_the_end())
+            solution.write(info.output().certificate_path());
     }
 
-    info.unlock();
+    info.output().unlock();
 }
 
 Output& Output::algorithm_end(optimizationtools::Info& info)
@@ -291,11 +257,11 @@ Output& Output::algorithm_end(optimizationtools::Info& info)
             bound);
     time = info.elapsed_time();
 
-    info.add_to_json("Solution", "Value", solution_value);
-    info.add_to_json("Bound", "Value", bound);
-    info.add_to_json("Solution", "Time", time);
-    info.add_to_json("Bound", "Time", time);
-    info.os()
+    info.output().add_to_json("Solution", "Value", solution_value);
+    info.output().add_to_json("Bound", "Value", bound);
+    info.output().add_to_json("Solution", "Time", time);
+    info.output().add_to_json("Bound", "Time", time);
+    info.output()
         << std::endl
         << "Final statistics" << std::endl
         << "----------------" << std::endl
@@ -306,12 +272,51 @@ Output& Output::algorithm_end(optimizationtools::Info& info)
         << "Time (s):                      " << time << std::endl
         ;
     print_statistics(info);
-    info.os() << std::endl
+    info.output() << std::endl
         << "Solution" << std::endl
-        << "--------" << std::endl ;
-    solution.print(info.os(), info.verbosity_level());
+        << "--------" << std::endl
+        << SolutionFormatter{solution, info.output().verbosity_level()};
 
-    info.write_json_output();
-    solution.write(info.output->certificate_path);
+    info.output().write_json_output();
+    solution.write(info.output().certificate_path());
     return *this;
+}
+
+std::ostream& setcoveringsolver::setcovering::operator<<(
+        std::ostream& os,
+        SolutionFormatter solution_formatter)
+{
+    const Solution& solution = solution_formatter.solution;
+    int verbosity_level = solution_formatter.verbosity_level;
+
+    if (verbosity_level >= 1) {
+        os
+            << "Number of sets:                " << optimizationtools::Ratio<SetId>(solution.number_of_sets(), solution.instance().number_of_sets()) << std::endl
+            << "Number of uncovered elements:  " << optimizationtools::Ratio<SetId>(solution.number_of_uncovered_elements(), solution.instance().number_of_elements()) << std::endl
+            << "Feasible:                      " << solution.feasible() << std::endl
+            << "Cost:                          " << solution.cost() << std::endl
+            ;
+    }
+
+    if (verbosity_level >= 2) {
+        os << std::endl
+            << std::setw(12) << "Set"
+            << std::setw(12) << "Cost"
+            << std::endl
+            << std::setw(12) << "--------"
+            << std::setw(12) << "---"
+            << std::endl;
+        for (SetId set_id = 0;
+                set_id < solution.instance().number_of_sets();
+                ++set_id) {
+            if (solution.contains(set_id)) {
+                os
+                     << std::setw(12) << set_id
+                     << std::setw(12) << solution.instance().set(set_id).cost
+                     << std::endl;
+            }
+        }
+    }
+
+    return os;
 }

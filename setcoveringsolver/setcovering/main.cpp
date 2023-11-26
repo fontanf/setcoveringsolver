@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     std::string certificate_path = "";
     std::string log_path = "";
     int verbosity_level = 0;
-    int loglevelmax = 999;
+    int maximum_log_level = 999;
     int seed = 0;
     Cost goal = 0;
     double time_limit = std::numeric_limits<double>::infinity();
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
         ("seed,s", po::value<int>(&seed), "set seed")
         ("verbosity-level,v", po::value<int>(&verbosity_level), "set verbosity level")
         ("log,l", po::value<std::string>(&log_path), "set log file")
-        ("loglevelmax", po::value<int>(&loglevelmax), "set log max level")
+        ("maximum_log_level", po::value<int>(&maximum_log_level), "set log max level")
         ("log2stderr", "write log to stderr")
         ;
     po::variables_map vm;
@@ -64,17 +64,16 @@ int main(int argc, char *argv[])
 
     Instance instance = instance_builder.build();
 
-    optimizationtools::Info info = optimizationtools::Info()
-        .set_verbosity_level(verbosity_level)
-        .set_time_limit(time_limit)
-        .set_certificate_path(certificate_path)
-        .set_json_output_path(output_path)
-        .set_only_write_at_the_end(false)
-        .set_log_path(log_path)
-        .set_log2stderr(vm.count("log2stderr"))
-        .set_maximum_log_level(loglevelmax)
-        .set_sigint_handler()
-        ;
+    optimizationtools::Info info = optimizationtools::Info();
+    info.set_time_limit(time_limit);
+    info.set_sigint_handler();
+    info.output().set_verbosity_level(verbosity_level);
+    info.output().set_certificate_path(certificate_path);
+    info.output().set_json_output_path(output_path);
+    info.output().set_only_write_at_the_end(false);
+    info.logger().set_log_path(log_path);
+    info.logger().set_log_to_stderr(vm.count("log2stderr"));
+    info.logger().set_maximum_log_level(maximum_log_level);
 
     std::mt19937_64 generator(seed);
     Solution solution(instance, initial_solution_path);

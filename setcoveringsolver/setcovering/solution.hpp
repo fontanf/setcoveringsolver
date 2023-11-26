@@ -88,11 +88,6 @@ public:
      * Export
      */
 
-    /** Print the instance. */
-    std::ostream& print(
-            std::ostream& os,
-            int verbose = 1) const;
-
     /** Write the solution to a file. */
     void write(std::string certificate_path);
 
@@ -214,6 +209,16 @@ struct Output
     /** Method to call at the end of the algorithm. */
     Output& algorithm_end(optimizationtools::Info& info);
 };
+
+struct SolutionFormatter
+{
+    const Solution& solution;
+    int verbosity_level = 1;
+};
+
+std::ostream& operator<<(
+        std::ostream& os,
+        SolutionFormatter solution_formatter);
 
 }
 }

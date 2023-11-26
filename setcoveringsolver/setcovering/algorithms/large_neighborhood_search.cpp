@@ -10,12 +10,12 @@ using namespace setcoveringsolver::setcovering;
 void LargeNeighborhoodSearchOutput::print_statistics(
         optimizationtools::Info& info) const
 {
-    if (info.verbosity_level() >= 1) {
-        info.os()
+    if (info.output().verbosity_level() >= 1) {
+        info.output()
             << "Number of iterations:          " << number_of_iterations << std::endl
             ;
     }
-    info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
+    info.output().add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
 }
 
 struct LargeNeighborhoodSearchSet
@@ -32,7 +32,7 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighb
         LargeNeighborhoodSearchOptionalParameters parameters)
 {
     init_display(original_instance, parameters.info);
-    parameters.info.os()
+    parameters.info.output()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Large neighborhood search" << std::endl
@@ -50,11 +50,11 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighb
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.os()
+        parameters.info.output()
             << "Reduced instance" << std::endl
-            << "----------------" << std::endl;
-        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
-        parameters.info.os() << std::endl;
+            << "----------------" << std::endl
+            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()}
+            << std::endl;
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 

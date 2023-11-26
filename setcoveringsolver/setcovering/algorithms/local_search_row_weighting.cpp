@@ -13,8 +13,8 @@ using namespace setcoveringsolver::setcovering;
 void LocalSearchRowWeighting2Output::print_statistics(
         optimizationtools::Info& info) const
 {
-    if (info.verbosity_level() >= 1) {
-        info.os()
+    if (info.output().verbosity_level() >= 1) {
+        info.output()
             << "Number of iterations:          " << number_of_iterations << std::endl
             << "Neighborhood 1 improvements:   " << neighborhood_1_improvements << std::endl
             << "Neighborhood 2 improvements:   " << neighborhood_2_improvements << std::endl
@@ -23,7 +23,7 @@ void LocalSearchRowWeighting2Output::print_statistics(
             << "Number of weights reductions:  " << neighborhood_2_time << std::endl
             ;
     }
-    info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
+    info.output().add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
 }
 
 struct LocalSearchRowWeightingComponent
@@ -70,7 +70,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
         LocalSearchRowWeighting2OptionalParameters parameters)
 {
     init_display(original_instance, parameters.info);
-    parameters.info.os()
+    parameters.info.output()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Row weighting local search 2" << std::endl
@@ -91,11 +91,10 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.os()
+        parameters.info.output()
             << "Reduced instance" << std::endl
-            << "----------------" << std::endl;
-        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
-        parameters.info.os() << std::endl;
+            << "----------------" << std::endl
+            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()};
     }
     Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 
@@ -588,12 +587,12 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
 void LocalSearchRowWeighting1Output::print_statistics(
         optimizationtools::Info& info) const
 {
-    if (info.verbosity_level() >= 1) {
-        info.os()
+    if (info.output().verbosity_level() >= 1) {
+        info.output()
             << "Number of iterations:          " << number_of_iterations << std::endl
             ;
     }
-    info.add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
+    info.output().add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
 }
 
 struct LocalSearchRowWeighting1Set
@@ -611,7 +610,7 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
         LocalSearchRowWeighting1OptionalParameters parameters)
 {
     init_display(original_instance, parameters.info);
-    parameters.info.os()
+    parameters.info.output()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Row weighting local search 1" << std::endl
@@ -629,11 +628,10 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.os()
+        parameters.info.output()
             << "Reduced instance" << std::endl
-            << "----------------" << std::endl;
-        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
-        parameters.info.os() << std::endl;
+            << "----------------" << std::endl
+            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()};
     }
     Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 

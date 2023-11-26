@@ -98,68 +98,6 @@ void Instance::compute_element_set_neighbors()
     }
 }
 
-std::ostream& Instance::print(
-        std::ostream& os,
-        int verbose) const
-{
-    if (verbose >= 1) {
-        os
-            << "Number of elements:                           " << number_of_elements() << std::endl
-            << "Number of sets:                               " << number_of_sets() << std::endl
-            << "Number of arcs:                               " << number_of_arcs() << std::endl
-            << "Average number of sets covering an element:   " << (double)number_of_arcs() / number_of_elements() << std::endl
-            << "Average number of elements covered by a set:  " << (double)number_of_arcs() / number_of_sets() << std::endl
-            << "Total cost:                                   " << total_cost() << std::endl
-            << "Number of connected components:               " << number_of_components() << std::endl
-            ;
-    }
-
-    if (verbose >= 2) {
-        os << std::endl
-            << std::setw(12) << "SetId"
-            << std::setw(12) << "Cost"
-            << std::setw(12) << "# elem."
-            << std::endl
-            << std::setw(12) << "-----"
-            << std::setw(12) << "----"
-            << std::setw(12) << "-------"
-            << std::endl;
-        for (SetId set_id = 0;
-                set_id < number_of_sets();
-                ++set_id) {
-            const Set& set = this->set(set_id);
-            os
-                << std::setw(12) << set_id
-                << std::setw(12) << set.cost
-                << std::setw(12) << set.elements.size()
-                << std::endl;
-        }
-    }
-
-    if (verbose >= 3) {
-        os << std::endl
-            << std::setw(12) << "Set"
-            << std::setw(12) << "Element"
-            << std::endl
-            << std::setw(12) << "---"
-            << std::setw(12) << "-------"
-            << std::endl;
-        for (SetId set_id = 0;
-                set_id < number_of_sets();
-                ++set_id) {
-            const Set& set = this->set(set_id);
-            for (ElementId element_id: set.elements) {
-                os
-                    << std::setw(12) << set_id
-                    << std::setw(12) << element_id
-                    << std::endl;
-            }
-        }
-    }
-
-    return os;
-}
-
 void Instance::write(std::string instance_path, std::string format)
 {
     std::ofstream file(instance_path);
@@ -624,18 +562,87 @@ Instance Instance::reduce(ReductionParameters parameters) const
     return new_instance_builder;
 }
 
+std::ostream& setcoveringsolver::setcovering::operator<<(
+        std::ostream& os,
+        InstanceFormatter instance_formatter)
+{
+    const Instance& instance = instance_formatter.instance;
+    int verbosity_level = instance_formatter.verbosity_level;
+
+    if (verbosity_level >= 1) {
+        os
+            << "Number of elements:                           " << instance.number_of_elements() << std::endl
+            << "Number of sets:                               " << instance.number_of_sets() << std::endl
+            << "Number of arcs:                               " << instance.number_of_arcs() << std::endl
+            << "Average number of sets covering an element:   " << (double)instance.number_of_arcs() / instance.number_of_elements() << std::endl
+            << "Average number of elements covered by a set:  " << (double)instance.number_of_arcs() / instance.number_of_sets() << std::endl
+            << "Total cost:                                   " << instance.total_cost() << std::endl
+            << "Number of connected components:               " << instance.number_of_components() << std::endl
+            ;
+    }
+
+    if (verbosity_level >= 2) {
+        os << std::endl
+            << std::setw(12) << "SetId"
+            << std::setw(12) << "Cost"
+            << std::setw(12) << "# elem."
+            << std::endl
+            << std::setw(12) << "-----"
+            << std::setw(12) << "----"
+            << std::setw(12) << "-------"
+            << std::endl;
+        for (SetId set_id = 0;
+                set_id < instance.number_of_sets();
+                ++set_id) {
+            const Set& set = instance.set(set_id);
+            os
+                << std::setw(12) << set_id
+                << std::setw(12) << set.cost
+                << std::setw(12) << set.elements.size()
+                << std::endl;
+        }
+    }
+
+    if (verbosity_level >= 3) {
+        os << std::endl
+            << std::setw(12) << "Set"
+            << std::setw(12) << "Element"
+            << std::endl
+            << std::setw(12) << "---"
+            << std::setw(12) << "-------"
+            << std::endl;
+        for (SetId set_id = 0;
+                set_id < instance.number_of_sets();
+                ++set_id) {
+            const Set& set = instance.set(set_id);
+            for (ElementId element_id: set.elements) {
+                os
+                    << std::setw(12) << set_id
+                    << std::setw(12) << element_id
+                    << std::endl;
+            }
+        }
+    }
+
+    return os;
+}
+
 void setcoveringsolver::setcovering::init_display(
         const Instance& instance,
         optimizationtools::Info& info)
 {
-    info.os()
+    info.output()
         << "=====================================" << std::endl
         << "          SetCoveringSolver          " << std::endl
         << "=====================================" << std::endl
         << std::endl
+        << "Problem" << std::endl
+        << "-------" << std::endl
+        << "Set covering problem" << std::endl
+        << std::endl
         << "Instance" << std::endl
-        << "--------" << std::endl;
-    instance.print(info.os(), info.verbosity_level());
-    info.os() << std::endl;
+        << "--------" << std::endl
+        << InstanceFormatter{instance, info.output().verbosity_level()}
+        << std::endl;
 }
 

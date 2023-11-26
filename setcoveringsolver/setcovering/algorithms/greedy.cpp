@@ -11,7 +11,7 @@ const Output setcoveringsolver::setcovering::greedy(
         GreedyOptionalParameters parameters)
 {
     init_display(original_instance, parameters.info);
-    parameters.info.os()
+    parameters.info.output()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Greedy" << std::endl
@@ -24,11 +24,11 @@ const Output setcoveringsolver::setcovering::greedy(
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.os()
+        parameters.info.output()
             << "Reduced instance" << std::endl
-            << "----------------" << std::endl;
-        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
-        parameters.info.os() << std::endl;
+            << "----------------" << std::endl
+            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()}
+            << std::endl;
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 
@@ -85,7 +85,7 @@ const Output setcoveringsolver::setcovering::greedy_lin(
         GreedyOptionalParameters parameters)
 {
     init_display(original_instance, parameters.info);
-    parameters.info.os()
+    parameters.info.output()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Greedy Lin" << std::endl
@@ -98,11 +98,11 @@ const Output setcoveringsolver::setcovering::greedy_lin(
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.os()
+        parameters.info.output()
             << "Reduced instance" << std::endl
-            << "----------------" << std::endl;
-        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
-        parameters.info.os() << std::endl;
+            << "----------------" << std::endl
+            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()}
+            << std::endl;
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 
@@ -157,7 +157,7 @@ const Output setcoveringsolver::setcovering::greedy_dual(
         GreedyOptionalParameters parameters)
 {
     init_display(original_instance, parameters.info);
-    parameters.info.os()
+    parameters.info.output()
             << "Algorithm" << std::endl
             << "---------" << std::endl
             << "Dual Greedy" << std::endl
@@ -170,11 +170,11 @@ const Output setcoveringsolver::setcovering::greedy_dual(
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.os()
+        parameters.info.output()
             << "Reduced instance" << std::endl
-            << "----------------" << std::endl;
-        reduced_instance->print(parameters.info.os(), parameters.info.verbosity_level());
-        parameters.info.os() << std::endl;
+            << "----------------" << std::endl
+            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()}
+            << std::endl;
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
 

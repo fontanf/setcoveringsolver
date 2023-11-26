@@ -12,7 +12,7 @@ def Settings( **kwargs ):
                 'googletest/googletest/include/',
 
                 '-I', './bazel-setcoveringsolver/external/'
-                'boost/',
+                'boost/boost/',
 
                 # optimizationtools
                 '-I', './bazel-setcoveringsolver/external/'
