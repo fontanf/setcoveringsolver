@@ -1,6 +1,6 @@
 #pragma once
 
-#include "optimizationtools/utils/info.hpp"
+#include "optimizationtools/utils/output.hpp"
 
 namespace setcoveringsolver
 {
@@ -146,13 +146,13 @@ public:
     inline ElementId number_of_elements(ComponentId component_id) const { return components_[component_id].elements.size(); }
 
     /** Get set neighbors. */
-    const std::vector<std::vector<SetId>>& set_neighbors();
+    const std::vector<std::vector<SetId>>& set_neighbors() const;
 
     /** Get element neighbors. */
-    const std::vector<std::vector<ElementId>>& element_neighbors();
+    const std::vector<std::vector<ElementId>>& element_neighbors() const;
 
     /** Get element set neighbors. */
-    const std::vector<std::vector<ElementId>>& element_set_neighbors();
+    const std::vector<std::vector<ElementId>>& element_set_neighbors() const;
 
     /*
      * Reduction information
@@ -172,7 +172,14 @@ public:
      */
 
     /** Write the instance to a file. */
-    void write(std::string instance_path, std::string format);
+    void write(
+            std::string instance_path,
+            std::string format);
+
+    /** Write a formatted output of the object to a stream. */
+    void format(
+            std::ostream& os,
+            int verbosity_level) const;
 
     /*
      * Checkers
@@ -220,13 +227,13 @@ private:
     std::vector<Component> components_;
 
     /** Set neighbors. */
-    std::vector<std::vector<SetId>> set_neighbors_;
+    mutable std::vector<std::vector<SetId>> set_neighbors_;
 
     /** Element neighbors. */
-    std::vector<std::vector<ElementId>> element_neighbors_;
+    mutable std::vector<std::vector<ElementId>> element_neighbors_;
 
     /** Element set neighbors. */
-    std::vector<std::vector<ElementId>> element_set_neighbors_;
+    mutable std::vector<std::vector<ElementId>> element_set_neighbors_;
 
     /** Reduction structure. */
     UnreductionInfo unreduction_info_;
@@ -240,17 +247,17 @@ private:
 
     /** Compute the neighbors of the sets. */
     void compute_set_neighbors(
-            Counter number_of_threads);
+            Counter number_of_threads) const;
 
     void compute_set_neighbors_worker(
             SetId set_id_start,
-            SetId set_id_end);
+            SetId set_id_end) const;
 
     /** Compute the neighbors of the elements. */
-    void compute_element_neighbors();
+    void compute_element_neighbors() const;
 
     /** Compute the set neighbors of the elements. */
-    void compute_element_set_neighbors();
+    void compute_element_set_neighbors() const;
 
     /*
      * Write to a file
@@ -282,20 +289,5 @@ private:
 
 };
 
-struct InstanceFormatter
-{
-    const Instance& instance;
-    int verbosity_level = 1;
-};
-
-std::ostream& operator<<(
-        std::ostream& os,
-        InstanceFormatter instance_formatter);
-
-void init_display(
-        const Instance& instance,
-        optimizationtools::Info& info);
-
 }
 }
-

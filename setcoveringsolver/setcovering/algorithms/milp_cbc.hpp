@@ -12,34 +12,15 @@ namespace setcoveringsolver
 namespace setcovering
 {
 
-struct CoinLP
-{
-    CoinLP(const Instance& instance);
-
-    std::vector<double> column_lower_bounds;
-    std::vector<double> column_upper_bounds;
-    std::vector<double> objective;
-
-    std::vector<double> row_lower_bounds;
-    std::vector<double> row_upper_bounds;
-    CoinPackedMatrix matrix;
-};
-
-struct MilpCbcOptionalParameters
+struct MilpCbcParameters: Parameters
 {
     /** Initial solution. */
     const Solution* initial_solution = NULL;
-
-    /** Reduction parameters. */
-    ReductionParameters reduction_parameters;
-
-    /** Info structure. */
-    optimizationtools::Info info = optimizationtools::Info();
 };
 
 const Output milp_cbc(
         const Instance& instance,
-        MilpCbcOptionalParameters parameters = {});
+        const MilpCbcParameters& parameters = {});
 
 }
 }

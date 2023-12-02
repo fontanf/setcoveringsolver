@@ -12,21 +12,21 @@
 
 using namespace setcoveringsolver::setcovering;
 
-const std::vector<std::vector<SetId>>& Instance::set_neighbors()
+const std::vector<std::vector<SetId>>& Instance::set_neighbors() const
 {
     if (set_neighbors_.empty())
         compute_set_neighbors(4);
     return set_neighbors_;
 }
 
-const std::vector<std::vector<ElementId>>& Instance::element_neighbors()
+const std::vector<std::vector<ElementId>>& Instance::element_neighbors() const
 {
     if (element_neighbors_.empty())
         compute_element_neighbors();
     return element_neighbors_;
 }
 
-const std::vector<std::vector<ElementId>>& Instance::element_set_neighbors()
+const std::vector<std::vector<ElementId>>& Instance::element_set_neighbors() const
 {
     if (element_set_neighbors_.empty())
         compute_element_set_neighbors();
@@ -34,7 +34,7 @@ const std::vector<std::vector<ElementId>>& Instance::element_set_neighbors()
 }
 
 void Instance::compute_set_neighbors(
-        Counter number_of_threads)
+        Counter number_of_threads) const
 {
     set_neighbors_ = std::vector<std::vector<SetId>>(number_of_sets());
     std::vector<std::thread> threads;
@@ -49,7 +49,7 @@ void Instance::compute_set_neighbors(
 
 void Instance::compute_set_neighbors_worker(
         SetId s_start,
-        SetId s_end)
+        SetId s_end) const
 {
     optimizationtools::IndexedSet neighbors(number_of_sets());
     for (SetId set_id_1 = s_start; set_id_1 < s_end; ++set_id_1) {
@@ -64,7 +64,7 @@ void Instance::compute_set_neighbors_worker(
     }
 }
 
-void Instance::compute_element_neighbors()
+void Instance::compute_element_neighbors() const
 {
     element_neighbors_ = std::vector<std::vector<ElementId>>(number_of_elements());
     optimizationtools::IndexedSet neighbors(number_of_elements());
@@ -79,7 +79,7 @@ void Instance::compute_element_neighbors()
     }
 }
 
-void Instance::compute_element_set_neighbors()
+void Instance::compute_element_set_neighbors() const
 {
     element_set_neighbors_ = std::vector<std::vector<SetId>>(number_of_elements());
     const auto& set_neighbors = this->set_neighbors();
@@ -562,22 +562,19 @@ Instance Instance::reduce(ReductionParameters parameters) const
     return new_instance_builder;
 }
 
-std::ostream& setcoveringsolver::setcovering::operator<<(
+void Instance::format(
         std::ostream& os,
-        InstanceFormatter instance_formatter)
+        int verbosity_level) const
 {
-    const Instance& instance = instance_formatter.instance;
-    int verbosity_level = instance_formatter.verbosity_level;
-
     if (verbosity_level >= 1) {
         os
-            << "Number of elements:                           " << instance.number_of_elements() << std::endl
-            << "Number of sets:                               " << instance.number_of_sets() << std::endl
-            << "Number of arcs:                               " << instance.number_of_arcs() << std::endl
-            << "Average number of sets covering an element:   " << (double)instance.number_of_arcs() / instance.number_of_elements() << std::endl
-            << "Average number of elements covered by a set:  " << (double)instance.number_of_arcs() / instance.number_of_sets() << std::endl
-            << "Total cost:                                   " << instance.total_cost() << std::endl
-            << "Number of connected components:               " << instance.number_of_components() << std::endl
+            << "Number of elements:                           " << number_of_elements() << std::endl
+            << "Number of sets:                               " << number_of_sets() << std::endl
+            << "Number of arcs:                               " << number_of_arcs() << std::endl
+            << "Average number of sets covering an element:   " << (double)number_of_arcs() / number_of_elements() << std::endl
+            << "Average number of elements covered by a set:  " << (double)number_of_arcs() / number_of_sets() << std::endl
+            << "Total cost:                                   " << total_cost() << std::endl
+            << "Number of connected components:               " << number_of_components() << std::endl
             ;
     }
 
@@ -592,9 +589,9 @@ std::ostream& setcoveringsolver::setcovering::operator<<(
             << std::setw(12) << "-------"
             << std::endl;
         for (SetId set_id = 0;
-                set_id < instance.number_of_sets();
+                set_id < number_of_sets();
                 ++set_id) {
-            const Set& set = instance.set(set_id);
+            const Set& set = this->set(set_id);
             os
                 << std::setw(12) << set_id
                 << std::setw(12) << set.cost
@@ -612,9 +609,9 @@ std::ostream& setcoveringsolver::setcovering::operator<<(
             << std::setw(12) << "-------"
             << std::endl;
         for (SetId set_id = 0;
-                set_id < instance.number_of_sets();
+                set_id < number_of_sets();
                 ++set_id) {
-            const Set& set = instance.set(set_id);
+            const Set& set = this->set(set_id);
             for (ElementId element_id: set.elements) {
                 os
                     << std::setw(12) << set_id
@@ -623,26 +620,5 @@ std::ostream& setcoveringsolver::setcovering::operator<<(
             }
         }
     }
-
-    return os;
-}
-
-void setcoveringsolver::setcovering::init_display(
-        const Instance& instance,
-        optimizationtools::Info& info)
-{
-    info.output()
-        << "=====================================" << std::endl
-        << "          SetCoveringSolver          " << std::endl
-        << "=====================================" << std::endl
-        << std::endl
-        << "Problem" << std::endl
-        << "-------" << std::endl
-        << "Set covering problem" << std::endl
-        << std::endl
-        << "Instance" << std::endl
-        << "--------" << std::endl
-        << InstanceFormatter{instance, info.output().verbosity_level()}
-        << std::endl;
 }
 

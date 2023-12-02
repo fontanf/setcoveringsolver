@@ -7,7 +7,7 @@ namespace setcoveringsolver
 namespace setcovering
 {
 
-struct LargeNeighborhoodSearchOptionalParameters
+struct LargeNeighborhoodSearchParameters: Parameters
 {
     /** Maximum number of iterations. */
     Counter maximum_number_of_iterations = -1;
@@ -18,30 +18,35 @@ struct LargeNeighborhoodSearchOptionalParameters
     /** Goal. */
     Cost goal;
 
-    /** Reduction parameters. */
-    ReductionParameters reduction_parameters;
 
-    /** Info structure. */
-    optimizationtools::Info info = optimizationtools::Info();
+    virtual nlohmann::json to_json() const override;
+
+    virtual int format_width() const override { return 37; }
+
+    virtual void format(std::ostream& os) const override;
 };
 
 struct LargeNeighborhoodSearchOutput: Output
 {
     LargeNeighborhoodSearchOutput(
-            const Instance& instance,
-            optimizationtools::Info& info):
-        Output(instance, info) { }
+            const Instance& instance):
+        Output(instance) { }
 
-    void print_statistics(
-            optimizationtools::Info& info) const override;
 
     /** Number of iterations. */
     Counter number_of_iterations = 0;
+
+
+    virtual nlohmann::json to_json() const override;
+
+    virtual int format_width() const override { return 30; }
+
+    virtual void format(std::ostream& os) const override;
 };
 
 const LargeNeighborhoodSearchOutput large_neighborhood_search(
-        Instance& instance,
-        LargeNeighborhoodSearchOptionalParameters parameters = {});
+        const Instance& instance,
+        const LargeNeighborhoodSearchParameters& parameters = {});
 
 }
 }

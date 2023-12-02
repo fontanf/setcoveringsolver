@@ -1,21 +1,51 @@
 #include "setcoveringsolver/setcovering/algorithms/large_neighborhood_search.hpp"
 
+#include "setcoveringsolver/setcovering/algorithm_formatter.hpp"
 #include "setcoveringsolver/setcovering/algorithms/greedy.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_binary_heap.hpp"
 
+#include <iomanip>
+
 using namespace setcoveringsolver::setcovering;
 
-void LargeNeighborhoodSearchOutput::print_statistics(
-        optimizationtools::Info& info) const
+nlohmann::json LargeNeighborhoodSearchParameters::to_json() const
 {
-    if (info.output().verbosity_level() >= 1) {
-        info.output()
-            << "Number of iterations:          " << number_of_iterations << std::endl
-            ;
-    }
-    info.output().add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
+    nlohmann::json json = Parameters::to_json();
+    json.merge_patch({
+            {"MaximumNumberOfIterations", maximum_number_of_iterations},
+            {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
+    return json;
+}
+
+void LargeNeighborhoodSearchParameters::format(
+        std::ostream& os) const
+{
+    Parameters::format(os);
+    int width = format_width();
+    os
+        << std::setw(width) << std::left << "Max. # of iterations: " << maximum_number_of_iterations << std::endl
+        << std::setw(width) << std::left << "Max. # of iterations without impr.:  " << maximum_number_of_iterations_without_improvement << std::endl
+        ;
+}
+
+nlohmann::json LargeNeighborhoodSearchOutput::to_json() const
+{
+    nlohmann::json json = Output::to_json();
+    json.merge_patch({
+            {"NumberOfIterations", number_of_iterations}});
+    return json;
+}
+
+void LargeNeighborhoodSearchOutput::format(
+        std::ostream& os) const
+{
+    Output::format(os);
+    int width = format_width();
+    os
+        << std::setw(width) << std::left << "Number of iterations: " << number_of_iterations << std::endl
+        ;
 }
 
 struct LargeNeighborhoodSearchSet
@@ -28,20 +58,12 @@ struct LargeNeighborhoodSearchSet
 };
 
 const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighborhood_search(
-        Instance& original_instance,
-        LargeNeighborhoodSearchOptionalParameters parameters)
+        const Instance& original_instance,
+        const LargeNeighborhoodSearchParameters& parameters)
 {
-    init_display(original_instance, parameters.info);
-    parameters.info.output()
-            << "Algorithm" << std::endl
-            << "---------" << std::endl
-            << "Large neighborhood search" << std::endl
-            << std::endl
-            << "Parameters" << std::endl
-            << "----------" << std::endl
-            << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
-            << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
-            << std::endl;
+    AlgorithmFormatter algorithm_formatter(parameters);
+    LargeNeighborhoodSearchOutput output(original_instance);
+    algorithm_formatter.start(output, "Large neighborhood search");
 
     // Reduction.
     std::unique_ptr<Instance> reduced_instance = nullptr;
@@ -50,22 +72,19 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighb
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.output()
-            << "Reduced instance" << std::endl
-            << "----------------" << std::endl
-            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()}
-            << std::endl;
+        algorithm_formatter.print_reduced_instance(*reduced_instance);
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+    algorithm_formatter.print_header(output);
 
-    LargeNeighborhoodSearchOutput output(original_instance, parameters.info);
-
-    GreedyOptionalParameters greedy_parameters;
+    Parameters greedy_parameters;
+    greedy_parameters.timer = parameters.timer;
     greedy_parameters.reduction_parameters.reduce = false;
+    greedy_parameters.verbosity_level = 0;
     Solution solution = greedy(instance, greedy_parameters).solution;
     std::stringstream ss;
     ss << "initial solution";
-    output.update_solution(solution, ss, parameters.info);
+    algorithm_formatter.update_solution(output, solution, ss);
 
     // Initialize local search structures.
     std::vector<LargeNeighborhoodSearchSet> sets(instance.number_of_sets());
@@ -83,7 +102,7 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighb
     optimizationtools::IndexedSet sets_out_to_update(instance.number_of_sets());
     Counter iterations_without_improvment = 0;
     for (output.number_of_iterations = 0;
-            !parameters.info.needs_to_end();
+            !parameters.timer.needs_to_end();
             ++output.number_of_iterations,
             ++iterations_without_improvment) {
         // Check stop criteria.
@@ -218,12 +237,12 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighb
         if (output.solution.cost() > solution.cost()){
             std::stringstream ss;
             ss << "iteration " << output.number_of_iterations;
-            output.update_solution(solution, ss, parameters.info);
+            algorithm_formatter.update_solution(output, solution, ss);
             iterations_without_improvment = 0;
         }
     }
 
-    output.algorithm_end(parameters.info);
+    algorithm_formatter.end(output);
     return output;
 }
 

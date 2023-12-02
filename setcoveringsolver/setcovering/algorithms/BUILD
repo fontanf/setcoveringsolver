@@ -7,7 +7,7 @@ cc_library(
         name = "greedy",
         hdrs = ["greedy.hpp"],
         srcs = ["greedy.cpp"],
-        deps = ["//setcoveringsolver/setcovering:setcoveringsolver"],
+        deps = ["//setcoveringsolver/setcovering:data"],
         visibility = ["//visibility:public"],
 )
 
@@ -16,7 +16,7 @@ cc_library(
         hdrs = ["milp_cbc.hpp"],
         srcs = ["milp_cbc.cpp"],
         deps = [
-                "//setcoveringsolver/setcovering:setcoveringsolver",
+                "//setcoveringsolver/setcovering:data",
         ] + CBC_DEP,
         copts = CBC_COPTS,
         visibility = ["//visibility:public"],
@@ -27,7 +27,7 @@ cc_library(
         hdrs = ["milp_gurobi.hpp"],
         srcs = ["milp_gurobi.cpp"],
         deps = [
-                "//setcoveringsolver/setcovering:setcoveringsolver",
+                "//setcoveringsolver/setcovering:data",
         ] + GUROBI_DEP,
         copts = GUROBI_COPTS,
         visibility = ["//visibility:public"],
@@ -39,8 +39,7 @@ cc_library(
         srcs = ["local_search_row_weighting.cpp"],
         deps = [
                 ":greedy",
-                "//setcoveringsolver/setcovering:setcoveringsolver",
-                "@optimizationtools//optimizationtools/utils:utils",
+                "//setcoveringsolver/setcovering:data",
         ],
         visibility = ["//visibility:public"],
 )
@@ -51,24 +50,7 @@ cc_library(
         srcs = ["large_neighborhood_search.cpp"],
         deps = [
                 ":greedy",
-                "//setcoveringsolver/setcovering:setcoveringsolver",
+                "//setcoveringsolver/setcovering:data",
         ],
         visibility = ["//visibility:public"],
 )
-
-cc_library(
-        name = "algorithms",
-        hdrs = ["algorithms.hpp"],
-        srcs = ["algorithms.cpp"],
-        deps = [
-                ":greedy",
-                ":milp_cbc",
-                ":milp_gurobi",
-                ":local_search_row_weighting",
-                ":large_neighborhood_search",
-                "@boost//:program_options",
-        ] + CBC_DEP + GUROBI_DEP,
-        copts = CBC_COPTS + GUROBI_COPTS,
-        visibility = ["//visibility:public"],
-)
-

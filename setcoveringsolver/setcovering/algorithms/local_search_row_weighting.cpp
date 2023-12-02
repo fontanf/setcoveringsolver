@@ -1,5 +1,6 @@
 #include "setcoveringsolver/setcovering/algorithms/local_search_row_weighting.hpp"
 
+#include "setcoveringsolver/setcovering/algorithm_formatter.hpp"
 #include "setcoveringsolver/setcovering/algorithms/greedy.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
@@ -7,23 +8,50 @@
 #include "optimizationtools/utils/utils.hpp"
 
 #include <thread>
+#include <iomanip>
 
 using namespace setcoveringsolver::setcovering;
 
-void LocalSearchRowWeighting2Output::print_statistics(
-        optimizationtools::Info& info) const
+void LocalSearchRowWeighting2Parameters::format(
+        std::ostream& os) const
 {
-    if (info.output().verbosity_level() >= 1) {
-        info.output()
-            << "Number of iterations:          " << number_of_iterations << std::endl
-            << "Neighborhood 1 improvements:   " << neighborhood_1_improvements << std::endl
-            << "Neighborhood 2 improvements:   " << neighborhood_2_improvements << std::endl
-            << "Neighborhood 1 time:           " << neighborhood_1_time << std::endl
-            << "Neighborhood 2 time:           " << neighborhood_2_time << std::endl
-            << "Number of weights reductions:  " << neighborhood_2_time << std::endl
-            ;
-    }
-    info.output().add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
+    Parameters::format(os);
+    int width = format_width();
+    os
+        << std::setw(width) << std::left << "Max. # of iterations: " << maximum_number_of_iterations << std::endl
+        << std::setw(width) << std::left << "Max. # of iterations without impr.:  " << maximum_number_of_iterations_without_improvement << std::endl
+        ;
+}
+
+nlohmann::json LocalSearchRowWeighting2Parameters::to_json() const
+{
+    nlohmann::json json = Parameters::to_json();
+    json.merge_patch({
+            {"MaximumNumberOfIterations", maximum_number_of_iterations},
+            {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
+    return json;
+}
+
+void LocalSearchRowWeighting2Output::format(std::ostream& os) const
+{
+    Output::format(os);
+    int width = format_width();
+    os
+        << std::setw(width) << std::left << "Number of iterations: " << number_of_iterations << std::endl
+        << std::setw(width) << std::left << "Neighborhood 1 improvements: " << neighborhood_1_improvements << std::endl
+        << std::setw(width) << std::left << "Neighborhood 2 improvements: " << neighborhood_2_improvements << std::endl
+        << std::setw(width) << std::left << "Neighborhood 1 time: " << neighborhood_1_time << std::endl
+        << std::setw(width) << std::left << "Neighborhood 2 time: " << neighborhood_2_time << std::endl
+        << std::setw(width) << std::left << "Number of weights reductions: " << neighborhood_2_time << std::endl
+        ;
+}
+
+nlohmann::json LocalSearchRowWeighting2Output::to_json() const
+{
+    nlohmann::json json = Output::to_json();
+    json.merge_patch({
+            {"NumberOfIterations", number_of_iterations}});
+    return json;
 }
 
 struct LocalSearchRowWeightingComponent
@@ -65,24 +93,13 @@ struct LocalSearchRowWeightingSet
 };
 
 const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_search_row_weighting_2(
-        Instance& original_instance,
+        const Instance& original_instance,
         std::mt19937_64& generator,
-        LocalSearchRowWeighting2OptionalParameters parameters)
+        const LocalSearchRowWeighting2Parameters& parameters)
 {
-    init_display(original_instance, parameters.info);
-    parameters.info.output()
-            << "Algorithm" << std::endl
-            << "---------" << std::endl
-            << "Row weighting local search 2" << std::endl
-            << std::endl
-            << "Parameters" << std::endl
-            << "----------" << std::endl
-            << "Neighborhood 1:                                    " << parameters.neighborhood_1 << std::endl
-            << "Neighborhood 2:                                    " << parameters.neighborhood_2 << std::endl
-            << "Weights update strategy:                           " << parameters.weights_update_strategy << std::endl
-            << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
-            << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
-            << std::endl;
+    AlgorithmFormatter algorithm_formatter(parameters);
+    LocalSearchRowWeighting2Output output(original_instance);
+    algorithm_formatter.start(output, "Row weighting local search 2");
 
     // Reduction.
     std::unique_ptr<Instance> reduced_instance = nullptr;
@@ -91,12 +108,10 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.output()
-            << "Reduced instance" << std::endl
-            << "----------------" << std::endl
-            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()};
+        algorithm_formatter.print_reduced_instance(*reduced_instance);
     }
-    Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+    algorithm_formatter.print_header(output);
 
     // Instance pre-processing.
     const auto& set_neighbors = instance.set_neighbors();
@@ -104,16 +119,15 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
     if (parameters.neighborhood_1 == 1 || parameters.neighborhood_2 == 1)
         element_set_neighbors = &instance.element_set_neighbors();
 
-    LocalSearchRowWeighting2Output output(original_instance, parameters.info);
-
     // Compute initial greedy solution.
-    GreedyOptionalParameters greedy_parameters;
+    Parameters greedy_parameters;
+    greedy_parameters.verbosity_level = 0;
     greedy_parameters.reduction_parameters.reduce = false;
     Solution solution = greedy(instance, greedy_parameters).solution;
     //Solution solution = greedy_lin(instance).solution;
     std::stringstream ss;
     ss << "initial solution";
-    output.update_solution(solution, ss, parameters.info);
+    algorithm_formatter.update_solution(output, solution, ss);
 
     Solution solution_best(solution);
 
@@ -149,7 +163,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
     ComponentId component_id = 0;
     Counter number_of_iterations_without_improvement = 0;
     for (output.number_of_iterations = 0;
-            !parameters.info.needs_to_end();
+            !parameters.timer.needs_to_end();
             ++output.number_of_iterations,
             ++number_of_iterations_without_improvement) {
         // Check stop criteria.
@@ -195,7 +209,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
                 }
                 std::stringstream ss;
                 ss << "it " << output.number_of_iterations << " comp " << component_id;
-                output.update_solution(solution, ss, parameters.info);
+                algorithm_formatter.update_solution(output, solution, ss);
             }
             // Update statistics
             number_of_iterations_without_improvement = 0;
@@ -244,7 +258,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
                 }
                 // If all components are optimal, stop here.
                 if (all_component_optimal) {
-                    output.algorithm_end(parameters.info);
+                    algorithm_formatter.end(output);
                     return output;
                 }
                 break;
@@ -576,7 +590,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
         component.iterations_without_improvment++;
     }
 
-    output.algorithm_end(parameters.info);
+    algorithm_formatter.end(output);
     return output;
 }
 
@@ -584,15 +598,40 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void LocalSearchRowWeighting1Output::print_statistics(
-        optimizationtools::Info& info) const
+void LocalSearchRowWeighting1Parameters::format(std::ostream& os) const
 {
-    if (info.output().verbosity_level() >= 1) {
-        info.output()
-            << "Number of iterations:          " << number_of_iterations << std::endl
-            ;
-    }
-    info.output().add_to_json("Algorithm", "NumberOfIterations", number_of_iterations);
+    Parameters::format(os);
+    int width = format_width();
+    os
+        << std::setw(width) << std::left << "Max. # of iterations: " << maximum_number_of_iterations << std::endl
+        << std::setw(width) << std::left << "Max. # of iterations without impr.:  " << maximum_number_of_iterations_without_improvement << std::endl
+        ;
+}
+
+nlohmann::json LocalSearchRowWeighting1Parameters::to_json() const
+{
+    nlohmann::json json = Parameters::to_json();
+    json.merge_patch({
+            {"MaximumNumberOfIterations", maximum_number_of_iterations},
+            {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
+    return json;
+}
+
+void LocalSearchRowWeighting1Output::format(std::ostream& os) const
+{
+    Output::format(os);
+    int width = format_width();
+    os
+        << std::setw(width) << std::left << "Number of iterations: " << number_of_iterations << std::endl
+        ;
+}
+
+nlohmann::json LocalSearchRowWeighting1Output::to_json() const
+{
+    nlohmann::json json = Output::to_json();
+    json.merge_patch({
+            {"NumberOfIterations", number_of_iterations}});
+    return json;
 }
 
 struct LocalSearchRowWeighting1Set
@@ -605,21 +644,13 @@ struct LocalSearchRowWeighting1Set
 };
 
 const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_search_row_weighting_1(
-        Instance& original_instance,
+        const Instance& original_instance,
         std::mt19937_64& generator,
-        LocalSearchRowWeighting1OptionalParameters parameters)
+        const LocalSearchRowWeighting1Parameters& parameters)
 {
-    init_display(original_instance, parameters.info);
-    parameters.info.output()
-            << "Algorithm" << std::endl
-            << "---------" << std::endl
-            << "Row weighting local search 1" << std::endl
-            << std::endl
-            << "Parameters" << std::endl
-            << "----------" << std::endl
-            << "Maximum number of iterations:                      " << parameters.maximum_number_of_iterations << std::endl
-            << "Maximum number of iterations without improvement:  " << parameters.maximum_number_of_iterations_without_improvement << std::endl
-            << std::endl;
+    AlgorithmFormatter algorithm_formatter(parameters);
+    LocalSearchRowWeighting1Output output(original_instance);
+    algorithm_formatter.start(output, "Row weighting local search 1");
 
     // Reduction.
     std::unique_ptr<Instance> reduced_instance = nullptr;
@@ -628,22 +659,19 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.output()
-            << "Reduced instance" << std::endl
-            << "----------------" << std::endl
-            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()};
+        algorithm_formatter.print_reduced_instance(*reduced_instance);
     }
-    Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-
-    LocalSearchRowWeighting1Output output(original_instance, parameters.info);
+    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+    algorithm_formatter.print_header(output);
 
     // Compute initial greedy solution.
-    GreedyOptionalParameters greedy_parameters;
+    Parameters greedy_parameters;
+    greedy_parameters.verbosity_level = 0;
     greedy_parameters.reduction_parameters.reduce = false;
     Solution solution = greedy(instance, greedy_parameters).solution;
     std::stringstream ss;
     ss << "initial solution";
-    output.update_solution(solution, ss, parameters.info);
+    algorithm_formatter.update_solution(output, solution, ss);
 
     // Initialize local search structures.
     std::vector<LocalSearchRowWeighting1Set> sets(instance.number_of_sets());
@@ -661,7 +689,7 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
 
     Counter number_of_iterations_without_improvement = 0;
     for (output.number_of_iterations = 0;
-            !parameters.info.needs_to_end();
+            !parameters.timer.needs_to_end();
             ++output.number_of_iterations,
             ++number_of_iterations_without_improvement) {
         // Check stop criteria.
@@ -678,7 +706,7 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
             if (output.solution.cost() > solution.cost()) {
                 std::stringstream ss;
                 ss << "iteration " << output.number_of_iterations;
-                output.update_solution(solution, ss, parameters.info);
+                algorithm_formatter.update_solution(output, solution, ss);
             }
 
             // Update statistics
@@ -698,7 +726,7 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
             }
             // It may happen that all sets in the solution are mandatory.
             if (set_id_best == -1) {
-                output.algorithm_end(parameters.info);
+                algorithm_formatter.end(output);
                 return output;
             }
             // Apply best move
@@ -839,7 +867,7 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
         //    << std::endl;
     }
 
-    output.algorithm_end(parameters.info);
+    algorithm_formatter.end(output);
     return output;
 }
 

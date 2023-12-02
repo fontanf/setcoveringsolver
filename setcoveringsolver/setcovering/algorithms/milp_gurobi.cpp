@@ -2,6 +2,8 @@
 
 #include "setcoveringsolver/setcovering/algorithms/milp_gurobi.hpp"
 
+#include "setcoveringsolver/setcovering/algorithm_formatter.hpp"
+
 #include "gurobi_c++.h"
 
 using namespace setcoveringsolver::setcovering;
@@ -13,10 +15,13 @@ public:
 
     MilpGurobiCallback(
             const Instance& instance,
-            MilpGurobiOptionalParameters& parameters,
+            AlgorithmFormatter& algorithm_formatter,
             Output& output,
             GRBVar* x):
-        instance_(instance), parameters_(parameters), output_(output), x_(x) { }
+        instance_(instance),
+        algorithm_formatter_(algorithm_formatter),
+        output_(output),
+        x_(x) { }
 
 protected:
 
@@ -26,10 +31,10 @@ protected:
             return;
 
         SetId lb = std::ceil(getDoubleInfo(GRB_CB_MIPSOL_OBJBND) - FFOT_TOL);
-        output_.update_bound(
+        algorithm_formatter_.update_bound(
+                output_,
                 lb,
-                std::stringstream(""),
-                parameters_.info);
+                std::stringstream(""));
 
         if (!output_.solution.feasible()
                 || output_.solution.cost() > getDoubleInfo(GRB_CB_MIPSOL_OBJ) + 0.5) {
@@ -42,17 +47,17 @@ protected:
                     solution.add(set_id);
             }
             std::stringstream ss;
-            output_.update_solution(
+            algorithm_formatter_.update_solution(
+                    output_,
                     solution,
-                    std::stringstream(""),
-                    parameters_.info);
+                    std::stringstream(""));
         }
     }
 
 private:
 
     const Instance& instance_;
-    MilpGurobiOptionalParameters& parameters_;
+    AlgorithmFormatter& algorithm_formatter_;
     Output& output_;
     GRBVar* x_;
 
@@ -60,15 +65,13 @@ private:
 
 const Output setcoveringsolver::setcovering::milp_gurobi(
         const Instance& original_instance,
-        MilpGurobiOptionalParameters parameters)
+        const MilpGurobiParameters& parameters)
 {
+    AlgorithmFormatter algorithm_formatter(parameters);
+    Output output(original_instance);
+    algorithm_formatter.start(output, "MILP (Gurobi)");
+
     GRBEnv env;
-    init_display(original_instance, parameters.info);
-    parameters.info.output()
-            << "Algorithm" << std::endl
-            << "---------" << std::endl
-            << "MILP (Gurobi)" << std::endl
-            << std::endl;
 
     // Reduction.
     std::unique_ptr<Instance> reduced_instance = nullptr;
@@ -77,14 +80,10 @@ const Output setcoveringsolver::setcovering::milp_gurobi(
                 new Instance(
                     original_instance.reduce(
                         parameters.reduction_parameters)));
-        parameters.info.output()
-            << "Reduced instance" << std::endl
-            << "----------------" << std::endl
-            << InstanceFormatter{*reduced_instance, parameters.info.output().verbosity_level()}
+        algorithm_formatter.print_reduced_instance(*reduced_instance);
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-
-    Output output(original_instance, parameters.info);
+    algorithm_formatter.print_header(output);
 
     GRBModel model(env);
 
@@ -124,11 +123,15 @@ const Output setcoveringsolver::setcovering::milp_gurobi(
     //model.set(GRB_IntParam_Method, 1); // Dual simplex
 
     // Time limit
-    if (parameters.info.time_limit != std::numeric_limits<double>::infinity())
-        model.set(GRB_DoubleParam_TimeLimit, parameters.info.time_limit);
+    if (parameters.timer.remaining_time() != std::numeric_limits<double>::infinity())
+        model.set(GRB_DoubleParam_TimeLimit, parameters.timer.remaining_time());
 
     // Callback
-    MilpGurobiCallback cb = MilpGurobiCallback(instance, parameters, output, x);
+    MilpGurobiCallback cb = MilpGurobiCallback(
+            instance,
+            algorithm_formatter,
+            output,
+            x);
     model.setCallback(&cb);
 
     // Optimize
@@ -136,40 +139,47 @@ const Output setcoveringsolver::setcovering::milp_gurobi(
 
     int optimstatus = model.get(GRB_IntAttr_Status);
     if (optimstatus == GRB_INFEASIBLE) {
-        output.update_bound(
+        algorithm_formatter.update_bound(
+                output,
                 instance.total_cost() + 1,
-                std::stringstream(""),
-                parameters.info);
+                std::stringstream(""));
     } else if (optimstatus == GRB_OPTIMAL) {
         Solution solution(instance);
         for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
             if (x[set_id].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(set_id);
-        output.update_solution(
+        algorithm_formatter.update_solution(
+                output,
                 solution,
-                std::stringstream(""),
-                parameters.info);
-        output.update_bound(
+                std::stringstream(""));
+        algorithm_formatter.update_bound(
+                output,
                 solution.cost(),
-                std::stringstream(""),
-                parameters.info);
+                std::stringstream(""));
     } else if (model.get(GRB_IntAttr_SolCount) > 0) {
         Solution solution(instance);
         for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
             if (x[set_id].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(set_id);
-        output.update_solution(
+        algorithm_formatter.update_solution(
+                output,
                 solution,
-                std::stringstream(""),
-                parameters.info);
+                std::stringstream(""));
         SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
-        output.update_bound(lb, std::stringstream(""), parameters.info);
+        algorithm_formatter.update_bound(
+                output,
+                lb,
+                std::stringstream(""));
     } else {
         SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
-        output.update_bound(lb, std::stringstream(""), parameters.info);
+        algorithm_formatter.update_bound(
+                output,
+                lb,
+                std::stringstream(""));
     }
 
-    return output.algorithm_end(parameters.info);
+    algorithm_formatter.end(output);
+    return output;
 }
 
 #endif

@@ -7,7 +7,7 @@ namespace setcoveringsolver
 namespace setcovering
 {
 
-struct LocalSearchRowWeighting1OptionalParameters
+struct LocalSearchRowWeighting1Parameters: Parameters
 {
     /** Maximum number of iterations. */
     Counter maximum_number_of_iterations = -1;
@@ -15,37 +15,40 @@ struct LocalSearchRowWeighting1OptionalParameters
     /** Maximum number of iterations without improvement. */
     Counter maximum_number_of_iterations_without_improvement = -1;
 
-    /** Reduction parameters. */
-    ReductionParameters reduction_parameters;
 
-    /** Info structure. */
-    optimizationtools::Info info = optimizationtools::Info();
+    virtual int format_width() const override { return 37; }
+
+    virtual void format(std::ostream& os) const override;
+
+    virtual nlohmann::json to_json() const override;
 };
 
 struct LocalSearchRowWeighting1Output: Output
 {
     LocalSearchRowWeighting1Output(
-            const Instance& instance,
-            optimizationtools::Info& info):
-        Output(instance, info) { }
+            const Instance& instance):
+        Output(instance) { }
 
-    void print_statistics(
-            optimizationtools::Info& info) const override;
 
     /** Number of iterations. */
     Counter number_of_iterations = 0;
+
+
+    virtual void format(std::ostream& os) const override;
+
+    virtual nlohmann::json to_json() const override;
 };
 
 const LocalSearchRowWeighting1Output local_search_row_weighting_1(
-        Instance& instance,
+        const Instance& instance,
         std::mt19937_64& generator,
-        LocalSearchRowWeighting1OptionalParameters parameters = {});
+        const LocalSearchRowWeighting1Parameters& parameters = {});
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct LocalSearchRowWeighting2OptionalParameters
+struct LocalSearchRowWeighting2Parameters: Parameters
 {
     /**
      * First parameter of the neighborhood:
@@ -92,22 +95,20 @@ struct LocalSearchRowWeighting2OptionalParameters
     /** Maximum number of iterations without improvement. */
     Counter maximum_number_of_iterations_without_improvement = -1;
 
-    /** Reduction parameters. */
-    ReductionParameters reduction_parameters;
 
-    /** Info structure. */
-    optimizationtools::Info info = optimizationtools::Info();
+    virtual int format_width() const override { return 37; }
+
+    virtual void format(std::ostream& os) const override;
+
+    virtual nlohmann::json to_json() const override;
 };
 
 struct LocalSearchRowWeighting2Output: Output
 {
     LocalSearchRowWeighting2Output(
-            const Instance& instance,
-            optimizationtools::Info& info):
-        Output(instance, info) { }
+            const Instance& instance):
+        Output(instance) { }
 
-    void print_statistics(
-            optimizationtools::Info& info) const override;
 
     /** Number of improvements due to the first part of the neighborhood. */
     Counter neighborhood_1_improvements = 0;
@@ -126,12 +127,19 @@ struct LocalSearchRowWeighting2Output: Output
 
     /** Number of iterations. */
     Counter number_of_iterations = 0;
+
+
+    virtual int format_width() const override { return 31; }
+
+    virtual void format(std::ostream& os) const override;
+
+    virtual nlohmann::json to_json() const override;
 };
 
 const LocalSearchRowWeighting2Output local_search_row_weighting_2(
-        Instance& instance,
+        const Instance& instance,
         std::mt19937_64& generator,
-        LocalSearchRowWeighting2OptionalParameters parameters = {});
+        const LocalSearchRowWeighting2Parameters& parameters = {});
 
 }
 }

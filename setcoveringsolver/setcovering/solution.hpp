@@ -4,6 +4,7 @@
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_map.hpp"
+#include "optimizationtools/utils/utils.hpp"
 
 namespace setcoveringsolver
 {
@@ -72,7 +73,8 @@ public:
     /** Get the set of sets of the solution. */
     const optimizationtools::IndexedSet& sets() const { return sets_; };
 
-    bool is_strictly_better_than(const Solution& solution) const;
+    /** Get the total cost of the solution. */
+    inline Cost objective_value() const { return cost(); }
 
     /*
      * Setters
@@ -89,7 +91,15 @@ public:
      */
 
     /** Write the solution to a file. */
-    void write(std::string certificate_path);
+    void write(std::string certificate_path) const;
+
+    /** Export solution characteristics to a JSON structure. */
+    nlohmann::json to_json() const;
+
+    /** Write a formatted output of the instance to a stream. */
+    void format(
+            std::ostream& os,
+            int verbosity_level) const;
 
 private:
 
@@ -157,21 +167,23 @@ void Solution::remove(SetId set_id)
     cost_ -= instance().set(set_id).cost;
 }
 
-std::ostream& operator<<(std::ostream& os, const Solution& solution);
-
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// Output ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+inline optimizationtools::ObjectiveDirection objective_direction()
+{
+    return optimizationtools::ObjectiveDirection::Minimize;
+}
+
 /**
  * Output structure for a set covering problem.
  */
-struct Output
+struct Output: optimizationtools::Output
 {
     /** Constructor. */
-    Output(
-            const Instance& instance,
-            optimizationtools::Info& info);
+    Output(const Instance& instance): solution(instance) { }
+
 
     /** Solution. */
     Solution solution;
@@ -180,45 +192,59 @@ struct Output
     Cost bound = 0;
 
     /** Elapsed time. */
-    double time = -1;
+    double time = 0.0;
 
-    /** Return 'true' iff the solution is optimal. */
-    bool optimal() const { return solution.feasible() && solution.cost() == bound; }
 
-    /** Print current state. */
-    void print(
-            optimizationtools::Info& info,
-            const std::stringstream& s) const;
+    std::string solution_value() const
+    {
+        return optimizationtools::solution_value(
+            objective_direction(),
+            solution.feasible(),
+            solution.objective_value());
+    }
 
-    /** Update the solution. */
-    void update_solution(
-            const Solution& solution_new,
-            const std::stringstream& s,
-            optimizationtools::Info& info);
+    double absolute_optimality_gap() const
+    {
+        return optimizationtools::absolute_optimality_gap(
+                objective_direction(),
+                solution.feasible(),
+                solution.objective_value(),
+                bound);
+    }
 
-    /** Update the bound. */
-    void update_bound(
-            Cost bound_new,
-            const std::stringstream& s,
-            optimizationtools::Info& info);
+    double relative_optimality_gap() const
+    {
+       return optimizationtools::relative_optimality_gap(
+            objective_direction(),
+            solution.feasible(),
+            solution.objective_value(),
+            bound);
+    }
 
-    /** Print the algorithm statistics. */
-    virtual void print_statistics(
-            optimizationtools::Info& info) const { (void)info; }
+    virtual nlohmann::json to_json() const;
 
-    /** Method to call at the end of the algorithm. */
-    Output& algorithm_end(optimizationtools::Info& info);
+    virtual int format_width() const { return 30; }
+
+    virtual void format(std::ostream& os) const;
 };
 
-struct SolutionFormatter
+using NewSolutionCallback = std::function<void(const Output&)>;
+
+struct Parameters: optimizationtools::Parameters
 {
-    const Solution& solution;
-    int verbosity_level = 1;
-};
+    /** Callback function called when a new best solution is found. */
+    NewSolutionCallback new_solution_callback = [](const Output&) { };
 
-std::ostream& operator<<(
-        std::ostream& os,
-        SolutionFormatter solution_formatter);
+    /** Reduction parameters. */
+    ReductionParameters reduction_parameters;
+
+
+    virtual nlohmann::json to_json() const override;
+
+    virtual int format_width() const override { return 23; }
+
+    virtual void format(std::ostream& os) const override;
+};
 
 }
 }
