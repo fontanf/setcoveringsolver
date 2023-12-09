@@ -18,9 +18,24 @@ struct LocalSearchRowWeighting1Parameters: Parameters
 
     virtual int format_width() const override { return 37; }
 
-    virtual void format(std::ostream& os) const override;
+    virtual void format(std::ostream& os) const override
+    {
+        Parameters::format(os);
+        int width = format_width();
+        os
+            << std::setw(width) << std::left << "Max. # of iterations: " << maximum_number_of_iterations << std::endl
+            << std::setw(width) << std::left << "Max. # of iterations without impr.:  " << maximum_number_of_iterations_without_improvement << std::endl
+            ;
+    }
 
-    virtual nlohmann::json to_json() const override;
+    virtual nlohmann::json to_json() const override
+    {
+        nlohmann::json json = Parameters::to_json();
+        json.merge_patch({
+                {"MaximumNumberOfIterations", maximum_number_of_iterations},
+                {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
+        return json;
+    }
 };
 
 struct LocalSearchRowWeighting1Output: Output
@@ -34,9 +49,22 @@ struct LocalSearchRowWeighting1Output: Output
     Counter number_of_iterations = 0;
 
 
-    virtual void format(std::ostream& os) const override;
+    virtual void format(std::ostream& os) const override
+    {
+        Output::format(os);
+        int width = format_width();
+        os
+            << std::setw(width) << std::left << "Number of iterations: " << number_of_iterations << std::endl
+            ;
+    }
 
-    virtual nlohmann::json to_json() const override;
+    virtual nlohmann::json to_json() const override
+    {
+        nlohmann::json json = Output::to_json();
+        json.merge_patch({
+                {"NumberOfIterations", number_of_iterations}});
+        return json;
+    }
 };
 
 const LocalSearchRowWeighting1Output local_search_row_weighting_1(
@@ -98,9 +126,24 @@ struct LocalSearchRowWeighting2Parameters: Parameters
 
     virtual int format_width() const override { return 37; }
 
-    virtual void format(std::ostream& os) const override;
+    virtual void format(std::ostream& os) const override
+    {
+        Parameters::format(os);
+        int width = format_width();
+        os
+            << std::setw(width) << std::left << "Max. # of iterations: " << maximum_number_of_iterations << std::endl
+            << std::setw(width) << std::left << "Max. # of iterations without impr.:  " << maximum_number_of_iterations_without_improvement << std::endl
+            ;
+    }
 
-    virtual nlohmann::json to_json() const override;
+    virtual nlohmann::json to_json() const override
+    {
+        nlohmann::json json = Parameters::to_json();
+        json.merge_patch({
+                {"MaximumNumberOfIterations", maximum_number_of_iterations},
+                {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
+        return json;
+    }
 };
 
 struct LocalSearchRowWeighting2Output: Output
@@ -131,9 +174,27 @@ struct LocalSearchRowWeighting2Output: Output
 
     virtual int format_width() const override { return 31; }
 
-    virtual void format(std::ostream& os) const override;
+    virtual void format(std::ostream& os) const override
+    {
+        Output::format(os);
+        int width = format_width();
+        os
+            << std::setw(width) << std::left << "Number of iterations: " << number_of_iterations << std::endl
+            << std::setw(width) << std::left << "Neighborhood 1 improvements: " << neighborhood_1_improvements << std::endl
+            << std::setw(width) << std::left << "Neighborhood 2 improvements: " << neighborhood_2_improvements << std::endl
+            << std::setw(width) << std::left << "Neighborhood 1 time: " << neighborhood_1_time << std::endl
+            << std::setw(width) << std::left << "Neighborhood 2 time: " << neighborhood_2_time << std::endl
+            << std::setw(width) << std::left << "Number of weights reductions: " << neighborhood_2_time << std::endl
+            ;
+    }
 
-    virtual nlohmann::json to_json() const override;
+    virtual nlohmann::json to_json() const override
+    {
+        nlohmann::json json = Output::to_json();
+        json.merge_patch({
+                {"NumberOfIterations", number_of_iterations}});
+        return json;
+    }
 };
 
 const LocalSearchRowWeighting2Output local_search_row_weighting_2(

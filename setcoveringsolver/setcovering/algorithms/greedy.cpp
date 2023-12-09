@@ -26,6 +26,7 @@ const Output setcoveringsolver::setcovering::greedy(
         algorithm_formatter.print_reduced_instance(*reduced_instance);
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+    algorithm_formatter.print_header(output);
 
     Solution solution(instance);
 
@@ -92,6 +93,7 @@ const Output setcoveringsolver::setcovering::greedy_lin(
         algorithm_formatter.print_reduced_instance(*reduced_instance);
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+    algorithm_formatter.print_header(output);
 
     Solution solution(instance);
 
@@ -156,6 +158,7 @@ const Output setcoveringsolver::setcovering::greedy_dual(
         algorithm_formatter.print_reduced_instance(*reduced_instance);
     }
     const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
+    algorithm_formatter.print_header(output);
 
     Solution solution(instance);
 

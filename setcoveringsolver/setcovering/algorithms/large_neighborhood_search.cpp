@@ -10,44 +10,6 @@
 
 using namespace setcoveringsolver::setcovering;
 
-nlohmann::json LargeNeighborhoodSearchParameters::to_json() const
-{
-    nlohmann::json json = Parameters::to_json();
-    json.merge_patch({
-            {"MaximumNumberOfIterations", maximum_number_of_iterations},
-            {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
-    return json;
-}
-
-void LargeNeighborhoodSearchParameters::format(
-        std::ostream& os) const
-{
-    Parameters::format(os);
-    int width = format_width();
-    os
-        << std::setw(width) << std::left << "Max. # of iterations: " << maximum_number_of_iterations << std::endl
-        << std::setw(width) << std::left << "Max. # of iterations without impr.:  " << maximum_number_of_iterations_without_improvement << std::endl
-        ;
-}
-
-nlohmann::json LargeNeighborhoodSearchOutput::to_json() const
-{
-    nlohmann::json json = Output::to_json();
-    json.merge_patch({
-            {"NumberOfIterations", number_of_iterations}});
-    return json;
-}
-
-void LargeNeighborhoodSearchOutput::format(
-        std::ostream& os) const
-{
-    Output::format(os);
-    int width = format_width();
-    os
-        << std::setw(width) << std::left << "Number of iterations: " << number_of_iterations << std::endl
-        ;
-}
-
 struct LargeNeighborhoodSearchSet
 {
     Counter timestamp = -1;

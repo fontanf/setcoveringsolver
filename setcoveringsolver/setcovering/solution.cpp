@@ -1,7 +1,5 @@
 #include "setcoveringsolver/setcovering/solution.hpp"
 
-#include <iomanip>
-
 using namespace setcoveringsolver::setcovering;
 
 Solution::Solution(const Instance& instance):
@@ -139,55 +137,4 @@ nlohmann::json Solution::to_json() const
         {"Feasible", feasible()},
         {"Cost", cost()}
     };
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// Output ////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-nlohmann::json Output::to_json() const
-{
-    return nlohmann::json {
-        {"Solution", solution.to_json()},
-        {"Value", solution_value()},
-        {"Bound", bound},
-        {"AbsoluteOptimalityGap", absolute_optimality_gap()},
-        {"RelativeOptimalityGap", relative_optimality_gap()},
-        {"Time", time}
-    };
-}
-
-void Output::format(std::ostream& os) const
-{
-    int width = format_width();
-    os
-        << std::setw(width) << std::left << "Value: " << solution_value() << std::endl
-        << std::setw(width) << std::left << "Bound: " << bound << std::endl
-        << std::setw(width) << std::left << "Absolute optimality gap: " << absolute_optimality_gap() << std::endl
-        << std::setw(width) << std::left << "Relative optimality gap (%): " << relative_optimality_gap() * 100 << std::endl
-        << std::setw(width) << std::left << "Time (s): " << time << std::endl
-        ;
-}
-
-nlohmann::json Parameters::to_json() const
-{
-    nlohmann::json json = optimizationtools::Parameters::to_json();
-    json.merge_patch(
-        {"Reduction",
-            {"Enable", reduction_parameters.reduce},
-            {"MaximumNumberOfRounds", reduction_parameters.maximum_number_of_rounds},
-            {"RemoveDominated", reduction_parameters.remove_domianted}});
-    return json;
-}
-
-void Parameters::format(std::ostream& os) const
-{
-    optimizationtools::Parameters::format(os);
-    int width = format_width();
-    os
-        << "Reduction" << std::endl
-        << std::setw(width) << std::left << "    Enable: " << reduction_parameters.reduce << std::endl
-        << std::setw(width) << std::left << "    Max. # of rounds: " << reduction_parameters.maximum_number_of_rounds << std::endl
-        << std::setw(width) << std::left << "    Remove dominated: " << reduction_parameters.remove_domianted << std::endl
-        ;
 }

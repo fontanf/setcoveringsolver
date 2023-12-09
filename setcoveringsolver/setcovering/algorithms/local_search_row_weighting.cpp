@@ -12,48 +12,6 @@
 
 using namespace setcoveringsolver::setcovering;
 
-void LocalSearchRowWeighting2Parameters::format(
-        std::ostream& os) const
-{
-    Parameters::format(os);
-    int width = format_width();
-    os
-        << std::setw(width) << std::left << "Max. # of iterations: " << maximum_number_of_iterations << std::endl
-        << std::setw(width) << std::left << "Max. # of iterations without impr.:  " << maximum_number_of_iterations_without_improvement << std::endl
-        ;
-}
-
-nlohmann::json LocalSearchRowWeighting2Parameters::to_json() const
-{
-    nlohmann::json json = Parameters::to_json();
-    json.merge_patch({
-            {"MaximumNumberOfIterations", maximum_number_of_iterations},
-            {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
-    return json;
-}
-
-void LocalSearchRowWeighting2Output::format(std::ostream& os) const
-{
-    Output::format(os);
-    int width = format_width();
-    os
-        << std::setw(width) << std::left << "Number of iterations: " << number_of_iterations << std::endl
-        << std::setw(width) << std::left << "Neighborhood 1 improvements: " << neighborhood_1_improvements << std::endl
-        << std::setw(width) << std::left << "Neighborhood 2 improvements: " << neighborhood_2_improvements << std::endl
-        << std::setw(width) << std::left << "Neighborhood 1 time: " << neighborhood_1_time << std::endl
-        << std::setw(width) << std::left << "Neighborhood 2 time: " << neighborhood_2_time << std::endl
-        << std::setw(width) << std::left << "Number of weights reductions: " << neighborhood_2_time << std::endl
-        ;
-}
-
-nlohmann::json LocalSearchRowWeighting2Output::to_json() const
-{
-    nlohmann::json json = Output::to_json();
-    json.merge_patch({
-            {"NumberOfIterations", number_of_iterations}});
-    return json;
-}
-
 struct LocalSearchRowWeightingComponent
 {
     /** Last set added to the current solution. */
@@ -597,42 +555,6 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
-void LocalSearchRowWeighting1Parameters::format(std::ostream& os) const
-{
-    Parameters::format(os);
-    int width = format_width();
-    os
-        << std::setw(width) << std::left << "Max. # of iterations: " << maximum_number_of_iterations << std::endl
-        << std::setw(width) << std::left << "Max. # of iterations without impr.:  " << maximum_number_of_iterations_without_improvement << std::endl
-        ;
-}
-
-nlohmann::json LocalSearchRowWeighting1Parameters::to_json() const
-{
-    nlohmann::json json = Parameters::to_json();
-    json.merge_patch({
-            {"MaximumNumberOfIterations", maximum_number_of_iterations},
-            {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
-    return json;
-}
-
-void LocalSearchRowWeighting1Output::format(std::ostream& os) const
-{
-    Output::format(os);
-    int width = format_width();
-    os
-        << std::setw(width) << std::left << "Number of iterations: " << number_of_iterations << std::endl
-        ;
-}
-
-nlohmann::json LocalSearchRowWeighting1Output::to_json() const
-{
-    nlohmann::json json = Output::to_json();
-    json.merge_patch({
-            {"NumberOfIterations", number_of_iterations}});
-    return json;
-}
 
 struct LocalSearchRowWeighting1Set
 {

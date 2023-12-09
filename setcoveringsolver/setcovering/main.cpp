@@ -17,11 +17,14 @@ void read_args(
         Parameters& parameters,
         const po::variables_map& vm)
 {
-    parameters.timer.set_time_limit(vm["time-limit"].as<double>());
     parameters.timer.set_sigint_handler();
-    parameters.verbosity_level = vm["verbosity-level"].as<int>();
     parameters.messages_to_stdout = true;
-    parameters.log_path = vm["log"].as<std::string>();
+    if (vm.count("time-limit"))
+        parameters.timer.set_time_limit(vm["time-limit"].as<double>());
+    if (vm.count("verbosity-level"))
+        parameters.verbosity_level = vm["verbosity-level"].as<int>();
+    if (vm.count("log"))
+        parameters.log_path = vm["log"].as<std::string>();
     parameters.log_to_stderr = vm.count("log-to-stderr");
     bool only_write_at_the_end = vm.count("only-write-at-the-end");
     if (!only_write_at_the_end) {
@@ -114,9 +117,10 @@ int main(int argc, char *argv[])
         ("certificate,c", po::value<std::string>()->default_value(""), "set certificate file")
         ("goal,", po::value<Cost>(), "")
         ("seed,s", po::value<Seed>()->default_value(0), "set seed")
-        ("time-limit,t", po::value<double>()->default_value(std::numeric_limits<double>::infinity()), "Time limit in seconds")
-        ("verbosity-level,v", po::value<int>()->default_value(1), "set verbosity level")
-        ("log,l", po::value<std::string>()->default_value(""), "set log file")
+        ("time-limit,t", po::value<double>(), "set time limit in seconds")
+        ("verbosity-level,v", po::value<int>(), "set verbosity level")
+        ("only-write-at-the-end,e", "only write output and certificate files at the end")
+        ("log,l", po::value<std::string>(), "set log file")
         ("log-to-stderr", "write log to stderr")
 
         ("maximum-number-of-iterations,", po::value<int>()->default_value(-1), "set the maximum number of iterations")
