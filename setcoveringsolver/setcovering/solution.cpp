@@ -9,8 +9,6 @@ Solution::Solution(const Instance& instance):
     component_number_of_elements_(instance.number_of_components(), 0),
     component_costs_(instance.number_of_components(), 0)
 {
-    if (instance.is_reduced())
-        cost_ = instance.unreduction_info().extra_cost;
 }
 
 Solution::Solution(
@@ -32,49 +30,6 @@ Solution::Solution(
     for (SetPos set_pos = 0; set_pos < number_of_sets; ++set_pos) {
         file >> set_id;
         add(set_id);
-    }
-}
-
-void Solution::update(const Solution& solution)
-{
-    if (&instance() != &solution.instance()
-            && &instance() != solution.instance().original_instance()) {
-        throw std::runtime_error(
-                "Cannot update a solution with a solution from a different instance.");
-    }
-
-    if (solution.instance().is_reduced()
-            && solution.instance().original_instance() == &instance()) {
-        for (SetId set_id = 0;
-                set_id < instance().number_of_sets();
-                ++set_id) {
-            if (contains(set_id))
-                remove(set_id);
-        }
-        for (SetId set_id: solution.instance().unreduction_info().mandatory_sets) {
-            //std::cout << "mandatory " << set_id << std::endl;
-            add(set_id);
-        }
-        for (SetId set_id = 0;
-                set_id < solution.instance().number_of_sets();
-                ++set_id) {
-            if (solution.contains(set_id)) {
-                SetId set_id_2 = solution.instance().unreduction_info().unreduction_operations[set_id];
-                add(set_id_2);
-            }
-        }
-        //if (cost() != solution.cost() + solution.instance().unreduction_info().extra_cost) {
-        //    throw std::runtime_error(
-        //            "Wrong cost after unreduction. Weight: "
-        //            + std::to_string(cost())
-        //            + "; reduced solution cost: "
-        //            + std::to_string(solution.cost())
-        //            + "; extra cost: "
-        //            + std::to_string(solution.instance().unreduction_info().extra_cost)
-        //            + ".");
-        //}
-    } else {
-        *this = solution;
     }
 }
 

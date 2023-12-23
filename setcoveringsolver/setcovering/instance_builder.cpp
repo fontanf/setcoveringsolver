@@ -37,8 +37,8 @@ void InstanceBuilder::set_unicost()
 }
 
 void InstanceBuilder::read(
-        std::string instance_path,
-        std::string format)
+        const std::string& instance_path,
+        const std::string& format)
 {
     std::ifstream file(instance_path);
     if (!file.good()) {

@@ -51,25 +51,33 @@ struct LocalSearchRowWeightingSet
 };
 
 const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_search_row_weighting_2(
-        const Instance& original_instance,
+        const Instance& instance,
         std::mt19937_64& generator,
         const LocalSearchRowWeighting2Parameters& parameters)
 {
-    AlgorithmFormatter algorithm_formatter(parameters);
-    LocalSearchRowWeighting2Output output(original_instance);
-    algorithm_formatter.start(output, "Row weighting local search 2");
+    LocalSearchRowWeighting2Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("Row weighting local search 2");
 
     // Reduction.
-    std::unique_ptr<Instance> reduced_instance = nullptr;
     if (parameters.reduction_parameters.reduce) {
-        reduced_instance = std::unique_ptr<Instance>(
-                new Instance(
-                    original_instance.reduce(
-                        parameters.reduction_parameters)));
-        algorithm_formatter.print_reduced_instance(*reduced_instance);
+        return solve_reduced_instance(
+                [&generator](
+                    const Instance& instance,
+                    const LocalSearchRowWeighting2Parameters& parameters)
+                {
+                    return local_search_row_weighting_2(
+                            instance,
+                            generator,
+                            parameters);
+                },
+                instance,
+                parameters,
+                algorithm_formatter,
+                output);
     }
-    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-    algorithm_formatter.print_header(output);
+
+    algorithm_formatter.print_header();
 
     // Instance pre-processing.
     const auto& set_neighbors = instance.set_neighbors();
@@ -83,9 +91,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
     greedy_parameters.reduction_parameters.reduce = false;
     Solution solution = greedy(instance, greedy_parameters).solution;
     //Solution solution = greedy_lin(instance).solution;
-    std::stringstream ss;
-    ss << "initial solution";
-    algorithm_formatter.update_solution(output, solution, ss);
+    algorithm_formatter.update_solution(solution, "initial solution");
 
     Solution solution_best(solution);
 
@@ -167,7 +173,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
                 }
                 std::stringstream ss;
                 ss << "it " << output.number_of_iterations << " comp " << component_id;
-                algorithm_formatter.update_solution(output, solution, ss);
+                algorithm_formatter.update_solution(solution, ss.str());
             }
             // Update statistics
             number_of_iterations_without_improvement = 0;
@@ -216,7 +222,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
                 }
                 // If all components are optimal, stop here.
                 if (all_component_optimal) {
-                    algorithm_formatter.end(output);
+                    algorithm_formatter.end();
                     return output;
                 }
                 break;
@@ -548,7 +554,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_searc
         component.iterations_without_improvment++;
     }
 
-    algorithm_formatter.end(output);
+    algorithm_formatter.end();
     return output;
 }
 
@@ -566,34 +572,40 @@ struct LocalSearchRowWeighting1Set
 };
 
 const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_search_row_weighting_1(
-        const Instance& original_instance,
+        const Instance& instance,
         std::mt19937_64& generator,
         const LocalSearchRowWeighting1Parameters& parameters)
 {
-    AlgorithmFormatter algorithm_formatter(parameters);
-    LocalSearchRowWeighting1Output output(original_instance);
-    algorithm_formatter.start(output, "Row weighting local search 1");
+    LocalSearchRowWeighting1Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("Row weighting local search 1");
 
     // Reduction.
-    std::unique_ptr<Instance> reduced_instance = nullptr;
     if (parameters.reduction_parameters.reduce) {
-        reduced_instance = std::unique_ptr<Instance>(
-                new Instance(
-                    original_instance.reduce(
-                        parameters.reduction_parameters)));
-        algorithm_formatter.print_reduced_instance(*reduced_instance);
+        return solve_reduced_instance(
+                [&generator](
+                    const Instance& instance,
+                    const LocalSearchRowWeighting1Parameters& parameters)
+                {
+                    return local_search_row_weighting_1(
+                            instance,
+                            generator,
+                            parameters);
+                },
+                instance,
+                parameters,
+                algorithm_formatter,
+                output);
     }
-    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-    algorithm_formatter.print_header(output);
+
+    algorithm_formatter.print_header();
 
     // Compute initial greedy solution.
     Parameters greedy_parameters;
     greedy_parameters.verbosity_level = 0;
     greedy_parameters.reduction_parameters.reduce = false;
     Solution solution = greedy(instance, greedy_parameters).solution;
-    std::stringstream ss;
-    ss << "initial solution";
-    algorithm_formatter.update_solution(output, solution, ss);
+    algorithm_formatter.update_solution(solution, "initial solution");
 
     // Initialize local search structures.
     std::vector<LocalSearchRowWeighting1Set> sets(instance.number_of_sets());
@@ -628,7 +640,7 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
             if (output.solution.cost() > solution.cost()) {
                 std::stringstream ss;
                 ss << "iteration " << output.number_of_iterations;
-                algorithm_formatter.update_solution(output, solution, ss);
+                algorithm_formatter.update_solution(solution, ss.str());
             }
 
             // Update statistics
@@ -648,7 +660,7 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
             }
             // It may happen that all sets in the solution are mandatory.
             if (set_id_best == -1) {
-                algorithm_formatter.end(output);
+                algorithm_formatter.end();
                 return output;
             }
             // Apply best move
@@ -789,7 +801,7 @@ const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_searc
         //    << std::endl;
     }
 
-    algorithm_formatter.end(output);
+    algorithm_formatter.end();
     return output;
 }
 

@@ -28,14 +28,6 @@ In the set packing problem solved, elements may be covered multiple times and th
 
 - Large neighborhood search `-a largeneighborhoodsearch --iterations 100000 --iterations-without-improvment 10000`
 
-### Set packing
-
-- Greedy `-a greedy`
-
-- Mixed-Integer Linear Program solved with Cbc `-a milp-cbc`
-
-- Local search algorithm implemented with [fontanf/localsearchsolver](https://github.com/fontanf/localsearchsolver) `-a "local-search"`
-
 ## Usage (command line)
 
 Download and uncompress the instances in the `data/` folder:

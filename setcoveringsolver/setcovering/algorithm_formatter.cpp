@@ -7,10 +7,9 @@
 using namespace setcoveringsolver::setcovering;
 
 void AlgorithmFormatter::start(
-        Output& output,
         const std::string& algorithm_name)
 {
-    output.json["Parameters"] = parameters_.to_json();
+    output_.json["Parameters"] = parameters_.to_json();
 
     if (parameters_.verbosity_level == 0)
         return;
@@ -25,7 +24,7 @@ void AlgorithmFormatter::start(
         << std::endl
         << "Instance" << std::endl
         << "--------" << std::endl;
-    output.solution.instance().format(*os_, parameters_.verbosity_level);
+    output_.solution.instance().format(*os_, parameters_.verbosity_level);
     *os_
         << std::endl
         << "Algorithm" << std::endl
@@ -37,27 +36,28 @@ void AlgorithmFormatter::start(
     parameters_.format(*os_);
 }
 
-void AlgorithmFormatter::print_header(
-        Output& output)
+void AlgorithmFormatter::print_header()
 {
+    if (parameters_.verbosity_level == 0)
+        return;
     *os_
         << std::right
         << std::endl
-        << std::setw(12) << "T (s)"
-        << std::setw(12) << "UB"
-        << std::setw(12) << "LB"
-        << std::setw(12) << "GAP"
-        << std::setw(12) << "GAP (%)"
+        << std::setw(12) << "Time (s)"
+        << std::setw(12) << "Value"
+        << std::setw(12) << "Bound"
+        << std::setw(12) << "Gap"
+        << std::setw(12) << "Gap (%)"
         << std::setw(24) << "Comment"
         << std::endl
+        << std::setw(12) << "--------"
         << std::setw(12) << "-----"
-        << std::setw(12) << "--"
-        << std::setw(12) << "--"
+        << std::setw(12) << "-----"
         << std::setw(12) << "---"
         << std::setw(12) << "-------"
         << std::setw(24) << "-------"
         << std::endl;
-    print(output, std::stringstream(""));
+    print("");
 }
 
 void AlgorithmFormatter::print_reduced_instance(
@@ -73,62 +73,58 @@ void AlgorithmFormatter::print_reduced_instance(
 }
 
 void AlgorithmFormatter::print(
-        const Output& output,
-        const std::stringstream& s)
+        const std::string& s)
 {
     if (parameters_.verbosity_level == 0)
         return;
     std::streamsize precision = std::cout.precision();
     *os_
-        << std::setw(12) << std::fixed << std::setprecision(3) << output.time << std::defaultfloat << std::setprecision(precision)
-        << std::setw(12) << output.solution_value()
-        << std::setw(12) << output.bound
-        << std::setw(12) << output.absolute_optimality_gap()
-        << std::setw(12) << std::fixed << std::setprecision(2) << output.relative_optimality_gap() * 100 << std::defaultfloat << std::setprecision(precision)
-        << std::setw(24) << s.str() << std::endl;
+        << std::setw(12) << std::fixed << std::setprecision(3) << output_.time << std::defaultfloat << std::setprecision(precision)
+        << std::setw(12) << output_.solution_value()
+        << std::setw(12) << output_.bound
+        << std::setw(12) << output_.absolute_optimality_gap()
+        << std::setw(12) << std::fixed << std::setprecision(2) << output_.relative_optimality_gap() * 100 << std::defaultfloat << std::setprecision(precision)
+        << std::setw(24) << s << std::endl;
 }
 
 void AlgorithmFormatter::update_solution(
-        Output& output,
         const Solution& solution_new,
-        const std::stringstream& s)
+        const std::string& s)
 {
     if (optimizationtools::is_solution_strictly_better(
                 objective_direction(),
-                output.solution.feasible(),
-                output.solution.cost(),
+                output_.solution.feasible(),
+                output_.solution.objective_value(),
                 solution_new.feasible(),
-                solution_new.cost())) {
-        output.time = parameters_.timer.elapsed_time();
-        output.solution.update(solution_new);
-        print(output, s);
-        output.json["IntermediaryOutputs"].push_back(output.to_json());
-        parameters_.new_solution_callback(output);
+                solution_new.objective_value())) {
+        output_.time = parameters_.timer.elapsed_time();
+        output_.solution = solution_new;
+        print(s);
+        output_.json["IntermediaryOutputs"].push_back(output_.to_json());
+        parameters_.new_solution_callback(output_, s);
     }
 }
 
 void AlgorithmFormatter::update_bound(
-        Output& output,
         Cost bound_new,
-        const std::stringstream& s)
+        const std::string& s)
 {
     if (optimizationtools::is_bound_strictly_better(
             objective_direction(),
-            output.bound,
+            output_.bound,
             bound_new)) {
-        output.time = parameters_.timer.elapsed_time();
-        output.bound = bound_new;
-        print(output, s);
-        output.json["IntermediaryOutputs"].push_back(output.to_json());
-        parameters_.new_solution_callback(output);
+        output_.time = parameters_.timer.elapsed_time();
+        output_.bound = bound_new;
+        print(s);
+        output_.json["IntermediaryOutputs"].push_back(output_.to_json());
+        parameters_.new_solution_callback(output_, s);
     }
 }
 
-void AlgorithmFormatter::end(
-        Output& output)
+void AlgorithmFormatter::end()
 {
-    output.time = parameters_.timer.elapsed_time();
-    output.json["Output"] = output.to_json();
+    output_.time = parameters_.timer.elapsed_time();
+    output_.json["Output"] = output_.to_json();
 
     if (parameters_.verbosity_level == 0)
         return;
@@ -136,10 +132,10 @@ void AlgorithmFormatter::end(
         << std::endl
         << "Final statistics" << std::endl
         << "----------------" << std::endl;
-    output.format(*os_);
+    output_.format(*os_);
     *os_
         << std::endl
         << "Solution" << std::endl
         << "--------" << std::endl;
-    output.solution.format(*os_, parameters_.verbosity_level);
+    output_.solution.format(*os_, parameters_.verbosity_level);
 }

@@ -71,8 +71,8 @@ CbcEventHandler::CbcAction EventHandler::event(CbcEvent which_event)
     if ((model_->specialOptions() & 2048) != 0) // not in subtree
         return noAction;
 
-    Cost lb = std::ceil(model_->getBestPossibleObjValue() - FFOT_TOL);
-    algorithm_formatter_.update_bound(output_, lb, std::stringstream(""));
+    Cost bound = std::ceil(model_->getBestPossibleObjValue() - FFOT_TOL);
+    algorithm_formatter_.update_bound(bound, "");
 
     if ((which_event != solution && which_event != heuristicSolution)) // no solution found
         return noAction;
@@ -87,10 +87,7 @@ CbcEventHandler::CbcAction EventHandler::event(CbcEvent which_event)
         for (SetId set_id = 0; set_id < instance_.number_of_sets(); ++set_id)
             if (solution_cbc[set_id] > 0.5)
                 solution.add(set_id);
-        algorithm_formatter_.update_solution(
-                output_,
-                solution,
-                std::stringstream(""));
+        algorithm_formatter_.update_solution(solution, "");
     }
 
     return noAction;
@@ -165,24 +162,18 @@ CoinLP::CoinLP(const Instance& instance)
 }
 
 const Output setcoveringsolver::setcovering::milp_cbc(
-        const Instance& original_instance,
+        const Instance& instance,
         const MilpCbcParameters& parameters)
 {
-    AlgorithmFormatter algorithm_formatter(parameters);
-    Output output(original_instance);
-    algorithm_formatter.start(output, "MILP (CBC)");
+    Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("MILP (CBC)");
 
     // Reduction.
-    std::unique_ptr<Instance> reduced_instance = nullptr;
-    if (parameters.reduction_parameters.reduce) {
-        reduced_instance = std::unique_ptr<Instance>(
-                new Instance(
-                    original_instance.reduce(
-                        parameters.reduction_parameters)));
-        algorithm_formatter.print_reduced_instance(*reduced_instance);
-    }
-    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-    algorithm_formatter.print_header(output);
+    if (parameters.reduction_parameters.reduce)
+        return solve_reduced_instance(milp_cbc, instance, parameters, algorithm_formatter, output);
+
+    algorithm_formatter.print_header();
 
     CoinLP problem(instance);
 
@@ -237,10 +228,7 @@ const Output setcoveringsolver::setcovering::milp_cbc(
 
     if (model.isProvenInfeasible()) {  // Infeasible.
         // Update dual bound.
-        algorithm_formatter.update_bound(
-                output,
-                instance.total_cost(),
-                std::stringstream(""));
+        algorithm_formatter.update_bound(instance.total_cost(), "");
     } else if (model.isProvenOptimal()) {  // Optimal
         // Update primal solution.
         if (!output.solution.feasible()
@@ -250,16 +238,10 @@ const Output setcoveringsolver::setcovering::milp_cbc(
             for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
                 if (solution_cbc[set_id] > 0.5)
                         solution.add(set_id);
-            algorithm_formatter.update_solution(
-                    output,
-                    solution,
-                    std::stringstream(""));
+            algorithm_formatter.update_solution(solution, "");
         }
         // Update dual bound.
-        algorithm_formatter.update_bound(
-                output,
-                output.solution.cost(),
-                std::stringstream(""));
+        algorithm_formatter.update_bound(output.solution.cost(), "");
     } else if (model.bestSolution() != NULL) {  // Feasible solution found.
         // Update primal solution.
         if (!output.solution.feasible()
@@ -269,27 +251,18 @@ const Output setcoveringsolver::setcovering::milp_cbc(
             for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
                 if (solution_cbc[set_id] > 0.5)
                     solution.add(set_id);
-            algorithm_formatter.update_solution(
-                    output,
-                    solution,
-                    std::stringstream(""));
+            algorithm_formatter.update_solution(solution, "");
         }
         // Update dual bound.
-        Cost lb = std::ceil(model.getBestPossibleObjValue() - FFOT_TOL);
-        algorithm_formatter.update_bound(
-                output,
-                lb,
-                std::stringstream(""));
+        Cost bound = std::ceil(model.getBestPossibleObjValue() - FFOT_TOL);
+        algorithm_formatter.update_bound(bound, "");
     } else {   // No feasible solution found.
         // Update dual bound.
-        Cost lb = std::ceil(model.getBestPossibleObjValue() - FFOT_TOL);
-        algorithm_formatter.update_bound(
-                output,
-                lb,
-                std::stringstream(""));
+        Cost bound = std::ceil(model.getBestPossibleObjValue() - FFOT_TOL);
+        algorithm_formatter.update_bound(bound, "");
     }
 
-    algorithm_formatter.end(output);
+    algorithm_formatter.end();
     return output;
 }
 

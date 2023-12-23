@@ -9,24 +9,18 @@
 using namespace setcoveringsolver::setcovering;
 
 const Output setcoveringsolver::setcovering::greedy(
-        const Instance& original_instance,
+        const Instance& instance,
         const Parameters& parameters)
 {
-    AlgorithmFormatter algorithm_formatter(parameters);
-    Output output(original_instance);
-    algorithm_formatter.start(output, "Greedy");
+    Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("Greedy");
 
     // Reduction.
-    std::unique_ptr<Instance> reduced_instance = nullptr;
-    if (parameters.reduction_parameters.reduce) {
-        reduced_instance = std::unique_ptr<Instance>(
-                new Instance(
-                    original_instance.reduce(
-                        parameters.reduction_parameters)));
-        algorithm_formatter.print_reduced_instance(*reduced_instance);
-    }
-    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-    algorithm_formatter.print_header(output);
+    if (parameters.reduction_parameters.reduce)
+        return solve_reduced_instance(greedy, instance, parameters, algorithm_formatter, output);
+
+    algorithm_formatter.print_header();
 
     Solution solution(instance);
 
@@ -70,30 +64,24 @@ const Output setcoveringsolver::setcovering::greedy(
         }
     }
 
-    algorithm_formatter.update_solution(output, solution, std::stringstream());
-    algorithm_formatter.end(output);
+    algorithm_formatter.update_solution(solution, "");
+    algorithm_formatter.end();
     return output;
 }
 
 const Output setcoveringsolver::setcovering::greedy_lin(
-        const Instance& original_instance,
+        const Instance& instance,
         const Parameters& parameters)
 {
-    AlgorithmFormatter algorithm_formatter(parameters);
-    Output output(original_instance);
-    algorithm_formatter.start(output, "Greedy Lin");
+    Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("Greedy Lin");
 
     // Reduction.
-    std::unique_ptr<Instance> reduced_instance = nullptr;
-    if (parameters.reduction_parameters.reduce) {
-        reduced_instance = std::unique_ptr<Instance>(
-                new Instance(
-                    original_instance.reduce(
-                        parameters.reduction_parameters)));
-        algorithm_formatter.print_reduced_instance(*reduced_instance);
-    }
-    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-    algorithm_formatter.print_header(output);
+    if (parameters.reduction_parameters.reduce)
+        return solve_reduced_instance(greedy_lin, instance, parameters, algorithm_formatter, output);
+
+    algorithm_formatter.print_header();
 
     Solution solution(instance);
 
@@ -135,30 +123,24 @@ const Output setcoveringsolver::setcovering::greedy_lin(
         }
     }
 
-    algorithm_formatter.update_solution(output, solution, std::stringstream());
-    algorithm_formatter.end(output);
+    algorithm_formatter.update_solution(solution, "");
+    algorithm_formatter.end();
     return output;
 }
 
 const Output setcoveringsolver::setcovering::greedy_dual(
-        const Instance& original_instance,
+        const Instance& instance,
         const Parameters& parameters)
 {
-    AlgorithmFormatter algorithm_formatter(parameters);
-    Output output(original_instance);
-    algorithm_formatter.start(output, "Dual greedy");
+    Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("Dual greedy");
 
     // Reduction.
-    std::unique_ptr<Instance> reduced_instance = nullptr;
-    if (parameters.reduction_parameters.reduce) {
-        reduced_instance = std::unique_ptr<Instance>(
-                new Instance(
-                    original_instance.reduce(
-                        parameters.reduction_parameters)));
-        algorithm_formatter.print_reduced_instance(*reduced_instance);
-    }
-    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-    algorithm_formatter.print_header(output);
+    if (parameters.reduction_parameters.reduce)
+        return solve_reduced_instance(greedy_dual, instance, parameters, algorithm_formatter, output);
+
+    algorithm_formatter.print_header();
 
     Solution solution(instance);
 
@@ -203,8 +185,8 @@ const Output setcoveringsolver::setcovering::greedy_dual(
         }
     }
 
-    algorithm_formatter.update_solution(output, solution, std::stringstream());
-    algorithm_formatter.end(output);
+    algorithm_formatter.update_solution(solution, "");
+    algorithm_formatter.end();
     return output;
 }
 

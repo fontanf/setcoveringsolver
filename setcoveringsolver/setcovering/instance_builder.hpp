@@ -36,8 +36,8 @@ public:
 
     /** Read an instance from a file. */
     void read(
-            std::string instance_path,
-            std::string format);
+            const std::string& instance_path,
+            const std::string& format);
 
     /*
      * Build

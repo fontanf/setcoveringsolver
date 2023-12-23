@@ -33,7 +33,8 @@ void read_args(
         parameters.new_solution_callback = [
             json_output_path,
             certificate_path](
-                    const Output& output)
+                    const Output& output,
+                    const std::string&)
         {
             output.write_json_output(json_output_path);
             output.solution.write(certificate_path);

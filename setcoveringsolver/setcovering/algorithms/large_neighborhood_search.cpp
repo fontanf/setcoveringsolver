@@ -20,33 +20,25 @@ struct LargeNeighborhoodSearchSet
 };
 
 const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighborhood_search(
-        const Instance& original_instance,
+        const Instance& instance,
         const LargeNeighborhoodSearchParameters& parameters)
 {
-    AlgorithmFormatter algorithm_formatter(parameters);
-    LargeNeighborhoodSearchOutput output(original_instance);
-    algorithm_formatter.start(output, "Large neighborhood search");
+    LargeNeighborhoodSearchOutput output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("Large neighborhood search");
 
     // Reduction.
-    std::unique_ptr<Instance> reduced_instance = nullptr;
-    if (parameters.reduction_parameters.reduce) {
-        reduced_instance = std::unique_ptr<Instance>(
-                new Instance(
-                    original_instance.reduce(
-                        parameters.reduction_parameters)));
-        algorithm_formatter.print_reduced_instance(*reduced_instance);
-    }
-    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-    algorithm_formatter.print_header(output);
+    if (parameters.reduction_parameters.reduce)
+        return solve_reduced_instance(large_neighborhood_search, instance, parameters, algorithm_formatter, output);
+
+    algorithm_formatter.print_header();
 
     Parameters greedy_parameters;
     greedy_parameters.timer = parameters.timer;
     greedy_parameters.reduction_parameters.reduce = false;
     greedy_parameters.verbosity_level = 0;
     Solution solution = greedy(instance, greedy_parameters).solution;
-    std::stringstream ss;
-    ss << "initial solution";
-    algorithm_formatter.update_solution(output, solution, ss);
+    algorithm_formatter.update_solution(solution, "initial solution");
 
     // Initialize local search structures.
     std::vector<LargeNeighborhoodSearchSet> sets(instance.number_of_sets());
@@ -199,12 +191,12 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::setcovering::large_neighb
         if (output.solution.cost() > solution.cost()){
             std::stringstream ss;
             ss << "iteration " << output.number_of_iterations;
-            algorithm_formatter.update_solution(output, solution, ss);
+            algorithm_formatter.update_solution(solution, ss.str());
             iterations_without_improvment = 0;
         }
     }
 
-    algorithm_formatter.end(output);
+    algorithm_formatter.end();
     return output;
 }
 

@@ -9,12 +9,16 @@ cc_library(
                 "instance.hpp",
                 "instance_builder.hpp",
                 "solution.hpp",
+                "reduction.hpp",
+                "algorithm.hpp",
                 "algorithm_formatter.hpp",
         ],
         srcs = [
                 "instance.cpp",
                 "instance_builder.cpp",
                 "solution.cpp",
+                "reduction.cpp",
+                "algorithm.cpp",
                 "algorithm_formatter.cpp",
         ],
         deps = [

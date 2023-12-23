@@ -30,11 +30,8 @@ protected:
         if (where != GRB_CB_MIPSOL)
             return;
 
-        SetId lb = std::ceil(getDoubleInfo(GRB_CB_MIPSOL_OBJBND) - FFOT_TOL);
-        algorithm_formatter_.update_bound(
-                output_,
-                lb,
-                std::stringstream(""));
+        SetId bound = std::ceil(getDoubleInfo(GRB_CB_MIPSOL_OBJBND) - FFOT_TOL);
+        algorithm_formatter_.update_bound(bound, "");
 
         if (!output_.solution.feasible()
                 || output_.solution.cost() > getDoubleInfo(GRB_CB_MIPSOL_OBJ) + 0.5) {
@@ -46,11 +43,7 @@ protected:
                 if (x[set_id] > 0.5)
                     solution.add(set_id);
             }
-            std::stringstream ss;
-            algorithm_formatter_.update_solution(
-                    output_,
-                    solution,
-                    std::stringstream(""));
+            algorithm_formatter_.update_solution(solution, "");
         }
     }
 
@@ -64,26 +57,20 @@ private:
 };
 
 const Output setcoveringsolver::setcovering::milp_gurobi(
-        const Instance& original_instance,
+        const Instance& instance,
         const MilpGurobiParameters& parameters)
 {
-    AlgorithmFormatter algorithm_formatter(parameters);
-    Output output(original_instance);
-    algorithm_formatter.start(output, "MILP (Gurobi)");
+    Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("MILP (Gurobi)");
 
     GRBEnv env;
 
     // Reduction.
-    std::unique_ptr<Instance> reduced_instance = nullptr;
-    if (parameters.reduction_parameters.reduce) {
-        reduced_instance = std::unique_ptr<Instance>(
-                new Instance(
-                    original_instance.reduce(
-                        parameters.reduction_parameters)));
-        algorithm_formatter.print_reduced_instance(*reduced_instance);
-    }
-    const Instance& instance = (reduced_instance == nullptr)? original_instance: *reduced_instance;
-    algorithm_formatter.print_header(output);
+    if (parameters.reduction_parameters.reduce)
+        return solve_reduced_instance(milp_gurobi, instance, parameters, algorithm_formatter, output);
+
+    algorithm_formatter.print_header();
 
     GRBModel model(env);
 
@@ -139,46 +126,28 @@ const Output setcoveringsolver::setcovering::milp_gurobi(
 
     int optimstatus = model.get(GRB_IntAttr_Status);
     if (optimstatus == GRB_INFEASIBLE) {
-        algorithm_formatter.update_bound(
-                output,
-                instance.total_cost() + 1,
-                std::stringstream(""));
+        algorithm_formatter.update_bound(instance.total_cost() + 1, "");
     } else if (optimstatus == GRB_OPTIMAL) {
         Solution solution(instance);
         for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
             if (x[set_id].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(set_id);
-        algorithm_formatter.update_solution(
-                output,
-                solution,
-                std::stringstream(""));
-        algorithm_formatter.update_bound(
-                output,
-                solution.cost(),
-                std::stringstream(""));
+        algorithm_formatter.update_solution(solution, "");
+        algorithm_formatter.update_bound(solution.cost(), "");
     } else if (model.get(GRB_IntAttr_SolCount) > 0) {
         Solution solution(instance);
         for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
             if (x[set_id].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(set_id);
-        algorithm_formatter.update_solution(
-                output,
-                solution,
-                std::stringstream(""));
-        SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
-        algorithm_formatter.update_bound(
-                output,
-                lb,
-                std::stringstream(""));
+        algorithm_formatter.update_solution(solution, "");
+        Cost bound = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
+        algorithm_formatter.update_bound(bound, "");
     } else {
-        SetId lb = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
-        algorithm_formatter.update_bound(
-                output,
-                lb,
-                std::stringstream(""));
+        Cost bound = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
+        algorithm_formatter.update_bound(bound, "");
     }
 
-    algorithm_formatter.end(output);
+    algorithm_formatter.end();
     return output;
 }
 

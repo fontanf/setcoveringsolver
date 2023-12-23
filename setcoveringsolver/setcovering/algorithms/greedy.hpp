@@ -1,6 +1,6 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/solution.hpp"
+#include "setcoveringsolver/setcovering/algorithm.hpp"
 
 namespace setcoveringsolver
 {

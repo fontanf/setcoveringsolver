@@ -2,7 +2,7 @@
 
 #if CBC_FOUND
 
-#include "setcoveringsolver/setcovering/solution.hpp"
+#include "setcoveringsolver/setcovering/algorithm.hpp"
 
 #include <CbcModel.hpp>
 #include <OsiCbcSolverInterface.hpp>
