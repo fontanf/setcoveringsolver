@@ -125,24 +125,44 @@ const Output setcoveringsolver::setcovering::milp_gurobi(
     model.optimize();
 
     int optimstatus = model.get(GRB_IntAttr_Status);
+
     if (optimstatus == GRB_INFEASIBLE) {
+        // Infeasible.
+
+        // Update dual bound.
         algorithm_formatter.update_bound(instance.total_cost() + 1, "");
+
     } else if (optimstatus == GRB_OPTIMAL) {
+        // Optimal.
+
+        // Update primal solution.
         Solution solution(instance);
         for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
             if (x[set_id].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(set_id);
         algorithm_formatter.update_solution(solution, "");
+
+        // Update dual bound.
         algorithm_formatter.update_bound(solution.cost(), "");
+
     } else if (model.get(GRB_IntAttr_SolCount) > 0) {
+        // Feasible solution found.
+
+        // Update primal solution.
         Solution solution(instance);
         for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
             if (x[set_id].get(GRB_DoubleAttr_X) > 0.5)
                 solution.add(set_id);
         algorithm_formatter.update_solution(solution, "");
+
+        // Update dual bound.
         Cost bound = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
         algorithm_formatter.update_bound(bound, "");
+
     } else {
+        // No feasible solution found.
+
+        // Update dual bound.
         Cost bound = std::ceil(model.get(GRB_DoubleAttr_ObjBound) - FFOT_TOL);
         algorithm_formatter.update_bound(bound, "");
     }

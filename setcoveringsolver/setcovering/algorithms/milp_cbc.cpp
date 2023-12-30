@@ -133,16 +133,19 @@ CoinLP::CoinLP(const Instance& instance)
     for (ElementId element_id = 0;
             element_id < instance.number_of_elements();
             ++element_id) {
+
         // Initialize new row
         row_starts.push_back(elements.size());
         number_of_elements_in_rows.push_back(0);
         number_of_rows++;
+
         // Add sets
         for (SetId set_id: instance.element(element_id).sets) {
             elements.push_back(1);
             element_columns.push_back(set_id);
             number_of_elements_in_rows.back()++;
         }
+
         // Add row bounds
         row_lower_bounds.push_back(1);
         row_upper_bounds.push_back(instance.number_of_sets());
@@ -226,10 +229,15 @@ const Output setcoveringsolver::setcovering::milp_cbc(
     // Do complete search.
     model.branchAndBound();
 
-    if (model.isProvenInfeasible()) {  // Infeasible.
+    if (model.isProvenInfeasible()) {
+        // Infeasible.
+
         // Update dual bound.
         algorithm_formatter.update_bound(instance.total_cost(), "");
-    } else if (model.isProvenOptimal()) {  // Optimal
+
+    } else if (model.isProvenOptimal()) {
+        // Optimal.
+
         // Update primal solution.
         if (!output.solution.feasible()
                 || output.solution.cost() > model.getObjValue() + 0.5) {
@@ -240,9 +248,13 @@ const Output setcoveringsolver::setcovering::milp_cbc(
                         solution.add(set_id);
             algorithm_formatter.update_solution(solution, "");
         }
+
         // Update dual bound.
         algorithm_formatter.update_bound(output.solution.cost(), "");
-    } else if (model.bestSolution() != NULL) {  // Feasible solution found.
+
+    } else if (model.bestSolution() != NULL) {
+        // Feasible solution found.
+
         // Update primal solution.
         if (!output.solution.feasible()
                 || output.solution.cost() > model.getObjValue() + 0.5) {
@@ -253,10 +265,14 @@ const Output setcoveringsolver::setcovering::milp_cbc(
                     solution.add(set_id);
             algorithm_formatter.update_solution(solution, "");
         }
+
         // Update dual bound.
         Cost bound = std::ceil(model.getBestPossibleObjValue() - FFOT_TOL);
         algorithm_formatter.update_bound(bound, "");
-    } else {   // No feasible solution found.
+
+    } else {
+        // No feasible solution found.
+
         // Update dual bound.
         Cost bound = std::ceil(model.getBestPossibleObjValue() - FFOT_TOL);
         algorithm_formatter.update_bound(bound, "");
@@ -267,4 +283,3 @@ const Output setcoveringsolver::setcovering::milp_cbc(
 }
 
 #endif
-
