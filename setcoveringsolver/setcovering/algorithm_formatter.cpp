@@ -88,17 +88,17 @@ void AlgorithmFormatter::print(
 }
 
 void AlgorithmFormatter::update_solution(
-        const Solution& solution_new,
+        const Solution& solution,
         const std::string& s)
 {
     if (optimizationtools::is_solution_strictly_better(
                 objective_direction(),
                 output_.solution.feasible(),
                 output_.solution.objective_value(),
-                solution_new.feasible(),
-                solution_new.objective_value())) {
+                solution.feasible(),
+                solution.objective_value())) {
         output_.time = parameters_.timer.elapsed_time();
-        output_.solution = solution_new;
+        output_.solution = solution;
         print(s);
         output_.json["IntermediaryOutputs"].push_back(output_.to_json());
         parameters_.new_solution_callback(output_, s);
@@ -106,15 +106,15 @@ void AlgorithmFormatter::update_solution(
 }
 
 void AlgorithmFormatter::update_bound(
-        Cost bound_new,
+        Cost bound,
         const std::string& s)
 {
     if (optimizationtools::is_bound_strictly_better(
             objective_direction(),
             output_.bound,
-            bound_new)) {
+            bound)) {
         output_.time = parameters_.timer.elapsed_time();
-        output_.bound = bound_new;
+        output_.bound = bound;
         print(s);
         output_.json["IntermediaryOutputs"].push_back(output_.to_json());
         parameters_.new_solution_callback(output_, s);

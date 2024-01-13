@@ -6,8 +6,6 @@
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_binary_heap.hpp"
 
-#include <iomanip>
-
 using namespace setcoveringsolver::setcovering;
 
 struct LargeNeighborhoodSearchSet

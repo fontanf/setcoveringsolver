@@ -4,11 +4,6 @@
 #include "setcoveringsolver/setcovering/algorithms/greedy.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
-#include "optimizationtools/containers/indexed_binary_heap.hpp"
-#include "optimizationtools/utils/utils.hpp"
-
-#include <thread>
-#include <iomanip>
 
 using namespace setcoveringsolver::setcovering;
 

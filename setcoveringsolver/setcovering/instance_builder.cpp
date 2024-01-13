@@ -1,5 +1,7 @@
 #include "setcoveringsolver/setcovering/instance_builder.hpp"
 
+#include <fstream>
+
 using namespace setcoveringsolver::setcovering;
 
 void InstanceBuilder::add_sets(SetId number_of_sets)

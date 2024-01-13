@@ -1,12 +1,8 @@
 #include "setcoveringsolver/setcovering/instance.hpp"
-#include "setcoveringsolver/setcovering/instance_builder.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
-#include "optimizationtools/containers/indexed_map.hpp"
 
-#include <random>
-#include <set>
-#include <sstream>
+#include <fstream>
 #include <iomanip>
 #include <thread>
 

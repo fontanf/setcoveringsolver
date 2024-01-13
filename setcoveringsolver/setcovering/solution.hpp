@@ -4,9 +4,8 @@
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_map.hpp"
-#include "optimizationtools/utils/utils.hpp"
 
-#include <iomanip>
+#include "nlohmann//json.hpp"
 
 namespace setcoveringsolver
 {
@@ -91,7 +90,7 @@ public:
      */
 
     /** Write the solution to a file. */
-    void write(std::string certificate_path) const;
+    void write(const std::string& certificate_path) const;
 
     /** Export solution characteristics to a JSON structure. */
     nlohmann::json to_json() const;

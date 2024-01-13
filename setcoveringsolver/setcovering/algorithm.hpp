@@ -2,6 +2,11 @@
 
 #include "setcoveringsolver/setcovering/reduction.hpp"
 
+#include "optimizationtools/utils/output.hpp"
+#include "optimizationtools/utils/utils.hpp"
+
+#include <iomanip>
+
 namespace setcoveringsolver
 {
 namespace setcovering

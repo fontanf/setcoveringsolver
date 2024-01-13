@@ -1,5 +1,10 @@
 #include "setcoveringsolver/setcovering/solution.hpp"
 
+#include "optimizationtools/utils/utils.hpp"
+
+#include <fstream>
+#include <iomanip>
+
 using namespace setcoveringsolver::setcovering;
 
 Solution::Solution(const Instance& instance):
@@ -33,7 +38,8 @@ Solution::Solution(
     }
 }
 
-void Solution::write(std::string certificate_path) const
+void Solution::write(
+        const std::string& certificate_path) const
 {
     if (certificate_path.empty())
         return;

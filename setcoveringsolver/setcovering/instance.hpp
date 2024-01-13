@@ -1,6 +1,9 @@
 #pragma once
 
-#include "optimizationtools/utils/output.hpp"
+#include <cstdint>
+#include <vector>
+#include <string>
+#include <iostream>
 
 namespace setcoveringsolver
 {

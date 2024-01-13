@@ -36,12 +36,12 @@ public:
 
     /** Update the solution. */
     void update_solution(
-            const Solution& solution_new,
+            const Solution& solution,
             const std::string& s);
 
     /** Update the bound. */
     void update_bound(
-            Cost bound_new,
+            Cost bound,
             const std::string& s);
 
     /** Method to call at the end of the algorithm. */
