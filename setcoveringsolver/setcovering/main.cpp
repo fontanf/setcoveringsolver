@@ -28,18 +28,29 @@ void read_args(
     parameters.log_to_stderr = vm.count("log-to-stderr");
     bool only_write_at_the_end = vm.count("only-write-at-the-end");
     if (!only_write_at_the_end) {
-        std::string certificate_path = vm["certificate"].as<std::string>();
-        std::string json_output_path = vm["output"].as<std::string>();
+
+        std::string certificate_path;
+        if (vm.count("certificate"))
+            certificate_path = vm["certificate"].as<std::string>();
+
+        std::string json_output_path;
+        if (vm.count("output"))
+            json_output_path = vm["output"].as<std::string>();
+
         parameters.new_solution_callback = [
             json_output_path,
             certificate_path](
                     const Output& output,
                     const std::string&)
         {
-            output.write_json_output(json_output_path);
-            output.solution.write(certificate_path);
+            if (!json_output_path.empty())
+                output.write_json_output(json_output_path);
+            if (!certificate_path.empty())
+                output.solution.write(certificate_path);
         };
     }
+    if (vm.count("remove-dominated"))
+        parameters.reduction_parameters.remove_domianted = vm["remove-dominated"].as<bool>();
 }
 
 Output run(
@@ -78,23 +89,39 @@ Output run(
     } else if (algorithm == "local-search-row-weighting-1") {
         LocalSearchRowWeighting1Parameters parameters;
         read_args(parameters, vm);
-        parameters.maximum_number_of_iterations = vm["maximum-number-of-iterations"].as<int>();
-        parameters.maximum_number_of_iterations_without_improvement = vm["maximum-number-of-iterations-without-improvement"].as<int>();
+        if (vm.count("maximum-number-of-iterations")) {
+            parameters.maximum_number_of_iterations
+                = vm["maximum-number-of-iterations"].as<int>();
+        }
+        if (vm.count("maximum-number-of-iterations-without-improvement")) {
+            parameters.maximum_number_of_iterations_without_improvement
+                = vm["maximum-number-of-iterations-without-improvement"].as<int>();
+        }
         return local_search_row_weighting_1(instance, generator, parameters);
     } else if (algorithm == "local-search-row-weighting-2") {
         LocalSearchRowWeighting2Parameters parameters;
         read_args(parameters, vm);
-        if (vm.count("maximum-number-of-iterations"))
-            parameters.maximum_number_of_iterations = vm["maximum-number-of-iterations"].as<int>();
-        if (vm.count("maximum-number-of-iterations-without-improvement"))
-            parameters.maximum_number_of_iterations_without_improvement = vm["maximum-number-of-iterations-without-improvement"].as<int>();
+        if (vm.count("maximum-number-of-iterations")) {
+            parameters.maximum_number_of_iterations
+                = vm["maximum-number-of-iterations"].as<int>();
+        }
+        if (vm.count("maximum-number-of-iterations-without-improvement")) {
+            parameters.maximum_number_of_iterations_without_improvement
+                = vm["maximum-number-of-iterations-without-improvement"].as<int>();
+        }
         return local_search_row_weighting_2(instance, generator, parameters);
     } else if (algorithm == "large-neighborhood-search"
             || algorithm == "large-neighborhood-search-2") {
         LargeNeighborhoodSearchParameters parameters;
         read_args(parameters, vm);
-        parameters.maximum_number_of_iterations = vm["maximum-number-of-iterations"].as<int>();
-        parameters.maximum_number_of_iterations_without_improvement = vm["maximum-number-of-iterations-without-improvement"].as<int>();
+        if (vm.count("maximum-number-of-iterations")) {
+            parameters.maximum_number_of_iterations
+                = vm["maximum-number-of-iterations"].as<int>();
+        }
+        if (vm.count("maximum-number-of-iterations-without-improvement")) {
+            parameters.maximum_number_of_iterations_without_improvement
+                = vm["maximum-number-of-iterations-without-improvement"].as<int>();
+        }
         if (vm.count("goal"))
             parameters.goal = vm["goal"].as<Cost>();
         return large_neighborhood_search(instance, parameters);
@@ -126,6 +153,7 @@ int main(int argc, char *argv[])
         ("log,l", po::value<std::string>(), "set log file")
         ("log-to-stderr", "write log to stderr")
 
+        ("remove-dominated,", po::value<bool>(), "set remove dominated")
         ("maximum-number-of-iterations,", po::value<int>(), "set the maximum number of iterations")
         ("maximum-number-of-iterations-without-improvement,", po::value<int>(), "set the maximum number of iterations without improvement")
         ;
@@ -155,10 +183,10 @@ int main(int argc, char *argv[])
     Output output = run(instance, vm);
 
     // Write outputs.
-    std::string certificate_path = vm["certificate"].as<std::string>();
-    std::string json_output_path = vm["output"].as<std::string>();
-    output.write_json_output(json_output_path);
-    output.solution.write(certificate_path);
+    if (vm.count("certificate"))
+        output.solution.write(vm["certificate"].as<std::string>());
+    if (vm.count("output"))
+        output.write_json_output(vm["output"].as<std::string>());
 
     return 0;
 }

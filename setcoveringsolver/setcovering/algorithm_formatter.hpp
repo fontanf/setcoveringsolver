@@ -72,6 +72,13 @@ inline const AlgorithmOutput solve_reduced_instance(
     algorithm_formatter.print_reduced_instance(reduction.instance());
     algorithm_formatter.print_header();
 
+    algorithm_formatter.update_solution(
+            reduction.unreduce_solution(Solution(reduction.instance())),
+            "");
+    algorithm_formatter.update_bound(
+            reduction.unreduce_bound(0),
+            "");
+
     AlgorithmParameters new_parameters = parameters;
     new_parameters.reduction_parameters.reduce = false;
     new_parameters.verbosity_level = 0;

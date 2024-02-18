@@ -33,7 +33,8 @@ struct LocalSearchRowWeighting1Parameters: Parameters
         nlohmann::json json = Parameters::to_json();
         json.merge_patch({
                 {"MaximumNumberOfIterations", maximum_number_of_iterations},
-                {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
+                {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement},
+                });
         return json;
     }
 };
@@ -62,7 +63,8 @@ struct LocalSearchRowWeighting1Output: Output
     {
         nlohmann::json json = Output::to_json();
         json.merge_patch({
-                {"NumberOfIterations", number_of_iterations}});
+                {"NumberOfIterations", number_of_iterations},
+                });
         return json;
     }
 };
@@ -141,7 +143,8 @@ struct LocalSearchRowWeighting2Parameters: Parameters
         nlohmann::json json = Parameters::to_json();
         json.merge_patch({
                 {"MaximumNumberOfIterations", maximum_number_of_iterations},
-                {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement}});
+                {"MaximumNumberOfIterationsWithoutImprovement", maximum_number_of_iterations_without_improvement},
+                });
         return json;
     }
 };
@@ -192,7 +195,8 @@ struct LocalSearchRowWeighting2Output: Output
     {
         nlohmann::json json = Output::to_json();
         json.merge_patch({
-                {"NumberOfIterations", number_of_iterations}});
+                {"NumberOfIterations", number_of_iterations},
+                });
         return json;
     }
 };

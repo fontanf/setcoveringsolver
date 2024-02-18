@@ -96,6 +96,6 @@ nlohmann::json Solution::to_json() const
         {"NumberOfSets", number_of_sets()},
         {"NumberOfUncoveredElements", number_of_uncovered_elements()},
         {"Feasible", feasible()},
-        {"Cost", cost()}
+        {"Cost", cost()},
     };
 }

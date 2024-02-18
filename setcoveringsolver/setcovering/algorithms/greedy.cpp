@@ -4,8 +4,6 @@
 
 #include "optimizationtools/containers/indexed_binary_heap.hpp"
 
-#include <set>
-
 using namespace setcoveringsolver::setcovering;
 
 const Output setcoveringsolver::setcovering::greedy(
@@ -189,4 +187,3 @@ const Output setcoveringsolver::setcovering::greedy_dual(
     algorithm_formatter.end();
     return output;
 }
-
