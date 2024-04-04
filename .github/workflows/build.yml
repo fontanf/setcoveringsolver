@@ -32,7 +32,7 @@ jobs:
       run: |
         git remote set-branches origin '*'
         git fetch --depth 1
-        git checkout main
+        git checkout master
     - name: Build
       run: bazel build -- //...
     - name: Run tests
