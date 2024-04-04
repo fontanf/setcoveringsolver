@@ -30,10 +30,6 @@ In the set packing problem solved, elements may be covered multiple times and th
 
 ## Usage (command line)
 
-Download and uncompress the instances in the `data/` folder:
-
-https://drive.google.com/file/d/1lhbfd_ayrIUEUgGJ33YH-9_QrCjwGO6Y/view?usp=sharing
-
 Compile:
 ```shell
 bazel build -- //...
@@ -43,6 +39,12 @@ bazel build --define coinor=true -- //...
 
 # To use algorithm "milp_gurobi":
 bazel build --define gurobi=true -- //...
+```
+
+Download data:
+```shell
+python3 scripts/download_data.py
+python3 scripts/download_data.py --data gecco2020
 ```
 
 Run:
