@@ -1,10 +1,8 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/algorithm.hpp"
+#include "setcoveringsolver/algorithm.hpp"
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 struct LocalSearchRowWeighting1Parameters: Parameters
@@ -207,5 +205,3 @@ const LocalSearchRowWeighting2Output local_search_row_weighting_2(
         const LocalSearchRowWeighting2Parameters& parameters = {});
 
 }
-}
-

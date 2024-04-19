@@ -16,7 +16,6 @@ args = parser.parse_args()
 main = os.path.join(
         "bazel-bin",
         "setcoveringsolver",
-        "setcovering",
         "main")
 
 

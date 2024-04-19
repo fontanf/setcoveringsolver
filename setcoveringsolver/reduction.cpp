@@ -1,10 +1,10 @@
-#include "setcoveringsolver/setcovering/reduction.hpp"
+#include "setcoveringsolver/reduction.hpp"
 
-#include "setcoveringsolver/setcovering/instance_builder.hpp"
+#include "setcoveringsolver/instance_builder.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 
-using namespace setcoveringsolver::setcovering;
+using namespace setcoveringsolver;
 
 bool Reduction::reduce_mandatory_sets()
 {

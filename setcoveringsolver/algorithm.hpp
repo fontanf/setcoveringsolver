@@ -1,6 +1,6 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/reduction.hpp"
+#include "setcoveringsolver/reduction.hpp"
 
 #include "optimizationtools/utils/output.hpp"
 #include "optimizationtools/utils/utils.hpp"
@@ -8,8 +8,6 @@
 #include <iomanip>
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 inline optimizationtools::ObjectiveDirection objective_direction()
@@ -126,5 +124,4 @@ struct Parameters: optimizationtools::Parameters
     }
 };
 
-}
 }

@@ -7,7 +7,7 @@ cc_library(
         name = "greedy",
         hdrs = ["greedy.hpp"],
         srcs = ["greedy.cpp"],
-        deps = ["//setcoveringsolver/setcovering:data"],
+        deps = ["//setcoveringsolver:data"],
         visibility = ["//visibility:public"],
 )
 
@@ -16,7 +16,7 @@ cc_library(
         hdrs = ["milp_cbc.hpp"],
         srcs = ["milp_cbc.cpp"],
         deps = [
-                "//setcoveringsolver/setcovering:data",
+                "//setcoveringsolver:data",
         ] + CBC_DEP,
         copts = CBC_COPTS,
         visibility = ["//visibility:public"],
@@ -27,7 +27,7 @@ cc_library(
         hdrs = ["milp_gurobi.hpp"],
         srcs = ["milp_gurobi.cpp"],
         deps = [
-                "//setcoveringsolver/setcovering:data",
+                "//setcoveringsolver:data",
         ] + GUROBI_DEP,
         copts = GUROBI_COPTS,
         visibility = ["//visibility:public"],
@@ -39,7 +39,7 @@ cc_library(
         srcs = ["local_search_row_weighting.cpp"],
         deps = [
                 ":greedy",
-                "//setcoveringsolver/setcovering:data",
+                "//setcoveringsolver:data",
         ],
         visibility = ["//visibility:public"],
 )
@@ -50,7 +50,7 @@ cc_library(
         srcs = ["large_neighborhood_search.cpp"],
         deps = [
                 ":greedy",
-                "//setcoveringsolver/setcovering:data",
+                "//setcoveringsolver:data",
         ],
         visibility = ["//visibility:public"],
 )

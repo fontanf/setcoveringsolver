@@ -2,14 +2,12 @@
 
 #if CBC_FOUND
 
-#include "setcoveringsolver/setcovering/algorithm.hpp"
+#include "setcoveringsolver/algorithm.hpp"
 
 #include <CbcModel.hpp>
 #include <OsiCbcSolverInterface.hpp>
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 struct MilpCbcParameters: Parameters
@@ -22,7 +20,6 @@ const Output milp_cbc(
         const Instance& instance,
         const MilpCbcParameters& parameters = {});
 
-}
 }
 
 #endif

@@ -1,10 +1,10 @@
-#include "setcoveringsolver/setcovering/algorithm_formatter.hpp"
+#include "setcoveringsolver/algorithm_formatter.hpp"
 
 #include "optimizationtools/utils/utils.hpp"
 
 #include <iomanip>
 
-using namespace setcoveringsolver::setcovering;
+using namespace setcoveringsolver;
 
 void AlgorithmFormatter::start(
         const std::string& algorithm_name)

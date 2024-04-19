@@ -1,11 +1,11 @@
-#include "setcoveringsolver/setcovering/algorithms/local_search_row_weighting.hpp"
+#include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
 
-#include "setcoveringsolver/setcovering/algorithm_formatter.hpp"
-#include "setcoveringsolver/setcovering/algorithms/greedy.hpp"
+#include "setcoveringsolver/algorithm_formatter.hpp"
+#include "setcoveringsolver/algorithms/greedy.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 
-using namespace setcoveringsolver::setcovering;
+using namespace setcoveringsolver;
 
 struct LocalSearchRowWeightingComponent
 {
@@ -45,7 +45,7 @@ struct LocalSearchRowWeightingSet
     Cost score = 0;
 };
 
-const LocalSearchRowWeighting2Output setcoveringsolver::setcovering::local_search_row_weighting_2(
+const LocalSearchRowWeighting2Output setcoveringsolver::local_search_row_weighting_2(
         const Instance& instance,
         std::mt19937_64& generator,
         const LocalSearchRowWeighting2Parameters& parameters)
@@ -566,7 +566,7 @@ struct LocalSearchRowWeighting1Set
     Cost score = 0;
 };
 
-const LocalSearchRowWeighting1Output setcoveringsolver::setcovering::local_search_row_weighting_1(
+const LocalSearchRowWeighting1Output setcoveringsolver::local_search_row_weighting_1(
         const Instance& instance,
         std::mt19937_64& generator,
         const LocalSearchRowWeighting1Parameters& parameters)

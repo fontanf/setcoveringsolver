@@ -1,6 +1,6 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/instance.hpp"
+#include "setcoveringsolver/instance.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_map.hpp"
@@ -8,8 +8,6 @@
 #include "nlohmann//json.hpp"
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 class Solution
@@ -166,5 +164,4 @@ void Solution::remove(SetId set_id)
     cost_ -= instance().set(set_id).cost;
 }
 
-}
 }

@@ -1,10 +1,10 @@
 #if CBC_FOUND
 
-#include "setcoveringsolver/setcovering/algorithms/milp_cbc.hpp"
+#include "setcoveringsolver/algorithms/milp_cbc.hpp"
 
-#include "setcoveringsolver/setcovering/algorithm_formatter.hpp"
+#include "setcoveringsolver/algorithm_formatter.hpp"
 
-using namespace setcoveringsolver::setcovering;
+using namespace setcoveringsolver;
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// Callback ///////////////////////////////////
@@ -164,7 +164,7 @@ CoinLP::CoinLP(const Instance& instance)
             number_of_elements_in_rows.data());
 }
 
-const Output setcoveringsolver::setcovering::milp_cbc(
+const Output setcoveringsolver::milp_cbc(
         const Instance& instance,
         const MilpCbcParameters& parameters)
 {

@@ -1,10 +1,8 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/algorithm.hpp"
+#include "setcoveringsolver/algorithm.hpp"
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 struct LargeNeighborhoodSearchParameters: Parameters
@@ -77,5 +75,3 @@ const LargeNeighborhoodSearchOutput large_neighborhood_search(
         const LargeNeighborhoodSearchParameters& parameters = {});
 
 }
-}
-

@@ -1,12 +1,12 @@
 #if GUROBI_FOUND
 
-#include "setcoveringsolver/setcovering/algorithms/milp_gurobi.hpp"
+#include "setcoveringsolver/algorithms/milp_gurobi.hpp"
 
-#include "setcoveringsolver/setcovering/algorithm_formatter.hpp"
+#include "setcoveringsolver/algorithm_formatter.hpp"
 
 #include "gurobi_c++.h"
 
-using namespace setcoveringsolver::setcovering;
+using namespace setcoveringsolver;
 
 class MilpGurobiCallback: public GRBCallback
 {
@@ -56,7 +56,7 @@ private:
 
 };
 
-const Output setcoveringsolver::setcovering::milp_gurobi(
+const Output setcoveringsolver::milp_gurobi(
         const Instance& instance,
         const MilpGurobiParameters& parameters)
 {

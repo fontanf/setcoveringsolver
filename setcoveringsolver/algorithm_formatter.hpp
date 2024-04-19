@@ -1,10 +1,8 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/algorithm.hpp"
+#include "setcoveringsolver/algorithm.hpp"
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 class AlgorithmFormatter
@@ -107,5 +105,4 @@ inline const AlgorithmOutput solve_reduced_instance(
     return output;
 }
 
-}
 }
