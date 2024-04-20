@@ -1,4 +1,4 @@
-#include "setcoveringsolver/setcovering/instance.hpp"
+#include "setcoveringsolver/instance.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 
@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <thread>
 
-using namespace setcoveringsolver::setcovering;
+using namespace setcoveringsolver;
 
 const std::vector<std::vector<SetId>>& Instance::set_neighbors() const
 {

@@ -1,10 +1,8 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/instance.hpp"
+#include "setcoveringsolver/instance.hpp"
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 class InstanceBuilder
@@ -89,5 +87,4 @@ private:
 
 };
 
-}
 }

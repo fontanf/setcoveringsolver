@@ -2,11 +2,9 @@
 
 #if GUROBI_FOUND
 
-#include "setcoveringsolver/setcovering/algorithm.hpp"
+#include "setcoveringsolver/algorithm.hpp"
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 struct MilpGurobiParameters: Parameters
@@ -19,7 +17,6 @@ const Output milp_gurobi(
         const Instance& instance,
         const MilpGurobiParameters& parameters = {});
 
-}
 }
 
 #endif

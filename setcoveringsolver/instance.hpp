@@ -7,8 +7,6 @@
 
 namespace setcoveringsolver
 {
-namespace setcovering
-{
 
 using ElementId = int64_t;
 using ElementPos = int64_t;
@@ -213,5 +211,4 @@ private:
 
 };
 
-}
 }

@@ -1,10 +1,8 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/algorithm.hpp"
+#include "setcoveringsolver/algorithm.hpp"
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 const Output greedy(
@@ -20,5 +18,3 @@ const Output greedy_dual(
         const Parameters& parameters = {});
 
 }
-}
-

@@ -1,10 +1,8 @@
 #pragma once
 
-#include "setcoveringsolver/setcovering/solution.hpp"
+#include "setcoveringsolver/solution.hpp"
 
 namespace setcoveringsolver
-{
-namespace setcovering
 {
 
 /**
@@ -94,5 +92,4 @@ private:
 
 };
 
-}
 }

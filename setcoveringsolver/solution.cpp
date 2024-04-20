@@ -1,11 +1,11 @@
-#include "setcoveringsolver/setcovering/solution.hpp"
+#include "setcoveringsolver/solution.hpp"
 
 #include "optimizationtools/utils/utils.hpp"
 
 #include <fstream>
 #include <iomanip>
 
-using namespace setcoveringsolver::setcovering;
+using namespace setcoveringsolver;
 
 Solution::Solution(const Instance& instance):
     instance_(&instance),

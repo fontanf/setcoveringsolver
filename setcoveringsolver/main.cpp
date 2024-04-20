@@ -1,15 +1,15 @@
-#include "setcoveringsolver/setcovering/instance_builder.hpp"
+#include "setcoveringsolver/instance_builder.hpp"
 
-#include "setcoveringsolver/setcovering/solution.hpp"
-#include "setcoveringsolver/setcovering/algorithms/greedy.hpp"
-#include "setcoveringsolver/setcovering/algorithms/milp_cbc.hpp"
-#include "setcoveringsolver/setcovering/algorithms/milp_gurobi.hpp"
-#include "setcoveringsolver/setcovering/algorithms/local_search_row_weighting.hpp"
-#include "setcoveringsolver/setcovering/algorithms/large_neighborhood_search.hpp"
+#include "setcoveringsolver/solution.hpp"
+#include "setcoveringsolver/algorithms/greedy.hpp"
+#include "setcoveringsolver/algorithms/milp_cbc.hpp"
+#include "setcoveringsolver/algorithms/milp_gurobi.hpp"
+#include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
+#include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
 
 #include <boost/program_options.hpp>
 
-using namespace setcoveringsolver::setcovering;
+using namespace setcoveringsolver;
 
 namespace po = boost::program_options;
 
