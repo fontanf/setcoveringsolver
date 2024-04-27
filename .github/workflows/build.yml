@@ -46,7 +46,7 @@ jobs:
         cp -rf "${GITHUB_WORKSPACE}/build/_deps/mathoptsolverscmake-build/extern/Clp-prefix/src/Clp/lib/" "/Users/runner/work/Clp/Clp/dist/lib"
         mkdir -p "/Users/runner/work/Cbc/Cbc/dist/lib"
         cp -rf "${GITHUB_WORKSPACE}/build/_deps/mathoptsolverscmake-build/extern/Cbc-prefix/src/Cbc/lib/" "/Users/runner/work/Cbc/Cbc/dist/lib"
-      if: matrix.os == 'macos-latest'
+      if: matrix.os == 'macos-13'
     - name: Run tests
       run: python3 -u scripts/run_tests.py test_results
     - name: Checkout main branch
