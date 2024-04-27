@@ -1,26 +1,18 @@
 #pragma once
 
-#if CBC_FOUND
-
 #include "setcoveringsolver/algorithm.hpp"
-
-#include <CbcModel.hpp>
-#include <OsiCbcSolverInterface.hpp>
 
 namespace setcoveringsolver
 {
 
-struct MilpCbcParameters: Parameters
+struct MilpGurobiParameters: Parameters
 {
     /** Initial solution. */
     const Solution* initial_solution = NULL;
 };
 
-const Output milp_cbc(
+const Output milp_gurobi(
         const Instance& instance,
-        const MilpCbcParameters& parameters = {});
+        const MilpGurobiParameters& parameters = {});
 
 }
-
-#endif
-

@@ -1,5 +1,3 @@
-#if CBC_FOUND
-
 #include "setcoveringsolver/algorithms/milp_cbc.hpp"
 
 #include "setcoveringsolver/algorithm_formatter.hpp"
@@ -281,5 +279,3 @@ const Output setcoveringsolver::milp_cbc(
     algorithm_formatter.end();
     return output;
 }
-
-#endif

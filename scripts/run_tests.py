@@ -13,10 +13,11 @@ parser.add_argument(
 args = parser.parse_args()
 
 
+data_dir = os.environ['SET_COVERING_DATA']
 main = os.path.join(
-        "bazel-bin",
-        "setcoveringsolver",
-        "main")
+        "install",
+        "bin",
+        "setcoveringsolver")
 
 
 if args.tests is None or "greedy" in args.tests:
@@ -33,7 +34,7 @@ if args.tests is None or "greedy" in args.tests:
 
     for instance, instance_format in greedy_data:
         instance_path = os.path.join(
-                "data",
+                data_dir,
                 instance)
         json_output_path = os.path.join(
                 args.directory,
