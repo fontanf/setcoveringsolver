@@ -1,5 +1,3 @@
-#if GUROBI_FOUND
-
 #include "setcoveringsolver/algorithms/milp_gurobi.hpp"
 
 #include "setcoveringsolver/algorithm_formatter.hpp"
@@ -170,5 +168,3 @@ const Output setcoveringsolver::milp_gurobi(
     algorithm_formatter.end();
     return output;
 }
-
-#endif

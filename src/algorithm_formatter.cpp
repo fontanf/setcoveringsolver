@@ -18,10 +18,6 @@ void AlgorithmFormatter::start(
         << "          SetCoveringSolver          " << std::endl
         << "=====================================" << std::endl
         << std::endl
-        << "Problem" << std::endl
-        << "-------" << std::endl
-        << "Set covering problem" << std::endl
-        << std::endl
         << "Instance" << std::endl
         << "--------" << std::endl;
     output_.solution.instance().format(*os_, parameters_.verbosity_level);

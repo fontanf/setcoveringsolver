@@ -32,13 +32,9 @@ In the set packing problem solved, elements may be covered multiple times and th
 
 Compile:
 ```shell
-bazel build -- //...
-
-# To use algorithm "milp_cbc":
-bazel build --define coinor=true -- //...
-
-# To use algorithm "milp_gurobi":
-bazel build --define gurobi=true -- //...
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release --parallel
+cmake --install build --config Release --prefix install
 ```
 
 Download data:
@@ -50,7 +46,7 @@ python3 scripts/download_data.py --data gecco2020
 Run:
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/wedelin1995/sasd9imp2.dat -f wedelin1995 -a milp-cbc
+./install/bin/setcoveringsolver -v 1 -i data/wedelin1995/sasd9imp2.dat -f wedelin1995 -a milp-cbc
 ```
 ```
 =====================================
@@ -130,7 +126,7 @@ Cost:                          5262040
 ```
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/beasley1990/scpnrh5.txt -f orlibrary -a large-neighborhood-search -t 0.3
+./install/bin/setcoveringsolver -v 1 -i data/beasley1990/scpnrh5.txt -f orlibrary -a large-neighborhood-search -t 0.3
 ```
 ```
 =====================================
@@ -212,7 +208,7 @@ Cost:                          55
 ```
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a local-search-row-weighting-1 -c solution.txt -t 2
+./install/bin/setcoveringsolver -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a local-search-row-weighting-1 -c solution.txt -t 2
 ```
 ```
 =====================================
@@ -312,7 +308,7 @@ Cost:                          130
 ```
 
 ```shell
-./bazel-bin/setcoveringsolver/main -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a local-search-row-weighting-2 -t 10 -c solution.txt
+./install/bin/setcoveringsolver -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a local-search-row-weighting-2 -t 10 -c solution.txt
 ```
 ```
 =====================================

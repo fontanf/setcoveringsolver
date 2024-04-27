@@ -1,22 +1,21 @@
 #pragma once
 
-#if GUROBI_FOUND
-
 #include "setcoveringsolver/algorithm.hpp"
+
+#include <coin/CbcModel.hpp>
+#include <coin/OsiCbcSolverInterface.hpp>
 
 namespace setcoveringsolver
 {
 
-struct MilpGurobiParameters: Parameters
+struct MilpCbcParameters: Parameters
 {
     /** Initial solution. */
     const Solution* initial_solution = NULL;
 };
 
-const Output milp_gurobi(
+const Output milp_cbc(
         const Instance& instance,
-        const MilpGurobiParameters& parameters = {});
+        const MilpCbcParameters& parameters = {});
 
 }
-
-#endif
