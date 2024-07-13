@@ -33,9 +33,8 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
     - name: Install CLP (MacOS)
       run: |
-        brew tap coin-or-tools/coinor
-        brew install coin-or-tools/coinor/clp
-        brew install coin-or-tools/coinor/cbc
+        brew install clp
+        brew install cbc
       if: ${{ (matrix.os == 'macos-13') || (matrix.os == 'macos-latest') }}
     - name: Build
       run: |
