@@ -5,6 +5,9 @@ project(SetCoveringSolver LANGUAGES CXX)
 option(SETCOVERINGSOLVER_USE_CBC "Use CPLEX" ON)
 option(SETCOVERINGSOLVER_USE_GUROBI "Use Gurobi" OFF)
 
+# Avoid FetchContent warning.
+cmake_policy(SET CMP0135 NEW)
+
 # Require C++14.
 set(CMAKE_CXX_STANDARD 14)
 
