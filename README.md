@@ -13,7 +13,7 @@ In the set packing problem solved, elements may be covered multiple times and th
   - based on the one from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) `-a greedy-lin`
   - Dual greedy `-a greedy-dual`
 
-- Mixed-Integer Linear Program
+- Mixed-integer linear program
   - Solved with Cbc `-a milp-cbc`
   - Solved with Gurobi `-a milp-gurobi`
 
@@ -26,7 +26,7 @@ In the set packing problem solved, elements may be covered multiple times and th
     - `-a local-search-row-weighting-2 --wu 1` implements the algorithm from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020)
     - `-a local-search-row-weighting-2 --n1 1 --n2 2 --wu 1` implements the algorithm from "Weighting-based Variable Neighborhood Search for Optimal Camera Placement" (Su et al., 2021)
 
-- Large neighborhood search `-a largeneighborhoodsearch --iterations 100000 --iterations-without-improvment 10000`
+- Large neighborhood search `-a large-neighborhood-search --maximum-number-of-iterations 100000 --maximum-number-of-iterations-without-improvement 10000`
 
 ## Usage (command line)
 
