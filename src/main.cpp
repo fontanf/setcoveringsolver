@@ -144,9 +144,9 @@ int main(int argc, char *argv[])
         ("input,i", po::value<std::string>()->required(), "set input file (required)")
         ("format,f", po::value<std::string>()->default_value(""), "set input file format (default: standard)")
         ("unicost,u", "set unicost")
-        ("output,o", po::value<std::string>()->default_value(""), "set JSON output file")
-        ("initial-solution,", po::value<std::string>()->default_value(""), "")
-        ("certificate,c", po::value<std::string>()->default_value(""), "set certificate file")
+        ("output,o", po::value<std::string>(), "set JSON output file")
+        ("initial-solution,", po::value<std::string>(), "")
+        ("certificate,c", po::value<std::string>(), "set certificate file")
         ("goal,", po::value<Cost>(), "")
         ("seed,s", po::value<Seed>()->default_value(0), "set seed")
         ("time-limit,t", po::value<double>(), "set time limit in seconds")
@@ -192,4 +192,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
