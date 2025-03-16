@@ -2,6 +2,7 @@
 
 #include "setcoveringsolver/algorithm_formatter.hpp"
 #include "setcoveringsolver/algorithms/greedy.hpp"
+#include "setcoveringsolver/algorithms/trivial_bound.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 #include "optimizationtools/containers/indexed_binary_heap.hpp"
@@ -31,6 +32,14 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
 
     algorithm_formatter.print_header();
 
+    // Compute initial bound.
+    Parameters trivial_bound_parameters;
+    trivial_bound_parameters.verbosity_level = 0;
+    trivial_bound_parameters.reduction_parameters.reduce = false;
+    Cost bound = trivial_bound(instance, trivial_bound_parameters).bound;
+    algorithm_formatter.update_bound(bound, "trivial bound");
+
+    // Compute initial greedy solution.
     Parameters greedy_parameters;
     greedy_parameters.timer = parameters.timer;
     greedy_parameters.reduction_parameters.reduce = false;
