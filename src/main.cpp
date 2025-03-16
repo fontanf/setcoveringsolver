@@ -60,7 +60,7 @@ Output run(
         const po::variables_map& vm)
 {
     std::mt19937_64 generator(vm["seed"].as<Seed>());
-    Solution solution = (vm.count("certificate"))?
+    Solution solution = (vm.count("initial-solution"))?
         Solution(instance, vm["initial-solution"].as<std::string>()):
         Solution(instance);
 
