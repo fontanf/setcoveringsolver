@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15.0)
 
 project(SetCoveringSolver LANGUAGES CXX)
 
-option(SETCOVERINGSOLVER_USE_CBC "Use CPLEX" ON)
+option(SETCOVERINGSOLVER_USE_CBC "Use Cbc" ON)
 option(SETCOVERINGSOLVER_USE_GUROBI "Use Gurobi" OFF)
 
 # Avoid FetchContent warning.
