@@ -28,14 +28,9 @@ jobs:
       run: |
         python3 -m pip install gdown
         python3 scripts/download_data.py
-    - name: Install nauty
-      run: sudo apt-get install -y libnauty2-dev
+    - name: Install dependencies
+      run: sudo apt-get -y install liblapack-dev libbz2-dev libnauty-dev
       if: matrix.os == 'ubuntu-latest'
-    - name: Install CLP (MacOS)
-      run: |
-        brew install clp
-        brew install cbc
-      if: ${{ (matrix.os == 'macos-13') || (matrix.os == 'macos-latest') }}
     - name: Build
       run: |
         cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
