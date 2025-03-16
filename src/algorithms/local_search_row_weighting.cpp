@@ -2,6 +2,7 @@
 
 #include "setcoveringsolver/algorithm_formatter.hpp"
 #include "setcoveringsolver/algorithms/greedy.hpp"
+#include "setcoveringsolver/algorithms/trivial_bound.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
 
@@ -79,6 +80,13 @@ const LocalSearchRowWeighting2Output setcoveringsolver::local_search_row_weighti
     const std::vector<std::vector<SetId>>* element_set_neighbors = nullptr;
     if (parameters.neighborhood_1 == 1 || parameters.neighborhood_2 == 1)
         element_set_neighbors = &instance.element_set_neighbors();
+
+    // Compute initial bound.
+    Parameters trivial_bound_parameters;
+    trivial_bound_parameters.verbosity_level = 0;
+    trivial_bound_parameters.reduction_parameters.reduce = false;
+    Cost bound = trivial_bound(instance, trivial_bound_parameters).bound;
+    algorithm_formatter.update_bound(bound, "trivial bound");
 
     // Compute initial greedy solution.
     Parameters greedy_parameters;
@@ -595,6 +603,13 @@ const LocalSearchRowWeighting1Output setcoveringsolver::local_search_row_weighti
 
     algorithm_formatter.print_header();
 
+    // Compute initial bound.
+    Parameters trivial_bound_parameters;
+    trivial_bound_parameters.verbosity_level = 0;
+    trivial_bound_parameters.reduction_parameters.reduce = false;
+    Cost bound = trivial_bound(instance, trivial_bound_parameters).bound;
+    algorithm_formatter.update_bound(bound, "trivial bound");
+
     // Compute initial greedy solution.
     Parameters greedy_parameters;
     greedy_parameters.verbosity_level = 0;
@@ -799,4 +814,3 @@ const LocalSearchRowWeighting1Output setcoveringsolver::local_search_row_weighti
     algorithm_formatter.end();
     return output;
 }
-

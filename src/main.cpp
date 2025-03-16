@@ -8,6 +8,7 @@
 #endif
 #include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
 #include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
+#include "setcoveringsolver/algorithms/trivial_bound.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -129,6 +130,10 @@ Output run(
         if (vm.count("goal"))
             parameters.goal = vm["goal"].as<Cost>();
         return large_neighborhood_search(instance, parameters);
+    } else if (algorithm == "trivial-bound") {
+        Parameters parameters;
+        read_args(parameters, vm);
+        return trivial_bound(instance, parameters);
 
     } else {
         throw std::invalid_argument(
