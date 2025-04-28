@@ -176,7 +176,7 @@ const LocalSearchRowWeighting2Output setcoveringsolver::local_search_row_weighti
                 }
                 std::stringstream ss;
                 ss << "it " << output.number_of_iterations << " comp " << component_id;
-                algorithm_formatter.update_solution(solution, ss.str());
+                algorithm_formatter.update_solution(solution_best, ss.str());
             }
             // Update statistics
             number_of_iterations_without_improvement = 0;
@@ -262,8 +262,10 @@ const LocalSearchRowWeighting2Output setcoveringsolver::local_search_row_weighti
             continue;
 
         if (solution.cost(component_id) != output.solution.cost(component_id) - 1) {
-            throw std::runtime_error("component " + std::to_string(component_id)
-                    + " size " + std::to_string(instance.component(component_id).sets.size()));
+            throw std::runtime_error(
+                    "component_id: " + std::to_string(component_id) + "; "
+                    + "solution.cost(component_id): " + std::to_string(solution.cost(component_id)) + "; "
+                    + "output.solution.cost(component_id): " + std::to_string(output.solution.cost(component_id)) + ";");
         }
 
         bool neighborhood_2_improvement = false;
