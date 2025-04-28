@@ -40,8 +40,10 @@ const Output setcoveringsolver::trivial_bound(
         SetId set_id = sorted_sets[set_pos];
         const Set& set = instance.set(set_id);
         if (set.elements.size() <= number_of_uncovered_elements) {
-            number_of_uncovered_elements -= set.elements.size();
             bound += set.cost;
+            number_of_uncovered_elements -= set.elements.size();
+            if (number_of_uncovered_elements == 0)
+                break;
         } else {
             bound += (set.cost * number_of_uncovered_elements - 1) / set.elements.size() + 1;
             break;
