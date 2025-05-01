@@ -43,6 +43,10 @@ public:
     Solution unreduce_solution(
             const Solution& solution) const;
 
+    void unreduce_solution(
+            Solution& new_solution,
+            const Solution& solution) const;
+
     /** Unreduce a bound of the reduced instance. */
     Cost unreduce_bound(
             Cost bound) const;

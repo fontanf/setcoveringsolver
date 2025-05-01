@@ -80,24 +80,27 @@ inline const AlgorithmOutput solve_reduced_instance(
     AlgorithmParameters new_parameters = parameters;
     new_parameters.reduction_parameters.reduce = false;
     new_parameters.verbosity_level = 0;
+    Solution solution_tmp(instance);
+    Solution unreduced_solution(instance);
     new_parameters.new_solution_callback = [
         &algorithm_formatter,
         &reduction,
-        &output](
+        &output,
+        &solution_tmp,
+        &unreduced_solution](
                 const Output& new_output,
                 const std::string& s)
         {
-            Solution solution = output.solution;
+            solution_tmp = output.solution;
             Cost bound = output.bound;
             output = static_cast<const AlgorithmOutput&>(new_output);
-            output.solution = solution;
+            output.solution = solution_tmp;
             output.bound = bound;
-            algorithm_formatter.update_solution(
-                    reduction.unreduce_solution(new_output.solution),
-                    s);
-            algorithm_formatter.update_bound(
-                    reduction.unreduce_bound(new_output.bound),
-                    s);
+
+            reduction.unreduce_solution(unreduced_solution, new_output.solution);
+            Cost unreduced_bound = reduction.unreduce_bound(new_output.bound);
+            algorithm_formatter.update_solution(unreduced_solution, s);
+            algorithm_formatter.update_bound(unreduced_bound, s);
         };
     algorithm(reduction.instance(), new_parameters);
 
