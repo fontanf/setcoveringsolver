@@ -434,6 +434,31 @@ Reduction::Reduction(
         extra_cost_ += instance.set(orig_set_id).cost;
 }
 
+void Reduction::unreduce_solution(
+        Solution& new_solution,
+        const Solution& solution) const
+{
+    for (SetId set_id: mandatory_sets_)
+        if (!new_solution.contains(set_id))
+            new_solution.add(set_id);
+
+    for (SetId set_id = 0;
+            set_id < instance().number_of_sets();
+            ++set_id) {
+        if (solution.contains(set_id)) {
+            SetId set_id_2 = unreduction_operations_[set_id];
+            if (!new_solution.contains(set_id_2)) {
+                new_solution.add(set_id_2);
+            }
+        } else {
+            SetId set_id_2 = unreduction_operations_[set_id];
+            if (new_solution.contains(set_id_2)) {
+                new_solution.remove(set_id_2);
+            }
+        }
+    }
+}
+
 Solution Reduction::unreduce_solution(
         const Solution& solution) const
 {
