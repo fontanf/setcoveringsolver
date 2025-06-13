@@ -181,8 +181,8 @@ const Output setcoveringsolver::milp_cbc(
     OsiCbcSolverInterface solver1;
 
     // Reduce printout.
-    solver1.getModelPtr()->setLogLevel(0);
-    solver1.messageHandler()->setLogLevel(0);
+    //solver1.getModelPtr()->setLogLevel(0);
+    //solver1.messageHandler()->setLogLevel(0);
 
     // Load problem.
     solver1.loadProblem(
@@ -205,8 +205,8 @@ const Output setcoveringsolver::milp_cbc(
     model.passInEventHandler(&event_handler);
 
     // Reduce printout.
-    model.setLogLevel(0);
-    model.solver()->setHintParam(OsiDoReducePrint, true, OsiHintTry);
+    //model.setLogLevel(0);
+    //model.solver()->setHintParam(OsiDoReducePrint, true, OsiHintTry);
 
     // Set time limit.
     model.setMaximumSeconds(parameters.timer.remaining_time());

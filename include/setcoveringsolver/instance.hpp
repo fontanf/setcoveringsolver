@@ -111,6 +111,12 @@ public:
     /** Get element set neighbors. */
     const std::vector<std::vector<ElementId>>& element_set_neighbors() const;
 
+    /** Compute an estimate of the average number of neighbors of a set. */
+    double compute_average_number_of_set_neighbors_estimate() const;
+
+    /** Compute an estimate of the average number of neighbors of an element. */
+    double compute_average_number_of_element_neighbors_estimate() const;
+
     /*
      * Export
      */
@@ -118,7 +124,7 @@ public:
     /** Write the instance to a file. */
     void write(
             const std::string& instance_path,
-            const std::string& format);
+            const std::string& format) const;
 
     /** Write a formatted output of the object to a stream. */
     void format(
@@ -205,7 +211,10 @@ private:
      */
 
     /** Write an instance in 'balas1980' format. */
-    void write_balas1980(std::ofstream& file);
+    void write_balas1980(std::ofstream& file) const;
+
+    /** Write an instance in 'pace2025' format. */
+    void write_pace2025(std::ofstream& file) const;
 
     friend class InstanceBuilder;
 

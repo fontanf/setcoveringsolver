@@ -97,7 +97,8 @@ void AlgorithmFormatter::update_solution(
         output_.solution = solution;
         print(s);
         output_.json["IntermediaryOutputs"].push_back(output_.to_json());
-        parameters_.new_solution_callback(output_, s);
+        if (parameters_.enable_new_solution_callback)
+            parameters_.new_solution_callback(output_, s);
     }
 }
 
@@ -113,7 +114,8 @@ void AlgorithmFormatter::update_bound(
         output_.bound = bound;
         print(s);
         output_.json["IntermediaryOutputs"].push_back(output_.to_json());
-        parameters_.new_solution_callback(output_, s);
+        if (parameters_.enable_new_solution_callback)
+            parameters_.new_solution_callback(output_, s);
     }
 }
 

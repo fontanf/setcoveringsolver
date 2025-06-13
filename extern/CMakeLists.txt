@@ -15,10 +15,19 @@ FetchContent_MakeAvailable(Boost)
 FetchContent_Declare(
     optimizationtools
     GIT_REPOSITORY https://github.com/fontanf/optimizationtools.git
-    GIT_TAG a0973a7dfa64b9d305f75879c80d252e714ce2cf
+    GIT_TAG 65c8e11224aac1cf6e6e33c040b6b895341ad156
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../optimizationtools/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(optimizationtools)
+
+# Fetch fontanf/coloringsolver.
+FetchContent_Declare(
+    coloringsolver
+    GIT_REPOSITORY https://github.com/fontanf/coloringsolver.git
+    GIT_TAG 12b0eb7dd085a9284f254cdbc9e49c9ba0cfffff
+    #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../coloringsolver/"
+    EXCLUDE_FROM_ALL)
+FetchContent_MakeAvailable(coloringsolver)
 
 # Fetch fontanf/mathoptsolverscmake.
 if(SETCOVERINGSOLVER_USE_CBC)

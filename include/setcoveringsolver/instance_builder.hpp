@@ -13,6 +13,11 @@ public:
     /** Constructor. */
     InstanceBuilder() { }
 
+    void move(
+            Instance&& instance,
+            SetId new_number_of_sets,
+            ElementId new_number_of_elements);
+
     /** Add sets. */
     void add_sets(SetId number_of_sets);
 
@@ -25,9 +30,16 @@ public:
             Cost cost);
 
     /** Add an between a set and an element. */
-    void add_arc(
+    inline void add_arc(
             SetId set_id,
-            ElementId element_id);
+            ElementId element_id)
+    {
+        //instance_.check_set_index(set_id);
+        //instance_.check_element_index(element_id);
+
+        instance_.elements_[element_id].sets.push_back(set_id);
+        instance_.sets_[set_id].elements.push_back(element_id);
+    }
 
     /** Set the cost of all sets to 1. */
     void set_unicost();
@@ -36,6 +48,12 @@ public:
     void read(
             const std::string& instance_path,
             const std::string& format);
+
+    /** Read an instance file in 'pace2025' format. */
+    void read_pace2025(FILE* file);
+
+    /** Read an instance file in 'pace2025_ds' format. */
+    void read_pace2025_ds(FILE* file);
 
     /*
      * Build

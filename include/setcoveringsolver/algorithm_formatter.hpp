@@ -102,7 +102,19 @@ inline const AlgorithmOutput solve_reduced_instance(
             algorithm_formatter.update_solution(unreduced_solution, s);
             algorithm_formatter.update_bound(unreduced_bound, s);
         };
-    algorithm(reduction.instance(), new_parameters);
+    auto new_output = algorithm(reduction.instance(), new_parameters);
+
+    solution_tmp = output.solution;
+    Cost bound = output.bound;
+    output = static_cast<const AlgorithmOutput&>(new_output);
+    output.solution = solution_tmp;
+    output.bound = bound;
+
+    std::string s = "";
+    reduction.unreduce_solution(unreduced_solution, new_output.solution);
+    Cost unreduced_bound = reduction.unreduce_bound(new_output.bound);
+    algorithm_formatter.update_solution(unreduced_solution, s);
+    algorithm_formatter.update_bound(unreduced_bound, s);
 
     algorithm_formatter.end();
     return output;
