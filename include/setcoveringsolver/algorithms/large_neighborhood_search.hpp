@@ -13,9 +13,6 @@ struct LargeNeighborhoodSearchParameters: Parameters
     /** Maximum number of iterations without improvement. */
     Counter maximum_number_of_iterations_without_improvement = -1;
 
-    /** Goal. */
-    Cost goal;
-
 
     virtual nlohmann::json to_json() const override
     {

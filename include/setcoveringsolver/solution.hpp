@@ -83,12 +83,21 @@ public:
     /** Remove a set from the solution. */
     inline void remove(SetId set_id);
 
+    /** Add aall the sets to the solution. */
+    void fill();
+
     /*
      * Export
      */
 
     /** Write the solution to a file. */
-    void write(const std::string& certificate_path) const;
+    void write(
+            const std::string& certificate_path,
+            const std::string& format = "") const;
+
+    /** Write an instance file in 'pace2025' format. */
+    void write_pace2025(
+            std::ostream& file) const;
 
     /** Export solution characteristics to a JSON structure. */
     nlohmann::json to_json() const;
@@ -99,6 +108,14 @@ public:
             int verbosity_level = 1) const;
 
 private:
+
+    /*
+     * Private methods
+     */
+
+    /** Write an instance file in 'geco2020' format. */
+    void write_gecco2020(
+            std::ofstream& file) const;
 
     /*
      * Private attributes
@@ -127,7 +144,7 @@ private:
 void Solution::add(SetId set_id)
 {
     // Checks.
-    instance().check_set_index(set_id);
+    //instance().check_set_index(set_id);
     if (contains(set_id))
         throw std::invalid_argument(
                 "Cannot add set " + std::to_string(set_id)
@@ -147,7 +164,7 @@ void Solution::add(SetId set_id)
 void Solution::remove(SetId set_id)
 {
     // Checks.
-    instance().check_set_index(set_id);
+    //instance().check_set_index(set_id);
     if (!contains(set_id))
         throw std::invalid_argument(
                 "Cannot remove set " + std::to_string(set_id)

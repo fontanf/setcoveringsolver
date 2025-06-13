@@ -9,6 +9,7 @@
 #include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
 #include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
 #include "setcoveringsolver/algorithms/trivial_bound.hpp"
+#include "setcoveringsolver/algorithms/clique_cover_bound.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -36,24 +37,35 @@ void read_args(
         if (vm.count("certificate"))
             certificate_path = vm["certificate"].as<std::string>();
 
+        std::string certificate_format;
+        if (vm.count("certificate-format"))
+            certificate_format = vm["certificate-format"].as<std::string>();
+
         std::string json_output_path;
         if (vm.count("output"))
             json_output_path = vm["output"].as<std::string>();
 
         parameters.new_solution_callback = [
             json_output_path,
-            certificate_path](
+            certificate_path,
+            certificate_format](
                     const Output& output,
                     const std::string&)
         {
             if (!json_output_path.empty())
                 output.write_json_output(json_output_path);
             if (!certificate_path.empty())
-                output.solution.write(certificate_path);
+                output.solution.write(certificate_path, certificate_format);
         };
     }
+    if (vm.count("reduce"))
+        parameters.reduction_parameters.reduce = vm["reduce"].as<bool>();
     if (vm.count("remove-dominated"))
-        parameters.reduction_parameters.remove_domianted = vm["remove-dominated"].as<bool>();
+        parameters.reduction_parameters.remove_dominated = vm["remove-dominated"].as<bool>();
+    if (vm.count("reduction-time-limit"))
+        parameters.reduction_parameters.timer.set_time_limit(vm["reduction-time-limit"].as<double>());
+    if (vm.count("enable-new-solution-callback"))
+        parameters.enable_new_solution_callback = vm["enable-new-solution-callback"].as<bool>();
 }
 
 Output run(
@@ -75,10 +87,18 @@ Output run(
         Parameters parameters;
         read_args(parameters, vm);
         return greedy_lin(instance, parameters);
+    } else if (algorithm == "greedy-reverse") {
+        Parameters parameters;
+        read_args(parameters, vm);
+        return greedy_reverse(instance, parameters);
     } else if (algorithm == "greedy-dual") {
         Parameters parameters;
         read_args(parameters, vm);
         return greedy_dual(instance, parameters);
+    } else if (algorithm == "greedy-or-greedy-reverse") {
+        Parameters parameters;
+        read_args(parameters, vm);
+        return greedy_or_greedy_reverse(instance, parameters);
 #if CBC_FOUND
     } else if (algorithm == "milp-cbc") {
         MilpCbcParameters parameters;
@@ -102,7 +122,7 @@ Output run(
             parameters.maximum_number_of_iterations_without_improvement
                 = vm["maximum-number-of-iterations-without-improvement"].as<int>();
         }
-        return local_search_row_weighting_1(instance, generator, parameters);
+        return local_search_row_weighting_1(instance, generator, nullptr, parameters);
     } else if (algorithm == "local-search-row-weighting-2") {
         LocalSearchRowWeighting2Parameters parameters;
         read_args(parameters, vm);
@@ -114,7 +134,7 @@ Output run(
             parameters.maximum_number_of_iterations_without_improvement
                 = vm["maximum-number-of-iterations-without-improvement"].as<int>();
         }
-        return local_search_row_weighting_2(instance, generator, parameters);
+        return local_search_row_weighting_2(instance, generator, nullptr, parameters);
     } else if (algorithm == "large-neighborhood-search"
             || algorithm == "large-neighborhood-search-2") {
         LargeNeighborhoodSearchParameters parameters;
@@ -134,6 +154,10 @@ Output run(
         Parameters parameters;
         read_args(parameters, vm);
         return trivial_bound(instance, parameters);
+    } else if (algorithm == "clique-cover-bound") {
+        Parameters parameters;
+        read_args(parameters, vm);
+        return clique_cover_bound(instance, parameters);
 
     } else {
         throw std::invalid_argument(
@@ -150,6 +174,7 @@ int main(int argc, char *argv[])
         ("algorithm,a", po::value<std::string>()->default_value("large-neighborhood-search"), "set algorithm")
         ("input,i", po::value<std::string>()->required(), "set input file (required)")
         ("format,f", po::value<std::string>()->default_value(""), "set input file format (default: standard)")
+        ("certificate-format,", po::value<std::string>()->default_value(""), "set certificate file format (default: standard)")
         ("unicost,u", "set unicost")
         ("output,o", po::value<std::string>(), "set JSON output file")
         ("initial-solution,", po::value<std::string>(), "")
@@ -162,7 +187,10 @@ int main(int argc, char *argv[])
         ("log,l", po::value<std::string>(), "set log file")
         ("log-to-stderr", "write log to stderr")
 
+        ("reduce,", po::value<bool>(), "set reduce")
         ("remove-dominated,", po::value<bool>(), "set remove dominated")
+        ("reduction-time-limit,t", po::value<double>(), "set reduction time limit in seconds")
+        ("enable-new-solution-callback,", po::value<bool>(), "enable new solution callback")
         ("maximum-number-of-iterations,", po::value<int>(), "set the maximum number of iterations")
         ("maximum-number-of-iterations-without-improvement,", po::value<int>(), "set the maximum number of iterations without improvement")
         ;
@@ -192,8 +220,14 @@ int main(int argc, char *argv[])
     Output output = run(instance, vm);
 
     // Write outputs.
-    if (vm.count("certificate"))
-        output.solution.write(vm["certificate"].as<std::string>());
+    if (vm.count("certificate")) {
+        std::string certificate_format = "";
+        if (vm.count("certificate-format"))
+            certificate_format = vm["certificate-format"].as<std::string>();
+        output.solution.write(
+                vm["certificate"].as<std::string>(),
+                certificate_format);
+    }
     if (vm.count("output"))
         output.write_json_output(vm["output"].as<std::string>());
 

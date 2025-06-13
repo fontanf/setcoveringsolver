@@ -21,7 +21,10 @@ inline optimizationtools::ObjectiveDirection objective_direction()
 struct Output: optimizationtools::Output
 {
     /** Constructor. */
-    Output(const Instance& instance): solution(instance) { }
+    Output(const Instance& instance): solution(instance)
+    {
+        solution.fill();
+    }
 
 
     /** Solution. */
@@ -94,8 +97,14 @@ struct Parameters: optimizationtools::Parameters
     /** Callback function called when a new best solution is found. */
     NewSolutionCallback new_solution_callback = [](const Output&, const std::string&) { };
 
+    /** Enable new solution callback. */
+    bool enable_new_solution_callback = true;
+
     /** Reduction parameters. */
     ReductionParameters reduction_parameters;
+
+    /** Goal. */
+    Cost goal;
 
 
     virtual nlohmann::json to_json() const override
@@ -104,8 +113,9 @@ struct Parameters: optimizationtools::Parameters
         json.merge_patch(
             {"Reduction",
                 {"Enable", reduction_parameters.reduce},
+                {"TimeLimit", reduction_parameters.timer.time_limit()},
                 {"MaximumNumberOfRounds", reduction_parameters.maximum_number_of_rounds},
-                {"RemoveDominated", reduction_parameters.remove_domianted}});
+                {"RemoveDominated", reduction_parameters.remove_dominated}});
         return json;
     }
 
@@ -118,8 +128,9 @@ struct Parameters: optimizationtools::Parameters
         os
             << "Reduction" << std::endl
             << std::setw(width) << std::left << "    Enable: " << reduction_parameters.reduce << std::endl
+            << std::setw(width) << std::left << "    Time limit: " << reduction_parameters.timer.time_limit() << std::endl
             << std::setw(width) << std::left << "    Max. # of rounds: " << reduction_parameters.maximum_number_of_rounds << std::endl
-            << std::setw(width) << std::left << "    Remove dominated: " << reduction_parameters.remove_domianted << std::endl
+            << std::setw(width) << std::left << "    Remove dominated: " << reduction_parameters.remove_dominated << std::endl
             ;
     }
 };

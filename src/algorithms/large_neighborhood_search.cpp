@@ -15,6 +15,21 @@ struct LargeNeighborhoodSearchSet
     Counter last_addition = -1;
     Counter last_removal = -1;
     Counter iterations = 0;
+
+    /**
+     * If a set is not in the solution, its score corresponds to the sum of the
+     * penalties of each element that would become covered if this set is
+     * added to the solution.
+     * If a solution is full (all elements are covered), then the score of each
+     * set outside of the solution is therefore null.
+     *
+     * If a set is in the solution, its score corresponds to the sum of the
+     * penalties of each element that would become uncovered if this set is
+     * removed from the solution.
+     *
+     * If an item is added to the solution, its score doesn't change.
+     * If an item is removed from the solution, its score doesn't change.
+     */
     Cost score = 0;
 };
 
@@ -25,6 +40,15 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
     LargeNeighborhoodSearchOutput output(instance);
     AlgorithmFormatter algorithm_formatter(parameters, output);
     algorithm_formatter.start("Large neighborhood search");
+
+    if (instance.number_of_elements() == 0) {
+        algorithm_formatter.end();
+        return output;
+    }
+    if (parameters.timer.needs_to_end()) {
+        algorithm_formatter.end();
+        return output;
+    }
 
     // Reduction.
     if (parameters.reduction_parameters.reduce)
@@ -40,12 +64,16 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
     algorithm_formatter.update_bound(bound, "trivial bound");
 
     // Compute initial greedy solution.
-    Parameters greedy_parameters;
-    greedy_parameters.timer = parameters.timer;
-    greedy_parameters.reduction_parameters.reduce = false;
-    greedy_parameters.verbosity_level = 0;
-    Solution solution = greedy(instance, greedy_parameters).solution;
-    algorithm_formatter.update_solution(solution, "initial solution");
+    {
+        Parameters greedy_parameters;
+        greedy_parameters.timer = parameters.timer;
+        greedy_parameters.reduction_parameters.reduce = false;
+        greedy_parameters.verbosity_level = 0;
+        Output greedy_output = greedy_or_greedy_reverse(instance, greedy_parameters);
+        algorithm_formatter.update_solution(greedy_output.solution, "greedy");
+    }
+
+    Solution solution = output.solution;
 
     // Initialize local search structures.
     std::vector<LargeNeighborhoodSearchSet> sets(instance.number_of_sets());
@@ -61,7 +89,12 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
 
     optimizationtools::IndexedSet sets_in_to_update(instance.number_of_sets());
     optimizationtools::IndexedSet sets_out_to_update(instance.number_of_sets());
+
+    optimizationtools::IndexedSet added_sets(instance.number_of_sets());
+    optimizationtools::IndexedSet removed_sets(instance.number_of_sets());
+
     Counter iterations_without_improvment = 0;
+    Cost best_cost = solution.cost();
     for (output.number_of_iterations = 0;
             !parameters.timer.needs_to_end();
             ++output.number_of_iterations,
@@ -75,21 +108,35 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
             break;
         if (output.solution.cost() == parameters.goal)
             break;
+        if (output.solution.cost() == output.bound)
+            break;
         //std::cout
-            //<< "cost " << solution.cost()
-            //<< " s " << solution.number_of_sets()
-            //<< " f " << solution.feasible()
-            //<< std::endl;
+        //    << "it " << output.number_of_iterations
+        //    << " cost " << solution.cost()
+        //    << " s " << solution.number_of_sets()
+        //    << " f " << solution.feasible()
+        //    << std::endl;
 
         // Remove sets.
-        SetPos number_of_removed_sets = sqrt(solution.number_of_sets());
+        //SetPos number_of_removed_sets = sqrt(solution.number_of_sets());
+        SetPos number_of_removed_sets = 1;
         sets_out_to_update.clear();
         for (SetPos s_tmp = 0; s_tmp < number_of_removed_sets && !scores_in.empty(); ++s_tmp) {
             auto p = scores_in.top();
             scores_in.pop();
             SetId set_id = p.first;
-            //std::cout << "remove " << s << " score " << p.second << " cost " << instance.set(set_id).cost << " e " << solution.number_of_elements() << std::endl;
+            //std::cout << "remove " << set_id
+            //    << " score " << p.second.first
+            //    << " cost " << instance.set(set_id).cost
+            //    << " e " << solution.number_of_elements()
+            //    << std::endl;
             solution.remove(set_id);
+            if (added_sets.contains(set_id)) {
+                added_sets.remove(set_id);
+            } else {
+                removed_sets.add(set_id);
+            }
+
             sets[set_id].last_removal = output.number_of_iterations;
             sets_out_to_update.add(set_id);
             // Update scores.
@@ -111,14 +158,12 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
                     }
                 }
             }
-            for (SetId set_id_2: sets_in_to_update)
+            for (SetId set_id_2: sets_in_to_update) {
                 scores_in.update_key(set_id_2, {(double)sets[set_id_2].score / instance.set(set_id_2).cost, sets[set_id_2].last_addition});
+            }
         }
-        for (SetId set_id_2: sets_out_to_update)
-            scores_out.update_key(set_id_2, {- (double)sets[set_id_2].score / instance.set(set_id_2).cost, sets[set_id_2].last_removal});
 
         // Update penalties: we increment the penalty of each uncovered element.
-        sets_out_to_update.clear();
         for (auto it = solution.elements().out_begin(); it != solution.elements().out_end(); ++it) {
             solution_penalties[it->first]++;
             for (SetId set_id: instance.element(it->first).sets) {
@@ -136,7 +181,16 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
             scores_out.pop();
             SetId set_id = p.first;
             solution.add(set_id);
-            //std::cout << "add " << s << " score " << p.second << " cost " << instance.set(set_id).cost << " e " << solution.number_of_elements() << std::endl;
+            if (removed_sets.contains(set_id)) {
+                removed_sets.remove(set_id);
+            } else {
+                added_sets.add(set_id);
+            }
+            // std::cout << "add " << set_id
+            //    << " score " << p.second.first
+            //    << " cost " << instance.set(set_id).cost
+            //    << " e " << solution.number_of_elements()
+            //    << std::endl;
             assert(p.second.first < 0);
             sets[set_id].last_addition = output.number_of_iterations;
             sets_in_to_update.add(set_id);
@@ -165,8 +219,17 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
                 for (SetId set_id_2: instance.element(element_id).sets) {
                     if (solution.contains(set_id_2) && sets[set_id_2].score == 0) {
                         solution.remove(set_id_2);
+                        if (added_sets.contains(set_id_2)) {
+                            added_sets.remove(set_id_2);
+                        } else {
+                            removed_sets.add(set_id_2);
+                        }
                         sets[set_id_2].last_removal = output.number_of_iterations;
-                        //std::cout << "> remove " << set_id_2 << " score " << sets[set_id_2].score << " cost " << instance.set(set_id_2).cost << " e " << solution.number_of_elements() << " / " << instance.number_of_elements() << std::endl;
+                        //std::cout << "> remove " << set_id_2
+                        //    << " score " << sets[set_id_2].score
+                        //    << " cost " << instance.set(set_id_2).cost
+                        //    << " e " << solution.number_of_elements() << " / " << instance.number_of_elements()
+                        //    << std::endl;
                         for (ElementId element_id_2: instance.set(set_id_2).elements) {
                             if (solution.covers(element_id_2) == 1) {
                                 for (SetId s3: instance.element(element_id_2).sets) {
@@ -195,15 +258,29 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
 
         // Update best solution.
         //std::cout << "cost " << solution.cost() << std::endl;
-        if (output.solution.cost() > solution.cost()){
-            std::stringstream ss;
-            ss << "iteration " << output.number_of_iterations;
-            algorithm_formatter.update_solution(solution, ss.str());
-            iterations_without_improvment = 0;
+        if (best_cost >= solution.cost()){
+            added_sets.clear();
+            removed_sets.clear();
+            if (best_cost > solution.cost()) {
+                iterations_without_improvment = 0;
+                best_cost = solution.cost();
+            }
         }
     }
+
+    // Go back to best solution
+    for (SetId set_id: added_sets) {
+        solution.remove(set_id);
+    }
+
+    for (SetId set_id: removed_sets) {
+        solution.add(set_id);
+    }
+
+    std::stringstream ss;
+    ss << "iteration " << output.number_of_iterations;
+    algorithm_formatter.update_solution(solution, ss.str());
 
     algorithm_formatter.end();
     return output;
 }
-

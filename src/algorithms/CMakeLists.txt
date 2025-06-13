@@ -46,6 +46,7 @@ target_sources(SetCoveringSolver_large_neighborhood_search PRIVATE
 target_include_directories(SetCoveringSolver_large_neighborhood_search PUBLIC
     ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(SetCoveringSolver_large_neighborhood_search PUBLIC
+    SetCoveringSolver_greedy
     SetCoveringSolver_set_covering)
 add_library(SetCoveringSolver::large_neighborhood_search ALIAS SetCoveringSolver_large_neighborhood_search)
 
@@ -57,3 +58,13 @@ target_include_directories(SetCoveringSolver_trivial_bound PUBLIC
 target_link_libraries(SetCoveringSolver_trivial_bound PUBLIC
     SetCoveringSolver_set_covering)
 add_library(SetCoveringSolver::trivial_bound ALIAS SetCoveringSolver_trivial_bound)
+
+add_library(SetCoveringSolver_clique_cover_bound)
+target_sources(SetCoveringSolver_clique_cover_bound PRIVATE
+    clique_cover_bound.cpp)
+target_include_directories(SetCoveringSolver_clique_cover_bound PUBLIC
+    ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(SetCoveringSolver_clique_cover_bound PUBLIC
+    SetCoveringSolver_set_covering
+    ColoringSolver_local_search_row_weighting)
+add_library(SetCoveringSolver::clique_cover_bound ALIAS SetCoveringSolver_clique_cover_bound)

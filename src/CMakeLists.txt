@@ -25,6 +25,7 @@ target_link_libraries(SetCoveringSolver_main PUBLIC
     SetCoveringSolver_local_search_row_weighting
     SetCoveringSolver_large_neighborhood_search
     SetCoveringSolver_trivial_bound
+    SetCoveringSolver_clique_cover_bound
     Boost::program_options)
 if(SETCOVERINGSOLVER_USE_CBC)
     target_compile_definitions(SetCoveringSolver_main PUBLIC
