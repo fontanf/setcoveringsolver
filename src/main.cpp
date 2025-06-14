@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 
         ("reduce,", po::value<bool>(), "set reduce")
         ("remove-dominated,", po::value<bool>(), "set remove dominated")
-        ("reduction-time-limit,t", po::value<double>(), "set reduction time limit in seconds")
+        ("reduction-time-limit,", po::value<double>(), "set reduction time limit in seconds")
         ("enable-new-solution-callback,", po::value<bool>(), "enable new solution callback")
         ("maximum-number-of-iterations,", po::value<int>(), "set the maximum number of iterations")
         ("maximum-number-of-iterations-without-improvement,", po::value<int>(), "set the maximum number of iterations without improvement")
