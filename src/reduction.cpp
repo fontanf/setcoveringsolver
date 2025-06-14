@@ -1144,8 +1144,526 @@ bool Reduction::reduce_twin(Tmp& tmp)
     return true;
 }
 
-bool Reduction::reduce_unconfined_sets(
-        Tmp& tmp)
+using EdgeId = int64_t;
+using VertexId = int64_t;
+
+struct Edge
+{
+    VertexId vertex_id_1;
+    VertexId vertex_id_2;
+};
+
+std::vector<uint8_t> bipartite_graph_maximum_matching(
+        const std::vector<uint8_t>& vertices_side,
+        const std::vector<Edge>& edges)
+{
+    VertexId number_of_vertices = vertices_side.size();
+    std::cout << "bipartite_graph_maximum_matching " << number_of_vertices << " " << edges.size() << std::endl;
+    // Find an initial maximal matching.
+    std::vector<VertexId> vertices_matched_edge(number_of_vertices, -1);
+    std::vector<uint8_t> edges_matched(edges.size(), 0);
+    EdgeId matching_size = 0;
+    for (EdgeId edge_id = 0;
+            edge_id < (EdgeId)edges.size();
+            ++edge_id) {
+        const Edge& edge = edges[edge_id];
+        if (vertices_matched_edge[edge.vertex_id_1] != -1)
+            continue;
+        if (vertices_matched_edge[edge.vertex_id_2] != -1)
+            continue;
+        edges_matched[edge_id] = 1;
+        vertices_matched_edge[edge.vertex_id_1] = edge_id;
+        vertices_matched_edge[edge.vertex_id_2] = edge_id;
+        matching_size++;
+    }
+    std::cout << "matching_size " << matching_size << std::endl;
+    if (matching_size > edges.size()) {
+        throw std::logic_error("");
+    }
+    if (matching_size == number_of_vertices / 2)
+        return edges_matched;
+
+    std::vector<std::vector<EdgeId>> vertices_edges(number_of_vertices);
+    for (EdgeId edge_id = 0;
+            edge_id < (EdgeId)edges.size();
+            ++edge_id) {
+        const Edge& edge = edges[edge_id];
+        vertices_edges[edge.vertex_id_1].push_back(edge_id);
+        vertices_edges[edge.vertex_id_2].push_back(edge_id);
+    }
+
+    std::vector<VertexId> bfs_queue(number_of_vertices, -1);
+    std::vector<VertexId> dist(number_of_vertices, number_of_vertices + 1);
+    std::vector<EdgeId> pred(number_of_vertices, -1);
+    std::vector<VertexId> unmatched_leaves;
+    std::vector<VertexId> path;
+    std::vector<uint8_t> vertices_processed(number_of_vertices, 0);
+    for (;;) {
+        std::cout << "it matching_size " << matching_size << std::endl;
+        // Breadth first search.
+        // Find all unmatched vertices in i.
+        std::fill(dist.begin(), dist.end(), number_of_vertices + 1);
+        unmatched_leaves.clear();
+        VertexId queue_push_pos = 0;
+        for (VertexId vertex_id = 0;
+                vertex_id < number_of_vertices;
+                ++vertex_id) {
+            if (vertices_side[vertex_id] == 1)
+                continue;
+            if (vertices_matched_edge[vertex_id] == -1) {
+                dist[vertex_id] = 0;
+                bfs_queue[queue_push_pos] = vertex_id;
+                queue_push_pos++;
+            }
+        }
+        for (VertexId queue_pop_pos = 0;
+                queue_pop_pos < queue_push_pos;
+                ++queue_pop_pos) {
+            VertexId vertex_id = bfs_queue[queue_pop_pos];
+            bool has_child = false;
+            for (EdgeId edge_id: vertices_edges[vertex_id]) {
+                if (dist[vertex_id] % 2 == 0) {
+                    if (edges_matched[edge_id] == 1)
+                        continue;
+                } else {
+                    if (edges_matched[edge_id] == 0)
+                        continue;
+                }
+                const Edge& edge = edges[edge_id];
+                VertexId other_vertex_id = (edge.vertex_id_1 == vertex_id)?
+                    edge.vertex_id_2:
+                    edge.vertex_id_1;
+                if (dist[other_vertex_id] <= dist[vertex_id] + 1)
+                    continue;
+                dist[other_vertex_id] = dist[vertex_id] + 1;
+                pred[other_vertex_id] = edge_id;
+                bfs_queue[queue_push_pos] = other_vertex_id;
+                queue_push_pos++;
+                has_child = true;
+            }
+            if (vertices_matched_edge[vertex_id] == -1
+                    && dist[vertex_id] > 0
+                    && !has_child) {
+                unmatched_leaves.push_back(vertex_id);
+            }
+        }
+
+        std::cout << "retrieve paths..." << std::endl;
+        std::fill(vertices_processed.begin(), vertices_processed.end(), 0);
+        bool found = false;
+        for (VertexId leaf_vertex_id: unmatched_leaves) {
+            bool ok = true;
+            path.clear();
+            VertexId vertex_id = leaf_vertex_id;
+            while (pred[vertex_id] != -1) {
+                EdgeId edge_id = pred[vertex_id];
+                path.push_back(edge_id);
+                const Edge& edge = edges[edge_id];
+                vertex_id = (edge.vertex_id_1 == vertex_id)?
+                    edge.vertex_id_2:
+                    edge.vertex_id_1;
+                if (vertices_processed[vertex_id]) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (!ok)
+                continue;
+
+            std::cout << "path";
+            for (EdgeId edge_id: path) {
+                const Edge& edge = edges[edge_id];
+                std::cout << " " << edge_id
+                    << "," << edge.vertex_id_1
+                    << "," << edge.vertex_id_2;
+            }
+            std::cout << std::endl;
+
+            // Apply path.
+            for (EdgeId edge_id: path) {
+                const Edge& edge = edges[edge_id];
+                if (edges_matched[edge_id] == 1) {
+                    edges_matched[edge_id] = 0;
+                } else {
+                    edges_matched[edge_id] = 1;
+                    vertices_matched_edge[edge.vertex_id_1] = edge_id;
+                    vertices_matched_edge[edge.vertex_id_2] = edge_id;
+                }
+                vertices_processed[edge.vertex_id_1] = 1;
+                vertices_processed[edge.vertex_id_2] = 1;
+            }
+            matching_size++;
+            if (matching_size > edges.size()) {
+                throw std::logic_error("");
+            }
+            found = true;
+        }
+        if (!found)
+            break;
+    }
+    return edges_matched;
+}
+
+bool Reduction::reduce_crown(Tmp& tmp)
+{
+    std::cout << "reduce_crown..." << std::endl;
+
+    optimizationtools::IndexedSet& sets_to_remove = tmp.indexed_set_5_;
+    sets_to_remove.resize_and_clear(tmp.instance.number_of_sets());
+    optimizationtools::IndexedSet& fixed_sets = tmp.indexed_set_6_;
+    fixed_sets.resize_and_clear(tmp.instance.number_of_sets());
+    optimizationtools::IndexedSet& elements_to_remove = tmp.indexed_set_7_;
+    elements_to_remove.resize_and_clear(tmp.instance.number_of_elements());
+
+    std::vector<ElementId>& shuffled_elements = tmp.set_;
+    shuffled_elements.resize(tmp.instance.number_of_elements());
+    std::iota(shuffled_elements.begin(), shuffled_elements.end(), 0);
+
+    for (Counter it = 0; it < 16; ++it) {
+        std::cout << "it " << it << std::endl;
+
+        std::shuffle(shuffled_elements.begin(), shuffled_elements.end(), tmp.generator_);
+
+        // Find a matching in the hypergraph.
+        std::cout << "find matching 1..." << std::endl;
+        optimizationtools::IndexedSet& matching_1_sets = tmp.indexed_set_;
+        matching_1_sets.resize_and_clear(tmp.instance.number_of_sets());
+        ElementId matching_1_number_of_elements = 0;
+        // First loop through elements with degree > 2.
+        for (ElementId element_id: shuffled_elements) {
+            const ReductionElement& element = tmp.instance.element(element_id);
+            if (element.removed)
+                continue;
+            if (element.sets.size() <= 2)
+                continue;
+            bool valid = true;
+            for (SetId set_id: element.sets) {
+                if (matching_1_sets.contains(set_id)) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid)
+                continue;
+            for (SetId set_id: element.sets)
+                matching_1_sets.add(set_id);
+            matching_1_number_of_elements++;
+        }
+        // Then loop through element with degree == 2.
+        for (ElementId element_id: shuffled_elements) {
+            const ReductionElement& element = tmp.instance.element(element_id);
+            if (element.removed)
+                continue;
+            if (element.sets.size() != 2)
+                continue;
+            bool valid = true;
+            for (SetId set_id: element.sets) {
+                if (matching_1_sets.contains(set_id)) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid)
+                continue;
+            for (SetId set_id: element.sets)
+                matching_1_sets.add(set_id);
+            matching_1_number_of_elements++;
+        }
+        std::cout << "matching_1_number_of_elements " << matching_1_number_of_elements << std::endl;
+        std::cout << "matching_1_sets.size() " << matching_1_sets.size() << std::endl;
+
+        // Find the unmatched sets that only cover elements covered by two sets.
+        std::cout << "find outsiders" << std::endl;
+        optimizationtools::IndexedSet& outsiders = tmp.indexed_set_2_;
+        outsiders.resize_and_clear(tmp.instance.number_of_sets());
+        for (auto it = matching_1_sets.out_begin();
+                it != matching_1_sets.out_end();
+                ++it) {
+            SetId set_id = *it;
+            const ReductionSet& set = tmp.instance.set(set_id);
+            if (set.removed)
+                continue;
+            bool ok = true;
+            for (ElementId element_id: set.elements) {
+                const ReductionElement& element = tmp.instance.element(element_id);
+                if (element.sets.size() != 2) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (!ok)
+                continue;
+            outsiders.add(set_id);
+        }
+        std::cout << "outsiders.size() " << outsiders.size() << std::endl;
+        //for (SetId set_id: outsiders) {
+        //    std::cout << "set_id " << set_id
+        //        << " elts " << tmp.instance.set(set_id).elements.size()
+        //        << std::endl;
+        //}
+        if (outsiders.empty())
+            continue;
+
+        // Find the neighbors of the unmatched elements.
+        std::cout << "find outsider neighbors..." << std::endl;
+        optimizationtools::IndexedSet& outsider_neighbors = tmp.indexed_set_3_;
+        outsider_neighbors.resize_and_clear(tmp.instance.number_of_sets());
+        for (SetId set_id: outsiders) {
+            const ReductionSet& set = tmp.instance.set(set_id);
+            for (ElementId element_id: set.elements) {
+                const ReductionElement& element = tmp.instance.element(element_id);
+                SetId other_set_id = (set_id == element.sets[0])?
+                    element.sets[1]:
+                    element.sets[0];
+                if (outsiders.contains(other_set_id)) {
+                    throw std::logic_error(
+                            "setcoveringsolver::Reduction::reduce_crown.");
+                }
+                outsider_neighbors.add(other_set_id);
+            }
+        }
+        std::cout << "outsider_neighbors.size() " << outsider_neighbors.size() << std::endl;
+        //for (SetId set_id: outsider_neighbors) {
+        //    std::cout << "set_id " << set_id
+        //        << " elts " << tmp.instance.set(set_id).elements.size()
+        //        << std::endl;
+        //}
+
+        // Step 2: Find a maximum auxiliary matching M2 of the edges between O and N (O).
+
+        std::cout << "find second matching" << std::endl;
+        optimizationtools::IndexedMap<SetPos>& sets_to_bgmm = tmp.indexed_map_;
+        sets_to_bgmm.clear();
+        VertexId vertex_id = 0;
+        std::vector<uint8_t> bgmm_vertices_sides;
+        for (SetId set_id: outsiders) {
+            sets_to_bgmm.set(set_id, vertex_id);
+            bgmm_vertices_sides.push_back(0);
+            vertex_id++;
+        }
+        for (SetId set_id: outsider_neighbors) {
+            sets_to_bgmm.set(set_id, vertex_id);
+            bgmm_vertices_sides.push_back(1);
+            vertex_id++;
+        }
+        std::vector<Edge> bgmm_edges;
+        std::vector<ElementId> bgmm_edges_to_elements;
+        for (SetId set_id: outsiders) {
+            const ReductionSet& set = tmp.instance.set(set_id);
+            for (ElementId element_id: set.elements) {
+                const ReductionElement& element = tmp.instance.element(element_id);
+                Edge bgmm_edge;
+                SetId other_set_id = (set_id == element.sets[0])?
+                    element.sets[1]:
+                    element.sets[0];
+                bgmm_edge.vertex_id_1 = sets_to_bgmm[set_id];
+                bgmm_edge.vertex_id_2 = sets_to_bgmm[other_set_id];
+                bgmm_edges.push_back(bgmm_edge);
+                bgmm_edges_to_elements.push_back(element_id);
+            }
+        }
+        std::vector<uint8_t> bgmm_output = bipartite_graph_maximum_matching(
+                bgmm_vertices_sides,
+                bgmm_edges);
+        optimizationtools::IndexedSet& matching_2 = tmp.indexed_set_4_;
+        matching_2.resize_and_clear(tmp.instance.number_of_elements());
+        for (EdgeId edge_id = 0;
+                edge_id < (EdgeId)bgmm_edges.size();
+                ++edge_id) {
+            if (bgmm_output[edge_id] == 0)
+                continue;
+            ElementId element_id = bgmm_edges_to_elements[edge_id];
+            matching_2.add(element_id);
+        }
+        std::cout << "matching_2.size() " << matching_2.size() << std::endl;
+
+        // Step 3: If every vertex in N (O) is matched by M2, then H = N (O) and I = O form a  crown, and we are done.
+        if (matching_2.size() == outsider_neighbors.size()) {
+            std::cout << "every vertex is matched" << std::endl;
+            for (SetId set_id: outsiders)
+                sets_to_remove.add(set_id);
+            for (SetId set_id: outsider_neighbors) {
+                const ReductionSet& set = tmp.instance.set(set_id);
+                sets_to_remove.add(set_id);
+                fixed_sets.add(set_id);
+                for (ElementId element_id: set.elements)
+                    elements_to_remove.add(element_id);
+            }
+
+        } else {
+
+            // Step 4: Let I0 be the set of vertices in O that are unmatched by M2.
+            std::cout << "build i0..." << std::endl;
+            optimizationtools::IndexedSet& i = tmp.indexed_set_;
+            i.resize_and_clear(tmp.instance.number_of_elements());
+
+            for (SetId set_id: outsiders) {
+                const ReductionSet& set = tmp.instance.set(set_id);
+                bool inside_matching = false;
+                for (ElementId element_id: set.elements) {
+                    if (matching_2.contains(element_id)) {
+                        inside_matching = true;
+                        break;
+                    }
+                }
+                if (!inside_matching) {
+                    if (i.contains(set_id)) {
+                        throw std::logic_error("");
+                    }
+                    i.add(set_id);
+                }
+            }
+            std::cout << "i0.size() " << i.size() << std::endl;
+            if (i.empty())
+                continue;
+
+            optimizationtools::IndexedSet& h = tmp.indexed_set_2_;
+            h.resize_and_clear(tmp.instance.number_of_elements());
+
+            // Step 5: Repeat steps 5a and 5b until n = N so that IN−1 = IN .
+            for (;;) {
+                // 5a. Let Hn = N (In). 
+                std::cout << "build h..." << std::endl;
+                h.clear();
+                for (SetId set_id: i) {
+                    const ReductionSet& set = tmp.instance.set(set_id);
+                    for (ElementId element_id: set.elements) {
+                        const ReductionElement& element = tmp.instance.element(element_id);
+                        SetId other_set_id = (set_id == element.sets[0])?
+                            element.sets[1]:
+                            element.sets[0];
+                        if (i.contains(other_set_id)) {
+                            throw std::logic_error(
+                                    "setcoveringsolver::Reduction::reduce_crown.");
+                        }
+                        h.add(other_set_id);
+                    }
+                }
+                std::cout << "h.size() " << h.size() << std::endl;
+                // 5b. Let In+1 = In ∪ NM2(Hn).
+                std::cout << "build i..." << std::endl;
+                bool added = false;
+                for (SetId set_id: h) {
+                    const ReductionSet& set = tmp.instance.set(set_id);
+                    for (ElementId element_id: set.elements) {
+                        if (matching_2.contains(element_id)) {
+                            const ReductionElement& element = tmp.instance.element(element_id);
+                            SetId other_set_id = (set_id == element.sets[0])?
+                                element.sets[1]:
+                                element.sets[0];
+                            if (!i.contains(other_set_id)) {
+                                i.add(other_set_id);
+                                added = true;
+                            }
+                        }
+                    }
+                }
+                std::cout << "i.size() " << i.size() << std::endl;
+                if (!added)
+                    break;
+            }
+
+            // Step 6: I = IN and H = HN form a flared crown.
+            std::cout << "crown found..." << std::endl;
+            for (SetId set_id: i)
+                sets_to_remove.add(set_id);
+            for (SetId set_id: h) {
+                const ReductionSet& set = tmp.instance.set(set_id);
+                sets_to_remove.add(set_id);
+                fixed_sets.add(set_id);
+                for (ElementId element_id: set.elements)
+                    elements_to_remove.add(element_id);
+            }
+
+            std::cout << "i" << std::endl;
+            for (SetId set_id: i) {
+                std::cout << "set_id " << set_id
+                    << " elts " << tmp.instance.set(set_id).elements.size()
+                    << std::endl;
+            }
+
+            std::cout << "h" << std::endl;
+            for (SetId set_id: h) {
+                std::cout << "set_id " << set_id
+                    << " elts " << tmp.instance.set(set_id).elements.size()
+                    << std::endl;
+            }
+
+        }
+
+        if (!sets_to_remove.empty())
+            break;
+    }
+
+    if (sets_to_remove.size() == 0)
+        return false;
+
+    std::cout << sets_to_remove.size() << " " << fixed_sets.size() << " " << elements_to_remove.size() << std::endl;
+
+    // Update mandatory_sets.
+    for (SetId set_id: sets_to_remove) {
+        if (fixed_sets.contains(set_id)) {
+            for (SetId orig_set_id: unreduction_operations_[set_id].in)
+                mandatory_sets_.push_back(orig_set_id);
+        } else {
+            for (SetId orig_set_id: unreduction_operations_[set_id].out)
+                mandatory_sets_.push_back(orig_set_id);
+        }
+    }
+    // Update sets.
+    for (SetId set_id = 0;
+            set_id < tmp.instance.number_of_sets();
+            ++set_id) {
+        ReductionSet& set = tmp.instance.set(set_id);
+        if (set.removed)
+            continue;
+        if (sets_to_remove.contains(set_id)) {
+            set.removed = true;
+        } else {
+            for (ElementPos pos = 0;
+                    pos < (ElementPos)set.elements.size();
+                    ) {
+                ElementId element_id = set.elements[pos];
+                if (elements_to_remove.contains(element_id)) {
+                    set.elements[pos] = set.elements.back();
+                    set.elements.pop_back();
+                } else {
+                    pos++;
+                }
+            }
+        }
+    }
+    // Update elements.
+    for (ElementId element_id = 0;
+            element_id < tmp.instance.number_of_elements();
+            ++element_id) {
+        ReductionElement& element = tmp.instance.element(element_id);
+        if (element.removed)
+            continue;
+        if (elements_to_remove.contains(element_id)) {
+            element.removed = true;
+        } else {
+            for (SetPos pos = 0;
+                    pos < (SetPos)element.sets.size();
+                    ) {
+                SetId set_id = element.sets[pos];
+                if (sets_to_remove.contains(set_id)) {
+                    element.sets[pos] = element.sets.back();
+                    element.sets.pop_back();
+                } else {
+                    pos++;
+                }
+            }
+        }
+    }
+
+    //check(tmp.instance);
+    if (needs_update(tmp.instance))
+        update(tmp.instance, unreduction_operations_);
+    return true;
+}
+
+bool Reduction::reduce_unconfined_sets(Tmp& tmp)
 {
     //std::cout << "reduce_unconfined_sets..." << std::endl;
 

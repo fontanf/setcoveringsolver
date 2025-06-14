@@ -187,6 +187,9 @@ private:
     /** Perform unconfined sets reduction. */
     bool reduce_unconfined_sets(Tmp& tmp);
 
+    /** Perform crown reduction. */
+    bool reduce_crown(Tmp& tmp);
+
     /** Remove elements dominated by elements covered by 2 sets. */
     bool reduce_dominated_elements_2(
             Tmp& tmp,
