@@ -41,6 +41,8 @@ Download data:
 ```shell
 python3 scripts/download_data.py
 python3 scripts/download_data.py --data gecco2020
+python3 scripts/download_data.py --data pace2025
+python3 scripts/download_data.py --data pace2025_ds
 ```
 
 Run:
