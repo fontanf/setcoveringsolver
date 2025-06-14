@@ -49,6 +49,9 @@ public:
             const std::string& instance_path,
             const std::string& format);
 
+    /** Read an instance file in 'pace2019' format. */
+    void read_pace2019_vc(FILE* file);
+
     /** Read an instance file in 'pace2025' format. */
     void read_pace2025(FILE* file);
 

@@ -83,6 +83,9 @@ void InstanceBuilder::read(
             || format == "wedelin1995"
             || format == "wedelin") {
         read_faster1994(file);
+    } else if (format == "pace2019_vc") {
+        FILE* file = fopen(instance_path.c_str(), "r");
+        read_pace2019_vc(file);
     } else if (format == "pace2025") {
         FILE* file = fopen(instance_path.c_str(), "r");
         read_pace2025(file);
@@ -292,6 +295,40 @@ inline bool read_next_int_on_line(
     // If we hit newline, we’ve reached the end of the line
     if (c == '\n') buf_pos--; // allow outer loop to see the newline
     return true;
+}
+
+void InstanceBuilder::read_pace2019_vc(FILE* file)
+{
+    const size_t BUF_SIZE = 1 << 21;
+    char buf[BUF_SIZE];
+    size_t buf_pos = 0;
+    size_t buf_len = 0;
+
+    // Skip lines until we find the problem line: p ds <vertices> <edges>
+    char c;
+    SetId set_id_1 = -1;
+    SetId set_id_2 = -1;
+    ElementId element_id = 0;
+    while ((c = peek_char(file, buf, BUF_SIZE, buf_pos, buf_len)) != EOF) {
+        if (c == 'c') {
+            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+        } else if (c == 'p') {
+            SetId number_of_vertices = -1;
+            SetId number_of_edges = -1;
+            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_vertices);
+            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_edges);
+            add_elements(number_of_edges);
+            add_sets(number_of_vertices);
+            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+        } else {
+            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_1);
+            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2);
+            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+            add_arc(set_id_1 - 1, element_id);
+            add_arc(set_id_2 - 1, element_id);
+            element_id++;
+        }
+    }
 }
 
 void InstanceBuilder::read_pace2025(FILE* file)
