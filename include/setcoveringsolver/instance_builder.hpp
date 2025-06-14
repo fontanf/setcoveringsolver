@@ -58,6 +58,9 @@ public:
     /** Read an instance file in 'pace2025_ds' format. */
     void read_pace2025_ds(FILE* file);
 
+    /** Read an instance file in 'dimacs2010_vc' format. */
+    void read_dimacs2010_vc(FILE* file);
+
     /*
      * Build
      */

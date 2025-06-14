@@ -92,6 +92,9 @@ void InstanceBuilder::read(
     } else if (format == "pace2025_ds") {
         FILE* file = fopen(instance_path.c_str(), "r");
         read_pace2025_ds(file);
+    } else if (format == "dimacs2010_vc") {
+        FILE* file = fopen(instance_path.c_str(), "r");
+        read_dimacs2010_vc(file);
     } else {
         throw std::invalid_argument(
                 "Unknown instance format \"" + format + "\".");
@@ -391,6 +394,44 @@ void InstanceBuilder::read_pace2025_ds(FILE* file)
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
             add_arc(set_id_1 - 1, set_id_2 - 1);
             add_arc(set_id_2 - 1, set_id_1 - 1);
+        }
+    }
+}
+
+void InstanceBuilder::read_dimacs2010_vc(FILE* file)
+{
+    const size_t BUF_SIZE = 1 << 21;
+    char buf[BUF_SIZE];
+    size_t buf_pos = 0;
+    size_t buf_len = 0;
+
+    // Skip lines until we find the problem line: p ds <vertices> <edges>
+    char c;
+    SetId set_id_1 = 1;
+    SetId set_id_2 = -1;
+    ElementId element_id = 0;
+    bool first = true;
+    while ((c = peek_char(file, buf, BUF_SIZE, buf_pos, buf_len)) != EOF) {
+        if (first) {
+            first = false;
+            SetId number_of_sets = -1;
+            ElementId number_of_elements = -1;
+            SetId tmp;
+            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_sets);
+            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_elements);
+            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, tmp);
+            add_elements(number_of_elements);
+            add_sets(number_of_sets);
+            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+        } else {
+            while (read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)) {
+                if (set_id_2 > set_id_1) {
+                    add_arc(set_id_1 - 1, element_id);
+                    add_arc(set_id_2 - 1, element_id);
+                    element_id++;
+                }
+            }
+            set_id_1++;
         }
     }
 }
