@@ -748,10 +748,10 @@ bool Reduction::reduce_set_folding(Tmp& tmp)
         // Check if 'set_id' has only 2 neighbor sets.
         set_neighbors.clear();
         for (ElementId element_id: set.elements) {
-            for (SetId set_id_2: tmp.instance.element(element_id).sets) {
-                if (set_id_2 == set_id)
+            for (SetId neighbor_id_2: tmp.instance.element(element_id).sets) {
+                if (neighbor_id_2 == set_id)
                     continue;
-                set_neighbors.add(set_id_2);
+                set_neighbors.add(neighbor_id_2);
                 if (set_neighbors.size() > 2)
                     break;
             }
@@ -761,27 +761,27 @@ bool Reduction::reduce_set_folding(Tmp& tmp)
         if (set_neighbors.size() > 2)
             continue;
 
-        SetId set_id_1 = *set_neighbors.begin();
-        SetId set_id_2 = *(set_neighbors.begin() + 1);
+        SetId neighbor_id_1 = *set_neighbors.begin();
+        SetId neighbor_id_2 = *(set_neighbors.begin() + 1);
         if (folded_sets.contains(set_id)
-                || folded_sets.contains(set_id_1)
-                || folded_sets.contains(set_id_2)
+                || folded_sets.contains(neighbor_id_1)
+                || folded_sets.contains(neighbor_id_2)
                 || sets_to_remove.contains(set_id)
-                || sets_to_remove.contains(set_id_1)
-                || sets_to_remove.contains(set_id_2))
+                || sets_to_remove.contains(neighbor_id_1)
+                || sets_to_remove.contains(neighbor_id_2))
             continue;
-        const ReductionSet& set_1 = tmp.instance.set(set_id_1);
-        const ReductionSet& set_2 = tmp.instance.set(set_id_2);
-        if (set.cost != set_1.cost
-                || set.cost != set_2.cost)
+        const ReductionSet& neighbor_1 = tmp.instance.set(neighbor_id_1);
+        const ReductionSet& neighbor_2 = tmp.instance.set(neighbor_id_2);
+        if (set.cost != neighbor_1.cost
+                || set.cost != neighbor_2.cost)
             continue;
 
-        // All elements covered by 'set_id' must be covered by 'set_id_1' U 'set_id_2'.
-        // All elements covered by 'set_id_1' and 'set_id_2' must be covered by 'set_id'.
-        // 'set_id_1' must cover an element covered by 'set_id' that 'set_id_2' doesn't cover.
-        // 'set_id_2' must cover an element covered by 'set_id' that 'set_id_1' doesn't cover.
+        // All elements covered by 'set_id' must be covered by 'neighbor_id_1' U 'neighbor_id_2'.
+        // All elements covered by 'neighbor_id_1' and 'neighbor_id_2' must be covered by 'set_id'.
+        // 'neighbor_id_1' must cover an element covered by 'set_id' that 'neighbor_id_2' doesn't cover.
+        // 'neighbor_id_2' must cover an element covered by 'set_id' that 'neighbor_id_1' doesn't cover.
 
-        // Check if 'set_id_1' and 'set_id_2' cover all elements covered by 'set_id'.
+        // Check if 'neighbor_id_1' and 'neighbor_id_2' cover all elements covered by 'set_id'.
         covered_elements.clear();
         for (ElementId element_id: set.elements)
             covered_elements.add(element_id);
@@ -789,7 +789,7 @@ bool Reduction::reduce_set_folding(Tmp& tmp)
         bool ok_1 = false;
         covered_elements_2.clear();
         ElementPos number_of_covered_elements = 0;
-        for (ElementId element_id: set_1.elements) {
+        for (ElementId element_id: neighbor_1.elements) {
             if (!covered_elements.contains(element_id))
                 ok_1 = true;
             if (covered_elements.contains(element_id))
@@ -801,12 +801,12 @@ bool Reduction::reduce_set_folding(Tmp& tmp)
         if (number_of_covered_elements == covered_elements.size())
             continue;
         bool ok_2 = false;
-        ElementPos set_2_number_of_covered_elements = 0;
-        for (ElementId element_id: set_2.elements) {
+        ElementPos neighbor_2_number_of_covered_elements = 0;
+        for (ElementId element_id: neighbor_2.elements) {
             if (!covered_elements.contains(element_id))
                 ok_2 = true;
             if (covered_elements.contains(element_id))
-                set_2_number_of_covered_elements++;
+                neighbor_2_number_of_covered_elements++;
             if (covered_elements.contains(element_id)
                     && !covered_elements_2.contains(element_id)) {
                 number_of_covered_elements++;
@@ -815,15 +815,15 @@ bool Reduction::reduce_set_folding(Tmp& tmp)
         }
         if (!ok_2)
             continue;
-        if (set_2_number_of_covered_elements == covered_elements.size())
+        if (neighbor_2_number_of_covered_elements == covered_elements.size())
             continue;
         if (number_of_covered_elements != covered_elements.size())
             continue;
 
         folded_sets.add(set_id);
-        sets_to_remove.add(set_id_1);
-        sets_to_remove.add(set_id_2);
-        folded_sets_list.push_back({set_id, set_id_1, set_id_2});
+        sets_to_remove.add(neighbor_id_1);
+        sets_to_remove.add(neighbor_id_2);
+        folded_sets_list.push_back({set_id, neighbor_id_1, neighbor_id_2});
     }
 
     if (folded_sets_list.empty())
@@ -836,19 +836,19 @@ bool Reduction::reduce_set_folding(Tmp& tmp)
     elements_to_remove.resize_and_clear(tmp.instance.number_of_elements());
     for (const auto& tuple: folded_sets_list) {
         SetId set_id = std::get<0>(tuple);
-        SetId set_id_1 = std::get<1>(tuple);
-        SetId set_id_2 = std::get<2>(tuple);
+        SetId neighbor_id_1 = std::get<1>(tuple);
+        SetId neighbor_id_2 = std::get<2>(tuple);
         ReductionSet& set = tmp.instance.set(set_id);
-        ReductionSet& set_1 = tmp.instance.set(set_id_1);
-        ReductionSet& set_2 = tmp.instance.set(set_id_2);
+        ReductionSet& neighbor_1 = tmp.instance.set(neighbor_id_1);
+        ReductionSet& neighbor_2 = tmp.instance.set(neighbor_id_2);
 
         for (ElementId element_id: set.elements)
             elements_to_remove.add(element_id);
 
         covered_elements.clear();
-        for (ElementId element_id: set_1.elements)
+        for (ElementId element_id: neighbor_1.elements)
             covered_elements.add(element_id);
-        for (ElementId element_id: set_2.elements)
+        for (ElementId element_id: neighbor_2.elements)
             covered_elements.add(element_id);
         set.elements.clear();
         for (ElementId element_id: covered_elements) {
@@ -860,14 +860,14 @@ bool Reduction::reduce_set_folding(Tmp& tmp)
         unreduction_operations_[set_id].in.swap(
                 unreduction_operations_[set_id].out);
 
-        for (SetId orig_set_id: unreduction_operations_[set_id_1].in)
+        for (SetId orig_set_id: unreduction_operations_[neighbor_id_1].in)
             unreduction_operations_[set_id].in.push_back(orig_set_id);
-        for (SetId orig_set_id: unreduction_operations_[set_id_1].out)
+        for (SetId orig_set_id: unreduction_operations_[neighbor_id_1].out)
             unreduction_operations_[set_id].out.push_back(orig_set_id);
 
-        for (SetId orig_set_id: unreduction_operations_[set_id_2].in)
+        for (SetId orig_set_id: unreduction_operations_[neighbor_id_2].in)
             unreduction_operations_[set_id].in.push_back(orig_set_id);
-        for (SetId orig_set_id: unreduction_operations_[set_id_2].out)
+        for (SetId orig_set_id: unreduction_operations_[neighbor_id_2].out)
             unreduction_operations_[set_id].out.push_back(orig_set_id);
     }
     for (SetId set_id = 0;
@@ -1035,6 +1035,7 @@ bool Reduction::reduce_twin(Tmp& tmp)
         twin.set_id_1 = twin_candidate_1.set_id;
         twin.set_id_2 = twin_candidate_2.set_id;
         twin.neighbor_ids = twin_candidate_1.neighbor_ids;
+        folded_sets_list.push_back(twin);
     }
 
     if (folded_sets_list.empty())
@@ -1060,9 +1061,11 @@ bool Reduction::reduce_twin(Tmp& tmp)
             elements_to_remove.add(element_id);
 
         covered_elements.clear();
-        for (ElementId element_id: set_1.elements)
+        for (ElementId element_id: neighbor_1.elements)
             covered_elements.add(element_id);
-        for (ElementId element_id: set_2.elements)
+        for (ElementId element_id: neighbor_2.elements)
+            covered_elements.add(element_id);
+        for (ElementId element_id: neighbor_3.elements)
             covered_elements.add(element_id);
         set_1.elements.clear();
         for (ElementId element_id: covered_elements) {
@@ -2819,7 +2822,12 @@ Reduction::Reduction(
                 break;
             found |= found_cur;
         }
-        //found |= reduce_twin(tmp);
+        // Twin reduction fails if some elements are covered by only one vertex.
+        // So, run the mandatory set reduction right before.
+        {
+            found |= reduce_mandatory_sets(tmp);
+            found |= reduce_twin(tmp);
+        }
         found |= reduce_identical_sets(tmp);
         found |= reduce_identical_elements(tmp);
         if (!found || round_number >= 4) {
