@@ -1813,8 +1813,13 @@ bool Reduction::reduce_unconfined_sets(Tmp& tmp)
                             throw std::logic_error(
                                     "setcoveringsolver::Reduction::reduce_unconfined_sets.");
                         }
-                        ElementPos m = 0;
+                        // We hope to show that u may be replace by v2 in an
+                        // optimal solution. Therefore, we need
+                        // cost(u) >= cost(v2).
                         const ReductionSet& set_v2 = tmp.instance.sets[set_v2_id];
+                        if (set_u.cost < set_v2.cost)
+                            continue;
+                        ElementPos m = 0;
                         for (ElementId element_id_3: set_v2.elements) {
                             if (elements_to_remove.contains(element_id_3))
                                 continue;
