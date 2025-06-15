@@ -169,7 +169,13 @@ private:
      * Private methods
      */
 
-    /** Remove mandatory sets. */
+    /**
+     * Remove mandatory sets.
+     *
+     * This is Reduction Rule 1 and Reduction Rule 2 in:
+     * "Exact algorithms for dominating set" (an Rooij et Bodlaender, 2011)
+     * https://doi.org/10.1016/j.dam.2011.07.001
+     */
     bool reduce_mandatory_sets(Tmp& tmp);
 
     /** Remove identical elements. */
@@ -178,34 +184,99 @@ private:
     /** Remove identical sets. */
     bool reduce_identical_sets(Tmp& tmp);
 
-    /** Perform set folding reduction. */
+    /**
+     * Perform set folding reduction.
+     *
+     * This is Reduction Rule 7 in:
+     * "Exact algorithms for dominating set" (an Rooij et Bodlaender, 2011)
+     * https://doi.org/10.1016/j.dam.2011.07.001
+     */
     bool reduce_set_folding(Tmp& tmp);
 
-    /** Perform set folding reduction. */
+    /**
+     * Perform twin reduction.
+     *
+     * Generalization from vertex cover:
+     * - "Branch-and-reduce exponential/FPT algorithms in practice: A case
+     *   study of vertex cover" (Akibaa et Iwata, 2016)
+     *   https://doi.org/10.1016/j.tcs.2015.09.023
+     * - "Exactly Solving the Maximum Weight Independent Set Problem on Large
+     *   Real-World Graphs" (Lamm et al., 2019)
+     *   https://doi.org/10.1137/1.9781611975499.12
+     */
     bool reduce_twin(Tmp& tmp);
 
-    /** Perform unconfined sets reduction. */
+    /**
+     * Perform unconfined sets reduction.
+     *
+     * Generalization from vertex cover:
+     * - "Confining sets and avoiding bottleneck cases: A simple maximum
+     *   independent set algorithm in degree-3 graphs" (Xiao et
+     *   HiroshiNagamochi, 2013)
+     *   https://doi.org/10.1016/j.tcs.2012.09.022
+     * - "Accelerating Local Search for the Maximum Independent Set Problem"
+     *   (Dahlum et al., 2016)
+     *   https://doi.org/10.1007/978-3-319-38851-9_9
+     * - "Exactly Solving the Maximum Weight Independent Set Problem on Large
+     *   Real-World Graphs" (Lamm et al., 2019)
+     *   https://doi.org/10.1137/1.9781611975499.12
+     *
+     * This seems to include Reduction Rule 6 in:
+     * "Exact algorithms for dominating set" (an Rooij et Bodlaender, 2011)
+     * https://doi.org/10.1016/j.dam.2011.07.001
+     */
     bool reduce_unconfined_sets(Tmp& tmp);
 
-    /** Perform crown reduction. */
+    /**
+     * Perform crown reduction.
+     *
+     * Generalization from vertex cover:
+     * - "Crown Reductions and Decompositions: Theoretical Results and Practical
+     *   Methods" (Suters, 2004)
+     *   https://trace.tennessee.edu/utk_gradthes/2225/
+     */
     bool reduce_crown(Tmp& tmp);
 
-    /** Remove elements dominated by elements covered by 2 sets. */
+    /**
+     * Remove elements dominated by elements covered by 2 sets.
+     *
+     * This is Reduction Rule 5 in:
+     * "Exact algorithms for dominating set" (an Rooij et Bodlaender, 2011)
+     * https://doi.org/10.1016/j.dam.2011.07.001
+     */
     bool reduce_dominated_elements_2(
             Tmp& tmp,
             const ReductionParameters& parameters);
 
-    /** Remove dominated elements. */
+    /**
+     * Remove dominated elements.
+     *
+     * This is Reduction Rule 5 in:
+     * "Exact algorithms for dominating set" (an Rooij et Bodlaender, 2011)
+     * https://doi.org/10.1016/j.dam.2011.07.001
+     */
     bool reduce_dominated_elements(
             Tmp& tmp,
             const ReductionParameters& parameters);
 
-    /** Remove dominated sets among the sets covering 2 elements. */
+    /**
+     * Remove dominated sets among the sets covering 2 elements.
+     *
+     * This is Reduction Rule 3 in:
+     * "Exact algorithms for dominating set" (an Rooij et Bodlaender, 2011)
+     * https://doi.org/10.1016/j.dam.2011.07.001
+     */
     bool reduce_dominated_sets_2(
             Tmp& tmp,
             const ReductionParameters& parameters);
 
-    /** Remove dominated sets. */
+    /**
+     * Remove dominated sets.
+     *
+     * This is Reduction Rule 3 in:
+     * "Exact algorithms for dominating set" (an Rooij et Bodlaender, 2011)
+     * https://doi.org/10.1016/j.dam.2011.07.001
+     */
     bool reduce_dominated_sets(
             Tmp& tmp,
             const ReductionParameters& parameters);
