@@ -210,7 +210,7 @@ Cost:                          55
 ```
 
 ```shell
-./install/bin/setcoveringsolver -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a local-search-row-weighting-1 -c solution.txt -t 2
+./install/bin/setcoveringsolver -v 1 -i data/faster1994/rail582.txt -f faster --unicost -a local-search-row-weighting-1 -c solution.txt -t 15
 ```
 ```
 =====================================
@@ -310,7 +310,7 @@ Cost:                          130
 ```
 
 ```shell
-./install/bin/setcoveringsolver -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a local-search-row-weighting-2 -t 10 -c solution.txt
+./install/bin/setcoveringsolver -v 1 -i data/gecco2020/AC_15_cover.txt -f gecco2020 --unicost -a local-search-row-weighting-2 -t 30 -c solution.txt
 ```
 ```
 =====================================
