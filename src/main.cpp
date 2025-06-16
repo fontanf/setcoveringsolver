@@ -3,6 +3,9 @@
 #include "setcoveringsolver/solution.hpp"
 #include "setcoveringsolver/algorithms/greedy.hpp"
 #include "setcoveringsolver/algorithms/milp.hpp"
+#if ORTOOLS_FOUND
+#include "setcoveringsolver/algorithms/cp_sat_ortools.hpp"
+#endif
 #include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
 #include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
 #include "setcoveringsolver/algorithms/trivial_bound.hpp"
@@ -129,6 +132,12 @@ Output run(
         XPRSfree();
 #endif
         return output;
+#if ORTOOLS_FOUND
+    } else if (algorithm == "cp-sat-ortools") {
+        CpSatOrtoolsParameters parameters;
+        read_args(parameters, vm);
+        return cp_sat_ortools(instance, parameters);
+#endif
     } else if (algorithm == "local-search-row-weighting") {
         LocalSearchRowWeightingParameters parameters;
         read_args(parameters, vm);

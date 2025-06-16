@@ -16,6 +16,7 @@ target_link_libraries(SetCoveringSolver_set_covering PUBLIC
     OptimizationTools::graph
     Threads::Threads)
 add_library(SetCoveringSolver::set_covering ALIAS SetCoveringSolver_set_covering)
+install(TARGETS SetCoveringSolver_set_covering)
 
 add_subdirectory(algorithms)
 
@@ -31,6 +32,10 @@ if(SETCOVERINGSOLVER_BUILD_MAIN)
         SetCoveringSolver_trivial_bound
         SetCoveringSolver_clique_cover_bound
         Boost::program_options)
+    if(SETCOVERINGSOLVER_USE_ORTOOLS)
+        target_link_libraries(SetCoveringSolver_main PUBLIC
+            SetCoveringSolver_cp_sat_ortools)
+    endif()
     set_target_properties(SetCoveringSolver_main PROPERTIES OUTPUT_NAME "setcoveringsolver")
     install(TARGETS SetCoveringSolver_main)
 endif()

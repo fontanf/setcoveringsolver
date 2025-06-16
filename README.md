@@ -19,6 +19,8 @@ Some parts of the code have been contributed by [Guillaume Verger](https://githu
 
 - Mixed-integer linear program `--algorithm milp --solver highs`
 
+- CP-SAT solved with OR-Tools `--algorithm cp-sat-ortools`
+
 - Row weighting local search (unicost only) `--algorithm local-search-row-weighting`
 
 - Large neighborhood search `--algorithm large-neighborhood-search --maximum-number-of-iterations 100000 --maximum-number-of-iterations-without-improvement 10000`
@@ -30,6 +32,23 @@ Compile:
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSETCOVERINGSOLVER_USE_HIGHS=ON
 cmake --build build --config Release --parallel
 cmake --install build --config Release --prefix install
+```
+
+To use OR-Tools
+* Download and extract OR-Tools distribution binaries from the official website: https://developers.google.com/optimization/install/cpp
+* Define an `ORTOOLSDIR` environment variable as the path to the extracted folder:
+```shell
+export ORTOOLSDIR="/home/$USER/or-tools_x86_64_Ubuntu-24.04_cpp_v9.10.4067"
+```
+* Compile this project with option `-DSETCOVERINGSOLVER_USE_ORTOOLS=ON`:
+```shell
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSETCOVERINGSOLVER_USE_ORTOOLS=ON
+cmake --build build --config Release --parallel
+cmake --install build --config Release --prefix install
+```
+* Update the `LD_LIBRARY_PATH` environment variable:
+```shell
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$ORTOOLSDIR/lib"
 ```
 
 Download data:

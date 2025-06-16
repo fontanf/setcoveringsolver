@@ -26,6 +26,22 @@ target_link_libraries(SetCoveringSolver_milp PUBLIC
     MathOptSolversCMake::milp)
 add_library(SetCoveringSolver::milp ALIAS SetCoveringSolver_milp)
 
+if(SETCOVERINGSOLVER_USE_ORTOOLS)
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{ORTOOLSDIR}")
+    find_package(ortools CONFIG REQUIRED)
+    add_library(SetCoveringSolver_cp_sat_ortools)
+    target_sources(SetCoveringSolver_cp_sat_ortools PRIVATE
+        cp_sat_ortools.cpp)
+    target_include_directories(SetCoveringSolver_cp_sat_ortools PUBLIC
+        ${PROJECT_SOURCE_DIR}/include)
+    target_compile_definitions(SetCoveringSolver_cp_sat_ortools PUBLIC
+        ORTOOLS_FOUND=1)
+    target_link_libraries(SetCoveringSolver_cp_sat_ortools PUBLIC
+        SetCoveringSolver_set_covering
+        ortools::ortools)
+    add_library(SetCoveringSolver::cp_sat_ortools ALIAS SetCoveringSolver_cp_sat_ortools)
+endif()
+
 add_library(SetCoveringSolver_local_search_row_weighting)
 target_sources(SetCoveringSolver_local_search_row_weighting PRIVATE
     local_search_row_weighting.cpp)
