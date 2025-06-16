@@ -2,9 +2,15 @@
 
 #include "setcoveringsolver/solution.hpp"
 #include "setcoveringsolver/algorithms/greedy.hpp"
+#if CBC_FOUND
 #include "setcoveringsolver/algorithms/milp_cbc.hpp"
+#endif
 #if GUROBI_FOUND
 #include "setcoveringsolver/algorithms/milp_gurobi.hpp"
+#endif
+#if ORTOOLS_FOUND
+#include "setcoveringsolver/algorithms/milp_ortools.hpp"
+#include "setcoveringsolver/algorithms/cp_sat_ortools.hpp"
 #endif
 #include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
 #include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
@@ -110,6 +116,16 @@ Output run(
         MilpGurobiParameters parameters;
         read_args(parameters, vm);
         return milp_gurobi(instance, parameters);
+#endif
+#if ORTOOLS_FOUND
+    } else if (algorithm == "milp-ortools") {
+        MilpOrtoolsParameters parameters;
+        read_args(parameters, vm);
+        return milp_ortools(instance, parameters);
+    } else if (algorithm == "cp-sat-ortools") {
+        CpSatOrtoolsParameters parameters;
+        read_args(parameters, vm);
+        return cp_sat_ortools(instance, parameters);
 #endif
     } else if (algorithm == "local-search-row-weighting-1") {
         LocalSearchRowWeighting1Parameters parameters;

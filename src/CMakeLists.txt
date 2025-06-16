@@ -14,6 +14,8 @@ target_link_libraries(SetCoveringSolver_set_covering PUBLIC
     OptimizationTools::containers
     Threads::Threads)
 add_library(SetCoveringSolver::set_covering ALIAS SetCoveringSolver_set_covering)
+set_target_properties(SetCoveringSolver_set_covering PROPERTIES OUTPUT_NAME "setcoveringsolver_set_covering")
+install(TARGETS SetCoveringSolver_set_covering)
 
 add_subdirectory(algorithms)
 
@@ -38,6 +40,13 @@ if(SETCOVERINGSOLVER_USE_GUROBI)
         GUROBI_FOUND=1)
     target_link_libraries(SetCoveringSolver_main PUBLIC
         SetCoveringSolver_milp_gurobi)
+endif()
+if(SETCOVERINGSOLVER_USE_ORTOOLS)
+    target_compile_definitions(SetCoveringSolver_main PUBLIC
+        ORTOOLS_FOUND=1)
+    target_link_libraries(SetCoveringSolver_main PUBLIC
+        SetCoveringSolver_cp_sat_ortools
+        SetCoveringSolver_milp_ortools)
 endif()
 set_target_properties(SetCoveringSolver_main PROPERTIES OUTPUT_NAME "setcoveringsolver")
 install(TARGETS SetCoveringSolver_main)

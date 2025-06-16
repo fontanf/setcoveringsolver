@@ -16,6 +16,10 @@ In the set packing problem solved, elements may be covered multiple times and th
 - Mixed-integer linear program
   - Solved with Cbc `-a milp-cbc`
   - Solved with Gurobi `-a milp-gurobi`
+  - Modeled through OR-Tools `-a milp-ortools`
+
+- CP-SAT
+  - Solved with OR-Tools `-a cp-sat-ortools`
 
 - Row weighting local search (unicost only)
   - `-a local-search-row-weighting-1`
