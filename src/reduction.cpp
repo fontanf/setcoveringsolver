@@ -943,6 +943,10 @@ bool Reduction::reduce_twin(Tmp& tmp)
     std::vector<ReductionTwinCandidate> twin_candidates;
     optimizationtools::IndexedSet& set_neighbors = tmp.indexed_set_;
     set_neighbors.resize_and_clear(tmp.instance.number_of_sets());
+    optimizationtools::IndexedSet& covered_elements = tmp.indexed_set_3_;
+    covered_elements.resize_and_clear(tmp.instance.number_of_elements());
+    optimizationtools::IndexedSet& neighbors_elements = tmp.indexed_set_2_;
+    neighbors_elements.resize_and_clear(tmp.instance.number_of_elements());
     for (SetId set_id = 0;
             set_id < tmp.instance.number_of_sets();
             ++set_id) {
@@ -963,6 +967,51 @@ bool Reduction::reduce_twin(Tmp& tmp)
         }
         if (set_neighbors.size() != 3)
             continue;
+
+        // Check that all 3 neighbors are necessary to cover elements of set_1
+        // if set_1 is not taken.
+        SetId neighbors_id_1 = *(set_neighbors.begin() + 0);
+        SetId neighbors_id_2 = *(set_neighbors.begin() + 1);
+        SetId neighbors_id_3 = *(set_neighbors.begin() + 2);
+        const ReductionSet& neighbor_1 = tmp.instance.set(neighbors_id_1);
+        const ReductionSet& neighbor_2 = tmp.instance.set(neighbors_id_2);
+        const ReductionSet& neighbor_3 = tmp.instance.set(neighbors_id_3);
+        covered_elements.clear();
+        for (ElementId element_id: set.elements)
+            covered_elements.add(element_id);
+        {
+            neighbors_elements.clear();
+            for (ElementId element_id: neighbor_1.elements)
+                if (covered_elements.contains(element_id))
+                    neighbors_elements.add(element_id);
+            for (ElementId element_id: neighbor_2.elements)
+                if (covered_elements.contains(element_id))
+                    neighbors_elements.add(element_id);
+            if (neighbors_elements.size() == covered_elements.size())
+                continue;
+        }
+        {
+            neighbors_elements.clear();
+            for (ElementId element_id: neighbor_1.elements)
+                if (covered_elements.contains(element_id))
+                    neighbors_elements.add(element_id);
+            for (ElementId element_id: neighbor_3.elements)
+                if (covered_elements.contains(element_id))
+                    neighbors_elements.add(element_id);
+            if (neighbors_elements.size() == covered_elements.size())
+                continue;
+        }
+        {
+            neighbors_elements.clear();
+            for (ElementId element_id: neighbor_2.elements)
+                if (covered_elements.contains(element_id))
+                    neighbors_elements.add(element_id);
+            for (ElementId element_id: neighbor_3.elements)
+                if (covered_elements.contains(element_id))
+                    neighbors_elements.add(element_id);
+            if (neighbors_elements.size() == covered_elements.size())
+                continue;
+        }
 
         ReductionTwinCandidate twin_candidate;
         twin_candidate.set_id = set_id;
@@ -1046,8 +1095,6 @@ bool Reduction::reduce_twin(Tmp& tmp)
     // Update sets.
     optimizationtools::IndexedSet& elements_to_remove = tmp.indexed_set_;
     elements_to_remove.resize_and_clear(tmp.instance.number_of_elements());
-    optimizationtools::IndexedSet& covered_elements = tmp.indexed_set_3_;
-    covered_elements.resize_and_clear(tmp.instance.number_of_elements());
     for (const ReductionTwin& twin: folded_sets_list) {
         ReductionSet& set_1 = tmp.instance.set(twin.set_id_1);
         ReductionSet& set_2 = tmp.instance.set(twin.set_id_2);
