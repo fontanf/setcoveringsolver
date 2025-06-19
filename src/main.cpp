@@ -111,8 +111,8 @@ Output run(
         read_args(parameters, vm);
         return milp_gurobi(instance, parameters);
 #endif
-    } else if (algorithm == "local-search-row-weighting-1") {
-        LocalSearchRowWeighting1Parameters parameters;
+    } else if (algorithm == "local-search-row-weighting") {
+        LocalSearchRowWeightingParameters parameters;
         read_args(parameters, vm);
         if (vm.count("maximum-number-of-iterations")) {
             parameters.maximum_number_of_iterations
@@ -122,19 +122,7 @@ Output run(
             parameters.maximum_number_of_iterations_without_improvement
                 = vm["maximum-number-of-iterations-without-improvement"].as<int>();
         }
-        return local_search_row_weighting_1(instance, generator, nullptr, parameters);
-    } else if (algorithm == "local-search-row-weighting-2") {
-        LocalSearchRowWeighting2Parameters parameters;
-        read_args(parameters, vm);
-        if (vm.count("maximum-number-of-iterations")) {
-            parameters.maximum_number_of_iterations
-                = vm["maximum-number-of-iterations"].as<int>();
-        }
-        if (vm.count("maximum-number-of-iterations-without-improvement")) {
-            parameters.maximum_number_of_iterations_without_improvement
-                = vm["maximum-number-of-iterations-without-improvement"].as<int>();
-        }
-        return local_search_row_weighting_2(instance, generator, nullptr, parameters);
+        return local_search_row_weighting(instance, generator, nullptr, parameters);
     } else if (algorithm == "large-neighborhood-search"
             || algorithm == "large-neighborhood-search-2") {
         LargeNeighborhoodSearchParameters parameters;
