@@ -2,7 +2,7 @@
 
 #include "setcoveringsolver/algorithm_formatter.hpp"
 
-#include "optimizationtools/containers/indexed_binary_heap.hpp"
+#include "optimizationtools/containers/indexed_4ary_heap.hpp"
 
 using namespace setcoveringsolver;
 
@@ -23,7 +23,7 @@ const Output setcoveringsolver::greedy(
     Solution solution(instance);
 
     auto f = [&instance](SetId set_id) { return std::pair<double, SetId>{-1.0 * (double)instance.set(set_id).elements.size() / instance.set(set_id).cost, set_id}; };
-    optimizationtools::IndexedBinaryHeap<std::pair<double, SetId>> heap(instance.number_of_sets(), f);
+    optimizationtools::Indexed4aryHeap<std::pair<double, SetId>> heap(instance.number_of_sets(), f);
 
     while (!solution.feasible()) {
 
@@ -110,7 +110,7 @@ const Output setcoveringsolver::greedy_lin(
                 val += 1.0 / instance.element(element_id).sets.size();
         return - val / instance.set(set_id).cost;
     };
-    optimizationtools::IndexedBinaryHeap<double> heap(instance.number_of_sets(), f);
+    optimizationtools::Indexed4aryHeap<double> heap(instance.number_of_sets(), f);
 
     while (!solution.feasible()) {
 
@@ -205,7 +205,7 @@ const Output setcoveringsolver::greedy_reverse(
     solution.fill();
 
     auto f = [&solution](SetId set_id) { return std::pair<double, SetId>{greedy_reverse_score(solution, set_id), set_id}; };
-    optimizationtools::IndexedBinaryHeap<std::pair<double, SetId>> heap(instance.number_of_sets(), f);
+    optimizationtools::Indexed4aryHeap<std::pair<double, SetId>> heap(instance.number_of_sets(), f);
 
     for (;;) {
 
