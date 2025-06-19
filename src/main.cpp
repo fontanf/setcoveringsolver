@@ -119,30 +119,22 @@ Output run(
         read_args(parameters, vm);
         return milp_gurobi(instance, parameters);
 #endif
-    } else if (algorithm == "local-search-row-weighting-1") {
-        LocalSearchRowWeighting1Parameters parameters;
+    } else if (algorithm == "local-search-row-weighting") {
+        LocalSearchRowWeightingParameters parameters;
         read_args(parameters, vm);
+        if (vm.count("best-solution-update-frequency")) {
+            parameters.best_solution_update_frequency
+                = vm["best-solution-update-frequency"].as<Counter>();
+        }
         if (vm.count("maximum-number-of-iterations")) {
             parameters.maximum_number_of_iterations
-                = vm["maximum-number-of-iterations"].as<int>();
+                = vm["maximum-number-of-iterations"].as<Counter>();
         }
         if (vm.count("maximum-number-of-iterations-without-improvement")) {
             parameters.maximum_number_of_iterations_without_improvement
-                = vm["maximum-number-of-iterations-without-improvement"].as<int>();
+                = vm["maximum-number-of-iterations-without-improvement"].as<Counter>();
         }
-        return local_search_row_weighting_1(instance, generator, nullptr, parameters);
-    } else if (algorithm == "local-search-row-weighting-2") {
-        LocalSearchRowWeighting2Parameters parameters;
-        read_args(parameters, vm);
-        if (vm.count("maximum-number-of-iterations")) {
-            parameters.maximum_number_of_iterations
-                = vm["maximum-number-of-iterations"].as<int>();
-        }
-        if (vm.count("maximum-number-of-iterations-without-improvement")) {
-            parameters.maximum_number_of_iterations_without_improvement
-                = vm["maximum-number-of-iterations-without-improvement"].as<int>();
-        }
-        return local_search_row_weighting_2(instance, generator, nullptr, parameters);
+        return local_search_row_weighting(instance, generator, nullptr, parameters);
     } else if (algorithm == "large-neighborhood-search"
             || algorithm == "large-neighborhood-search-2") {
         LargeNeighborhoodSearchParameters parameters;
@@ -203,8 +195,10 @@ int main(int argc, char *argv[])
         ("dominated-elements-removal,", po::value<bool>(), "enable dominated elements removal")
         ("reduction-time-limit,", po::value<double>(), "set reduction time limit in seconds")
         ("enable-new-solution-callback,", po::value<bool>(), "enable new solution callback")
-        ("maximum-number-of-iterations,", po::value<int>(), "set the maximum number of iterations")
-        ("maximum-number-of-iterations-without-improvement,", po::value<int>(), "set the maximum number of iterations without improvement")
+
+        ("best-solution-update-frequency,", po::value<Counter>(), "set best update frequency for RWLS")
+        ("maximum-number-of-iterations,", po::value<Counter>(), "set the maximum number of iterations")
+        ("maximum-number-of-iterations-without-improvement,", po::value<Counter>(), "set the maximum number of iterations without improvement")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
