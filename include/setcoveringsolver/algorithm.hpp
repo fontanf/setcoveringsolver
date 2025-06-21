@@ -115,11 +115,15 @@ struct Parameters: optimizationtools::Parameters
                 {"Enable", reduction_parameters.reduce},
                 {"TimeLimit", reduction_parameters.timer.time_limit()},
                 {"MaximumNumberOfRounds", reduction_parameters.maximum_number_of_rounds},
-                {"RemoveDominated", reduction_parameters.remove_dominated}});
+                {"SetFolding", reduction_parameters.set_folding},
+                {"Twin", reduction_parameters.twin},
+                {"UnconfinedSets", reduction_parameters.unconfined_sets},
+                {"DominatedSetsRemoval", reduction_parameters.dominated_sets_removal},
+                {"DominatedElementsRemoval", reduction_parameters.dominated_elements_removal}});
         return json;
     }
 
-    virtual int format_width() const override { return 23; }
+    virtual int format_width() const override { return 29; }
 
     virtual void format(std::ostream& os) const override
     {
@@ -130,7 +134,11 @@ struct Parameters: optimizationtools::Parameters
             << std::setw(width) << std::left << "    Enable: " << reduction_parameters.reduce << std::endl
             << std::setw(width) << std::left << "    Time limit: " << reduction_parameters.timer.time_limit() << std::endl
             << std::setw(width) << std::left << "    Max. # of rounds: " << reduction_parameters.maximum_number_of_rounds << std::endl
-            << std::setw(width) << std::left << "    Remove dominated: " << reduction_parameters.remove_dominated << std::endl
+            << std::setw(width) << std::left << "    Set folding: " << reduction_parameters.set_folding << std::endl
+            << std::setw(width) << std::left << "    Twin: " << reduction_parameters.twin << std::endl
+            << std::setw(width) << std::left << "    Unconfined sets: " << reduction_parameters.unconfined_sets << std::endl
+            << std::setw(width) << std::left << "    Dominated sets removal: " << reduction_parameters.dominated_sets_removal << std::endl
+            << std::setw(width) << std::left << "    Dominated elts removal: " << reduction_parameters.dominated_elements_removal << std::endl
             ;
     }
 };

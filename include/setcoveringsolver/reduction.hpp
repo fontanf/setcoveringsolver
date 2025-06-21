@@ -22,13 +22,20 @@ struct ReductionParameters
     /** Maximum number of rounds. */
     Counter maximum_number_of_rounds = 999;
 
-    /**
-     * Booelean indicating if the dominated sets/elements removal should be
-     * performed.
-     *
-     * These reduction operations are expensive on large problems.
-     */
-    bool remove_dominated = false;
+    /** Enable set folding. */
+    bool set_folding = true;
+
+    /** Enable twin reduction. */
+    bool twin = true;
+
+    /** Enable unconfined sets reduction. */
+    bool unconfined_sets = true;
+
+    /** Enable dominated sets removal. */
+    bool dominated_sets_removal = true;
+
+    /** Enable dominated elements removal. */
+    bool dominated_elements_removal = true;
 };
 
 class Reduction

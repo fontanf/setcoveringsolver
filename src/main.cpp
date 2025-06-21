@@ -60,8 +60,16 @@ void read_args(
     }
     if (vm.count("reduce"))
         parameters.reduction_parameters.reduce = vm["reduce"].as<bool>();
-    if (vm.count("remove-dominated"))
-        parameters.reduction_parameters.remove_dominated = vm["remove-dominated"].as<bool>();
+    if (vm.count("set-folding"))
+        parameters.reduction_parameters.set_folding = vm["set-folding"].as<bool>();
+    if (vm.count("twin"))
+        parameters.reduction_parameters.twin = vm["twin"].as<bool>();
+    if (vm.count("unconfined-sets"))
+        parameters.reduction_parameters.unconfined_sets = vm["unconfined-sets"].as<bool>();
+    if (vm.count("dominated-sets-removal"))
+        parameters.reduction_parameters.dominated_sets_removal = vm["dominated-sets-removal"].as<bool>();
+    if (vm.count("dominated-elements-removal"))
+        parameters.reduction_parameters.dominated_elements_removal = vm["dominated-elements-removal"].as<bool>();
     if (vm.count("reduction-time-limit"))
         parameters.reduction_parameters.timer.set_time_limit(vm["reduction-time-limit"].as<double>());
     if (vm.count("enable-new-solution-callback"))
@@ -187,8 +195,12 @@ int main(int argc, char *argv[])
         ("log,l", po::value<std::string>(), "set log file")
         ("log-to-stderr", "write log to stderr")
 
-        ("reduce,", po::value<bool>(), "set reduce")
-        ("remove-dominated,", po::value<bool>(), "set remove dominated")
+        ("reduce,", po::value<bool>(), "enable reduction")
+        ("set-folding,", po::value<bool>(), "enable set folding reduction")
+        ("twin,", po::value<bool>(), "enable twin reduction")
+        ("unconfined-sets,", po::value<bool>(), "enable unconfined sets reduction")
+        ("dominated-sets-removal,", po::value<bool>(), "enable dominated sets removal")
+        ("dominated-elements-removal,", po::value<bool>(), "enable dominated elements removal")
         ("reduction-time-limit,", po::value<double>(), "set reduction time limit in seconds")
         ("enable-new-solution-callback,", po::value<bool>(), "enable new solution callback")
         ("maximum-number-of-iterations,", po::value<int>(), "set the maximum number of iterations")

@@ -2863,28 +2863,35 @@ Reduction::Reduction(
         found |= reduce_dominated_elements_2(tmp, parameters);
         if (parameters.timer.needs_to_end())
             break;
-        for (;;) {
-            bool found_cur = reduce_set_folding(tmp);
-            if (!found_cur)
-                break;
-            found |= found_cur;
+        if (parameters.set_folding) {
+            for (;;) {
+                bool found_cur = reduce_set_folding(tmp);
+                if (!found_cur)
+                    break;
+                found |= found_cur;
+            }
         }
         // Twin reduction fails if some elements are covered by only one vertex.
         // So, run the mandatory set reduction right before.
-        {
+        if (parameters.twin) {
             found |= reduce_mandatory_sets(tmp);
             found |= reduce_twin(tmp);
         }
         found |= reduce_identical_sets(tmp);
         found |= reduce_identical_elements(tmp);
         if (!found || round_number >= 4) {
-            found |= reduce_unconfined_sets(tmp);
-            found |= reduce_dominated_sets(tmp, parameters);
-            if (parameters.timer.needs_to_end())
-                break;
-            found |= reduce_dominated_elements(tmp, parameters);
-            if (parameters.timer.needs_to_end())
-                break;
+            if (parameters.unconfined_sets)
+                found |= reduce_unconfined_sets(tmp);
+            if (parameters.dominated_sets_removal) {
+                found |= reduce_dominated_sets(tmp, parameters);
+                if (parameters.timer.needs_to_end())
+                    break;
+            }
+            if (parameters.dominated_elements_removal) {
+                found |= reduce_dominated_elements(tmp, parameters);
+                if (parameters.timer.needs_to_end())
+                    break;
+            }
         }
         if (found)
             continue;
