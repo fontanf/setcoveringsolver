@@ -20,6 +20,23 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(optimizationtools)
 
+# Fetch fontanf/mathoptsolverscmake.
+set(MATHOPTSOLVERSCMAKE_USE_CLP ON)
+set(MATHOPTSOLVERSCMAKE_USE_CBC ON)
+if(SETCOVERINGSOLVER_USE_HIGHS)
+    set(MATHOPTSOLVERSCMAKE_USE_HIGHS ON)
+endif()
+if(SETCOVERINGSOLVER_USE_XPRESS)
+    set(MATHOPTSOLVERSCMAKE_USE_XPRESS ON)
+endif()
+FetchContent_Declare(
+    mathoptsolverscmake
+    GIT_REPOSITORY https://github.com/fontanf/mathoptsolverscmake.git
+    GIT_TAG 6721116d85708864bda081e546e444afc158039a
+    #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../mathoptsolverscmake/"
+    EXCLUDE_FROM_ALL)
+FetchContent_MakeAvailable(mathoptsolverscmake)
+
 # Fetch fontanf/coloringsolver.
 FetchContent_Declare(
     coloringsolver
@@ -28,18 +45,3 @@ FetchContent_Declare(
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../coloringsolver/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(coloringsolver)
-
-# Fetch fontanf/mathoptsolverscmake.
-if(SETCOVERINGSOLVER_USE_CBC)
-    set(MATHOPTSOLVERSCMAKE_USE_CBC ON)
-endif()
-if(SETCOVERINGSOLVER_USE_GUROBI)
-    set(MATHOPTSOLVERSCMAKE_USE_GUROBI ON)
-endif()
-FetchContent_Declare(
-    mathoptsolverscmake
-    GIT_REPOSITORY https://github.com/fontanf/mathoptsolverscmake.git
-    GIT_TAG 4472814a28a40f4d861ccd757e140835c3a31bd0
-    #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../mathoptsolverscmake/"
-    EXCLUDE_FROM_ALL)
-FetchContent_MakeAvailable(mathoptsolverscmake)

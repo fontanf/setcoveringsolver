@@ -16,29 +16,15 @@ target_link_libraries(SetCoveringSolver_trivial_bound PUBLIC
     SetCoveringSolver_set_covering)
 add_library(SetCoveringSolver::trivial_bound ALIAS SetCoveringSolver_trivial_bound)
 
-if(SETCOVERINGSOLVER_USE_CBC)
-    add_library(SetCoveringSolver_milp_cbc)
-    target_sources(SetCoveringSolver_milp_cbc PRIVATE
-        milp_cbc.cpp)
-    target_include_directories(SetCoveringSolver_milp_cbc PUBLIC
-        ${PROJECT_SOURCE_DIR}/include)
-    target_link_libraries(SetCoveringSolver_milp_cbc PUBLIC
-        SetCoveringSolver_set_covering
-        MathOptSolversCMake::cbc)
-    add_library(SetCoveringSolver::milp_cbc ALIAS SetCoveringSolver_milp_cbc)
-endif()
-
-if(SETCOVERINGSOLVER_USE_GUROBI)
-    add_library(SetCoveringSolver_milp_gurobi)
-    target_sources(SetCoveringSolver_milp_gurobi PRIVATE
-        milp_gurobi.cpp)
-    target_include_directories(SetCoveringSolver_milp_gurobi PUBLIC
-        ${PROJECT_SOURCE_DIR}/include)
-    target_link_libraries(SetCoveringSolver_milp_gurobi PUBLIC
-        SetCoveringSolver_set_covering
-        MathOptSolversCMake::gurobi)
-    add_library(SetCoveringSolver::milp_gurobi ALIAS SetCoveringSolver_milp_gurobi)
-endif()
+add_library(SetCoveringSolver_milp)
+target_sources(SetCoveringSolver_milp PRIVATE
+    milp.cpp)
+target_include_directories(SetCoveringSolver_milp PUBLIC
+    ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(SetCoveringSolver_milp PUBLIC
+    SetCoveringSolver_set_covering
+    MathOptSolversCMake::milp)
+add_library(SetCoveringSolver::milp ALIAS SetCoveringSolver_milp)
 
 add_library(SetCoveringSolver_local_search_row_weighting)
 target_sources(SetCoveringSolver_local_search_row_weighting PRIVATE
