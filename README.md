@@ -17,7 +17,7 @@ In the set packing problem solved, elements may be covered multiple times and th
 
 - Mixed-integer linear program
   - Solved with Cbc `-a milp-cbc`
-  - Solved with Gurobi `-a milp-gurobi`
+  - Solved with HiGHS `-a milp-highs`
 
 - Row weighting local search (unicost only) `--algorithm local-search-row-weighting`
 

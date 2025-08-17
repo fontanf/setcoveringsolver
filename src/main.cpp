@@ -2,10 +2,7 @@
 
 #include "setcoveringsolver/solution.hpp"
 #include "setcoveringsolver/algorithms/greedy.hpp"
-#include "setcoveringsolver/algorithms/milp_cbc.hpp"
-#if GUROBI_FOUND
-#include "setcoveringsolver/algorithms/milp_gurobi.hpp"
-#endif
+#include "setcoveringsolver/algorithms/milp.hpp"
 #include "setcoveringsolver/algorithms/local_search_row_weighting.hpp"
 #include "setcoveringsolver/algorithms/large_neighborhood_search.hpp"
 #include "setcoveringsolver/algorithms/trivial_bound.hpp"
@@ -109,15 +106,21 @@ Output run(
         return greedy_or_greedy_reverse(instance, parameters);
 #if CBC_FOUND
     } else if (algorithm == "milp-cbc") {
-        MilpCbcParameters parameters;
+        Parameters parameters;
         read_args(parameters, vm);
-        return milp_cbc(instance, parameters);
+        return milp_cbc(instance, nullptr, parameters);
 #endif
-#if GUROBI_FOUND
-    } else if (algorithm == "milp-gurobi") {
-        MilpGurobiParameters parameters;
+#if HIGHS_FOUND
+    } else if (algorithm == "milp-highs") {
+        Parameters parameters;
         read_args(parameters, vm);
-        return milp_gurobi(instance, parameters);
+        return milp_highs(instance, nullptr, parameters);
+#endif
+#if XPRESS_FOUND
+    } else if (algorithm == "milp-xpress") {
+        Parameters parameters;
+        read_args(parameters, vm);
+        return milp_xpress(instance, nullptr, parameters);
 #endif
     } else if (algorithm == "local-search-row-weighting") {
         LocalSearchRowWeightingParameters parameters;

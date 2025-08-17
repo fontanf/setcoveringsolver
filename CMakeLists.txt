@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.15.0)
 
 project(SetCoveringSolver LANGUAGES CXX)
 
-option(SETCOVERINGSOLVER_USE_CBC "Use Cbc" ON)
-option(SETCOVERINGSOLVER_USE_GUROBI "Use Gurobi" OFF)
+option(SETCOVERINGSOLVER_USE_CBC "Use Cbc" OFF)
+option(SETCOVERINGSOLVER_USE_HIGHS "Use HiGHS" ON)
+option(SETCOVERINGSOLVER_USE_XPRESS "Use FICO Xpress" OFF)
 
 # Avoid FetchContent warning.
 cmake_policy(SET CMP0135 NEW)

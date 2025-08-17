@@ -22,22 +22,11 @@ target_sources(SetCoveringSolver_main PRIVATE
     main.cpp)
 target_link_libraries(SetCoveringSolver_main PUBLIC
     SetCoveringSolver_greedy
+    SetCoveringSolver_milp
     SetCoveringSolver_local_search_row_weighting
     SetCoveringSolver_large_neighborhood_search
     SetCoveringSolver_trivial_bound
     SetCoveringSolver_clique_cover_bound
     Boost::program_options)
-if(SETCOVERINGSOLVER_USE_CBC)
-    target_compile_definitions(SetCoveringSolver_main PUBLIC
-        CBC_FOUND=1)
-    target_link_libraries(SetCoveringSolver_main PUBLIC
-        SetCoveringSolver_milp_cbc)
-endif()
-if(SETCOVERINGSOLVER_USE_GUROBI)
-    target_compile_definitions(SetCoveringSolver_main PUBLIC
-        GUROBI_FOUND=1)
-    target_link_libraries(SetCoveringSolver_main PUBLIC
-        SetCoveringSolver_milp_gurobi)
-endif()
 set_target_properties(SetCoveringSolver_main PROPERTIES OUTPUT_NAME "setcoveringsolver")
 install(TARGETS SetCoveringSolver_main)
