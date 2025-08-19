@@ -33,6 +33,7 @@ target_include_directories(SetCoveringSolver_local_search_row_weighting PUBLIC
     ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(SetCoveringSolver_local_search_row_weighting PUBLIC
     SetCoveringSolver_set_covering
+    SetCoveringSolver_greedy
     SetCoveringSolver_trivial_bound)
 add_library(SetCoveringSolver::local_search_row_weighting ALIAS SetCoveringSolver_local_search_row_weighting)
 
