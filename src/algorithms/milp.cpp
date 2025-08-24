@@ -190,7 +190,7 @@ const Output setcoveringsolver::milp(
 {
     Output output(instance);
     AlgorithmFormatter algorithm_formatter(parameters, output);
-    algorithm_formatter.start("MILP (HIGHS)");
+    algorithm_formatter.start("MILP");
 
     algorithm_formatter.print_header();
 
@@ -211,19 +211,6 @@ const Output setcoveringsolver::milp(
                 algorithm_formatter,
                 output);
     }
-
-    // Initialize Highs.
-    Highs highs;
-    HighsStatus return_status;
-
-    // Reduce printout.
-    return_status = highs.setOptionValue(
-            "log_to_console",
-            false);
-
-    return_status = highs.setOptionValue(
-            "log_file",
-            "highs.log");
 
     mathoptsolverscmake::MilpModel milp_model = create_milp_model(instance);
     std::vector<double> milp_solution;
@@ -317,6 +304,13 @@ const Output setcoveringsolver::milp(
     } else {
         throw std::invalid_argument("");
     }
+
+    // Retrieve solution.
+    Solution solution = retrieve_solution(instance, milp_solution);
+    algorithm_formatter.update_solution(solution, "");
+
+    // Retrieve bound.
+    algorithm_formatter.update_bound(milp_bound, "");
 
     algorithm_formatter.end();
     return output;
