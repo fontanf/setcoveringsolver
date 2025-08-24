@@ -104,24 +104,19 @@ Output run(
         Parameters parameters;
         read_args(parameters, vm);
         return greedy_or_greedy_reverse(instance, parameters);
-#if CBC_FOUND
-    } else if (algorithm == "milp-cbc") {
-        Parameters parameters;
-        read_args(parameters, vm);
-        return milp_cbc(instance, nullptr, parameters);
+    } else if (algorithm == "milp") {
+#ifdef XPRESS_FOUND
+        XPRSinit(NULL);
 #endif
-#if HIGHS_FOUND
-    } else if (algorithm == "milp-highs") {
-        Parameters parameters;
+        MilpParameters parameters;
         read_args(parameters, vm);
-        return milp_highs(instance, nullptr, parameters);
+        if (vm.count("solver"))
+            parameters.solver = vm["solver"].as<mathoptsolverscmake::SolverName>();
+        auto output = milp(instance, nullptr, parameters);
+#ifdef XPRESS_FOUND
+        XPRSfree();
 #endif
-#if XPRESS_FOUND
-    } else if (algorithm == "milp-xpress") {
-        Parameters parameters;
-        read_args(parameters, vm);
-        return milp_xpress(instance, nullptr, parameters);
-#endif
+        return output;
     } else if (algorithm == "local-search-row-weighting") {
         LocalSearchRowWeightingParameters parameters;
         read_args(parameters, vm);
@@ -202,6 +197,7 @@ int main(int argc, char *argv[])
         ("best-solution-update-frequency,", po::value<Counter>(), "set best update frequency for RWLS")
         ("maximum-number-of-iterations,", po::value<Counter>(), "set the maximum number of iterations")
         ("maximum-number-of-iterations-without-improvement,", po::value<Counter>(), "set the maximum number of iterations without improvement")
+        ("solver,", po::value<mathoptsolverscmake::SolverName>(), "set solver")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);

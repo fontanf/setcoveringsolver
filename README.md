@@ -15,9 +15,7 @@ In the set packing problem solved, elements may be covered multiple times and th
   - Reverse greedy `--algorithm greedy-reverse`
   - Greedy or reverse greedy `--algorithm greedy-or-greedy-reverse`: runs the best suited greedy algorithms for the instance
 
-- Mixed-integer linear program
-  - Solved with Cbc `-a milp-cbc`
-  - Solved with HiGHS `-a milp-highs`
+- Mixed-integer linear program `--algorithm milp --solver highs`
 
 - Row weighting local search (unicost only) `--algorithm local-search-row-weighting`
 
@@ -43,7 +41,7 @@ python3 scripts/download_data.py --data pace2025_ds
 Run:
 
 ```shell
-./install/bin/setcoveringsolver  --verbosity-level 1  --input data/wedelin1995/sasd9imp2.dat --format wedelin1995  --algorithm milp-cbc
+./install/bin/setcoveringsolver  --verbosity-level 1  --input data/wedelin1995/sasd9imp2.dat --format wedelin1995  --algorithm milp --solver cbc
 ```
 ```
 =====================================
