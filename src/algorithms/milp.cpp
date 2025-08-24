@@ -53,12 +53,21 @@ mathoptsolverscmake::MilpModel create_milp_model(
     return model;
 }
 
+Solution retrieve_solution(
+        const Instance& instance,
+        const std::vector<double>& milp_solution)
+{
+    Solution solution(instance);
+    for (SetId set_id = 0;
+            set_id < instance.number_of_sets();
+            ++set_id) {
+        if (milp_solution[set_id] > 0.5)
+            solution.add(set_id);
+    }
+    return solution;
 }
 
 #ifdef CBC_FOUND
-
-namespace
-{
 
 class EventHandler: public CbcEventHandler
 {
@@ -69,190 +78,115 @@ public:
 
     EventHandler(
             const Instance& instance,
-            AlgorithmFormatter& algorithm_formatter,
-            Output& output):
+            const MilpParameters& parameters,
+            Output& output,
+            AlgorithmFormatter& algorithm_formatter):
         CbcEventHandler(),
         instance_(instance),
-        algorithm_formatter_(algorithm_formatter),
-        output_(output) { }
-
-    EventHandler(
-            CbcModel* model,
-            const Instance& instance,
-            AlgorithmFormatter& algorithm_formatter,
-            Output& output):
-        CbcEventHandler(model),
-        instance_(instance),
-        algorithm_formatter_(algorithm_formatter),
-        output_(output) { }
+        parameters_(parameters),
+        output_(output),
+        algorithm_formatter_(algorithm_formatter) { }
 
     virtual ~EventHandler() { }
 
     EventHandler(const EventHandler &rhs):
         CbcEventHandler(rhs),
         instance_(rhs.instance_),
-        algorithm_formatter_(rhs.algorithm_formatter_),
-        output_(rhs.output_) { }
-
-    EventHandler &operator=(const EventHandler &rhs)
-    {
-        if (this != &rhs) {
-            CbcEventHandler::operator=(rhs);
-            //this->instance_  = rhs.instance_;
-            //this->parameters_ = rhs.parameters_;
-            //this->algorithm_formatter = rhs.algorithm_formatter;
-            this->output_ = rhs.output_;
-        }
-        return *this;
-    }
+        parameters_(rhs.parameters_),
+        output_(rhs.output_),
+        algorithm_formatter_(rhs.algorithm_formatter_) { }
 
     virtual CbcEventHandler* clone() const { return new EventHandler(*this); }
 
 private:
 
     const Instance& instance_;
-    AlgorithmFormatter& algorithm_formatter_;
+    const MilpParameters& parameters_;
     Output& output_;
+    AlgorithmFormatter& algorithm_formatter_;
 
 };
 
 CbcEventHandler::CbcAction EventHandler::event(CbcEvent which_event)
 {
-    if ((model_->specialOptions() & 2048) != 0) // not in subtree
+    // Not in subtree.
+    if ((model_->specialOptions() & 2048) != 0)
         return noAction;
+    const CbcModel& cbc_model = *model_;
 
-    Cost bound = std::ceil(model_->getBestPossibleObjValue() - FFOT_TOL);
-    algorithm_formatter_.update_bound(bound, "");
+    int number_of_nodes = mathoptsolverscmake::get_number_of_nodes(cbc_model);
 
-    if ((which_event != solution && which_event != heuristicSolution)) // no solution found
-        return noAction;
+    // Retrieve solution.
+    double milp_objective_value = mathoptsolverscmake::get_solution_value(cbc_model);
+    if (output_.solution.cost() > milp_objective_value) {
+        std::vector<double> milp_solution = mathoptsolverscmake::get_solution(cbc_model);
+        Solution solution = retrieve_solution(instance_, milp_solution);
+        algorithm_formatter_.update_solution(solution, "node " + std::to_string(number_of_nodes));
+    }
 
-    OsiSolverInterface* origSolver = model_->solver();
-    const OsiSolverInterface* pps = model_->postProcessedSolver(1);
-    const OsiSolverInterface* solver = pps? pps: origSolver;
+    // Retrieve bound.
+    double bound = mathoptsolverscmake::get_bound(cbc_model);
+    algorithm_formatter_.update_bound(bound, "node " + std::to_string(number_of_nodes));
 
-    if (!output_.solution.feasible() || output_.solution.cost() > solver->getObjValue() + 0.5) {
-        const double* solution_cbc = solver->getColSolution();
-        Solution solution(instance_);
-        for (SetId set_id = 0; set_id < instance_.number_of_sets(); ++set_id)
-            if (solution_cbc[set_id] > 0.5)
-                solution.add(set_id);
-        algorithm_formatter_.update_solution(solution, "");
+    // Check end.
+    if (parameters_.timer.needs_to_end())
+        return stop;
+    if (parameters_.goal >= 0
+            && output_.solution.objective_value() >= parameters_.goal) {
+        return stop;
     }
 
     return noAction;
 }
 
-}
+#endif
 
-const Output setcoveringsolver::milp_cbc(
-        const Instance& instance,
-        const Solution* initial_solution,
-        const Parameters& parameters)
+#ifdef XPRESS_FOUND
+
+struct XpressCallbackUser
 {
-    Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
-    algorithm_formatter.start("MILP (CBC)");
+    const Instance& instance;
+    const MilpParameters& parameters;
+    Output& output;
+    AlgorithmFormatter& algorithm_formatter;
+};
 
-    // Reduction.
-    if (parameters.reduction_parameters.reduce) {
-        return solve_reduced_instance(
-                [](
-                    const Instance& instance,
-                    const Parameters& parameters)
-                {
-                    return milp_cbc(
-                            instance,
-                            nullptr,
-                            parameters);
-                },
-                instance,
-                parameters,
-                algorithm_formatter,
-                output);
+void xpress_callback(
+        XPRSprob xpress_model,
+        void* user,
+        int*)
+{
+    const XpressCallbackUser& d = *(const XpressCallbackUser*)(user);
+
+    // Retrieve solution.
+    double milp_objective_value = mathoptsolverscmake::get_solution_value(xpress_model);
+    if (d.output.solution.cost() > milp_objective_value) {
+        std::vector<double> milp_solution = mathoptsolverscmake::get_solution(xpress_model);
+        Solution solution = retrieve_solution(d.instance, milp_solution);
+        d.algorithm_formatter.update_solution(solution, "");
     }
 
-    algorithm_formatter.print_header();
+    // Retrieve bound.
+    double bound = mathoptsolverscmake::get_bound(xpress_model);
+    d.algorithm_formatter.update_bound(bound, "");
 
-    mathoptsolverscmake::MilpModel model = create_milp_model(instance);
-
-    OsiCbcSolverInterface cbc_model;
-
-    // Reduce printout.
-    cbc_model.getModelPtr()->setLogLevel(0);
-    cbc_model.messageHandler()->setLogLevel(0);
-    cbc_model.setHintParam(OsiDoReducePrint, true, OsiHintTry);
-
-    mathoptsolverscmake::cbc::load(cbc_model, model);
-
-    // Pass data and solver to CbcModel.
-    CbcModel cbc_model_2(cbc_model);
-
-    // Reduce printout.
-    cbc_model_2.setLogLevel(0);
-
-    // Callback.
-    EventHandler event_handler(instance, algorithm_formatter, output);
-    cbc_model_2.passInEventHandler(&event_handler);
-
-    // Set time limit.
-    cbc_model_2.setMaximumSeconds(parameters.timer.remaining_time());
-
-    // Add initial solution.
-    std::vector<double> sol_init(instance.number_of_sets(), 0);
-    if (initial_solution != NULL
-            && initial_solution->feasible()) {
-        for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
-            if (initial_solution->contains(set_id))
-                sol_init[set_id] = 1;
-        cbc_model_2.setBestSolution(
-                sol_init.data(),
-                instance.number_of_sets(),
-                initial_solution->cost());
+    // Check end.
+    if (d.parameters.timer.needs_to_end())
+        XPRSinterrupt(xpress_model, XPRS_STOP_USER);
+    if (d.parameters.goal >= 0
+            && d.output.solution.objective_value() >= d.parameters.goal) {
+        XPRSinterrupt(xpress_model, XPRS_STOP_USER);
     }
-
-    // Do complete search.
-    cbc_model_2.branchAndBound();
-
-    if (cbc_model_2.isProvenInfeasible()) {
-        // Infeasible.
-
-        // Update dual bound.
-        algorithm_formatter.update_bound(instance.total_cost(), "");
-
-    } else {
-        if (cbc_model_2.bestSolution() != NULL) {
-            // Feasible solution found.
-
-            // Update primal solution.
-            if (!output.solution.feasible()
-                    || output.solution.cost() > cbc_model_2.getObjValue() + 0.5) {
-                const double* solution_cbc = cbc_model_2.solver()->getColSolution();
-                Solution solution(instance);
-                for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
-                    if (solution_cbc[set_id] > 0.5)
-                        solution.add(set_id);
-                algorithm_formatter.update_solution(solution, "");
-            }
-        }
-
-        // Update dual bound.
-        Cost bound = std::ceil(cbc_model_2.getBestPossibleObjValue() - FFOT_TOL);
-        algorithm_formatter.update_bound(bound, "");
-    }
-
-    algorithm_formatter.end();
-    return output;
-}
+};
 
 #endif
 
-#ifdef HIGHS_FOUND
+}
 
-const Output setcoveringsolver::milp_highs(
+const Output setcoveringsolver::milp(
         const Instance& instance,
         const Solution* initial_solution,
-        const Parameters& parameters)
+        const MilpParameters& parameters)
 {
     Output output(instance);
     AlgorithmFormatter algorithm_formatter(parameters, output);
@@ -265,9 +199,9 @@ const Output setcoveringsolver::milp_highs(
         return solve_reduced_instance(
                 [](
                     const Instance& instance,
-                    const Parameters& parameters)
+                    const MilpParameters& parameters)
                 {
-                    return milp_highs(
+                    return milp(
                             instance,
                             nullptr,
                             parameters);
@@ -291,33 +225,99 @@ const Output setcoveringsolver::milp_highs(
             "log_file",
             "highs.log");
 
-    // Set up model.
-    mathoptsolverscmake::MilpModel model = create_milp_model(instance);
-    mathoptsolverscmake::highs::load(highs, model);
+    mathoptsolverscmake::MilpModel milp_model = create_milp_model(instance);
+    std::vector<double> milp_solution;
+    double milp_bound = 0;
 
-    // Solve.
-    return_status = highs.run();
+    if (parameters.solver == mathoptsolverscmake::SolverName::Cbc) {
+#ifdef CBC_FOUND
+        OsiCbcSolverInterface osi_solver;
+        CbcModel cbc_model(osi_solver);
+        mathoptsolverscmake::reduce_printout(cbc_model);
+        mathoptsolverscmake::set_time_limit(cbc_model, parameters.timer.remaining_time());
+        mathoptsolverscmake::load(cbc_model, milp_model);
+        EventHandler cbc_event_handler(instance, parameters, output, algorithm_formatter);
+        cbc_model.passInEventHandler(&cbc_event_handler);
+        mathoptsolverscmake::solve(cbc_model);
+        milp_solution = mathoptsolverscmake::get_solution(cbc_model);
+        milp_bound = mathoptsolverscmake::get_bound(cbc_model);
+#else
+        throw std::invalid_argument("");
+#endif
 
-    const HighsModelStatus& highs_model_status = highs.getModelStatus();
-    const HighsInfo& highs_info = highs.getInfo();
+    } else if (parameters.solver == mathoptsolverscmake::SolverName::Highs) {
+#ifdef HIGHS_FOUND
+        Highs highs;
+        mathoptsolverscmake::reduce_printout(highs);
+        mathoptsolverscmake::set_time_limit(highs, parameters.timer.remaining_time());
+        mathoptsolverscmake::set_log_file(highs, "highs.log");
+        mathoptsolverscmake::load(highs, milp_model);
+        highs.setCallback([
+                &instance,
+                &parameters,
+                &output,
+                &algorithm_formatter](
+                    const int,
+                    const std::string& message,
+                    const HighsCallbackOutput* highs_output,
+                    HighsCallbackInput* highs_input,
+                    void*)
+                {
+                    if (!highs_output->mip_solution.empty()) {
+                        // Retrieve solution.
+                        double milp_objective_value = highs_output->mip_primal_bound;
+                        if (output.solution.cost() > milp_objective_value) {
+                            Solution solution = retrieve_solution(instance, highs_output->mip_solution);
+                            algorithm_formatter.update_solution(solution, "node " + std::to_string(highs_output->mip_node_count));
+                        }
 
-    // Retrieve solution.
-    std::vector<double> highs_solution = highs.getSolution().col_value;
-    Solution solution(instance);
-    for (SetId set_id = 0;
-            set_id < instance.number_of_sets();
-            ++set_id) {
-        if (highs_solution[set_id] > 0.5)
-            solution.add(set_id);
+                        // Retrieve bound.
+                        double bound = highs_output->mip_dual_bound;
+                        if (bound != std::numeric_limits<double>::infinity())
+                            algorithm_formatter.update_bound(bound, "node " + std::to_string(highs_output->mip_node_count));
+                    }
+
+                    // Check end.
+                    if (parameters.timer.needs_to_end())
+                        highs_input->user_interrupt = 1;
+                    if (parameters.goal >= 0
+                            && output.solution.objective_value() >= parameters.goal) {
+                        highs_input->user_interrupt = 1;
+                    }
+                },
+                nullptr);
+        HighsStatus highs_status;
+        highs_status = highs.startCallback(HighsCallbackType::kCallbackMipImprovingSolution);
+        highs_status = highs.startCallback(HighsCallbackType::kCallbackMipInterrupt);
+        mathoptsolverscmake::solve(highs);
+        milp_solution = mathoptsolverscmake::get_solution(highs);
+        milp_bound = mathoptsolverscmake::get_bound(highs);
+#else
+        throw std::invalid_argument("");
+#endif
+
+    } else if (parameters.solver == mathoptsolverscmake::SolverName::Xpress) {
+#ifdef XPRESS_FOUND
+        XPRSprob xpress_model;
+        XPRScreateprob(&xpress_model);
+        mathoptsolverscmake::set_time_limit(xpress_model, parameters.timer.remaining_time());
+        mathoptsolverscmake::set_log_file(xpress_model, "xpress.log");
+        mathoptsolverscmake::load(xpress_model, milp_model);
+        //mathoptsolverscmake::write_mps(xpress_model, "kpc.mps");
+        XpressCallbackUser xpress_callback_user{instance, parameters, output, algorithm_formatter};
+        XPRSaddcbprenode(xpress_model, xpress_callback, (void*)&xpress_callback_user, 0);
+        mathoptsolverscmake::solve(xpress_model);
+        milp_solution = mathoptsolverscmake::get_solution(xpress_model);
+        milp_bound = mathoptsolverscmake::get_bound(xpress_model);
+        XPRSdestroyprob(xpress_model);
+#else
+        throw std::invalid_argument("");
+#endif
+
+    } else {
+        throw std::invalid_argument("");
     }
-    algorithm_formatter.update_solution(solution, "");
-
-    // Retrieve bound.
-    double bound = highs_info.mip_dual_bound;
-    algorithm_formatter.update_bound(bound, "");
 
     algorithm_formatter.end();
     return output;
 }
-
-#endif
