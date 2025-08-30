@@ -891,7 +891,7 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
         if (components[component_id].optimal)
             continue;
 
-        if (component.iterations < 100 * instance.component(component_id).sets.size()) {
+        if (component.iterations < 10 * instance.component(component_id).sets.size()) {
             explore_remove_add_neighborhood(
                     instance,
                     generator,
