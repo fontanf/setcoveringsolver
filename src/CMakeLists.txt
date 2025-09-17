@@ -10,6 +10,7 @@ target_sources(SetCoveringSolver_set_covering PRIVATE
 target_include_directories(SetCoveringSolver_set_covering PUBLIC
     ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(SetCoveringSolver_set_covering PUBLIC
+    SetCoveringSolver_trivial_bound
     OptimizationTools::utils
     OptimizationTools::containers
     Threads::Threads)
