@@ -17,16 +17,18 @@ add_library(SetCoveringSolver::set_covering ALIAS SetCoveringSolver_set_covering
 
 add_subdirectory(algorithms)
 
-add_executable(SetCoveringSolver_main)
-target_sources(SetCoveringSolver_main PRIVATE
-    main.cpp)
-target_link_libraries(SetCoveringSolver_main PUBLIC
-    SetCoveringSolver_greedy
-    SetCoveringSolver_milp
-    SetCoveringSolver_local_search_row_weighting
-    SetCoveringSolver_large_neighborhood_search
-    SetCoveringSolver_trivial_bound
-    SetCoveringSolver_clique_cover_bound
-    Boost::program_options)
-set_target_properties(SetCoveringSolver_main PROPERTIES OUTPUT_NAME "setcoveringsolver")
-install(TARGETS SetCoveringSolver_main)
+if(SETCOVERINGSOLVER_BUILD_MAIN)
+    add_executable(SetCoveringSolver_main)
+    target_sources(SetCoveringSolver_main PRIVATE
+        main.cpp)
+    target_link_libraries(SetCoveringSolver_main PUBLIC
+        SetCoveringSolver_greedy
+        SetCoveringSolver_milp
+        SetCoveringSolver_local_search_row_weighting
+        SetCoveringSolver_large_neighborhood_search
+        SetCoveringSolver_trivial_bound
+        SetCoveringSolver_clique_cover_bound
+        Boost::program_options)
+    set_target_properties(SetCoveringSolver_main PROPERTIES OUTPUT_NAME "setcoveringsolver")
+    install(TARGETS SetCoveringSolver_main)
+endif()
