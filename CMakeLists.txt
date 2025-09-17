@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.15.0)
 
 project(SetCoveringSolver LANGUAGES CXX)
 
+# Build options.
+option(SETCOVERINGSOLVER_BUILD_MAIN "Build main" ON)
+option(SETCOVERINGSOLVER_BUILD_TEST "Build the unit tests" ON)
+
 option(SETCOVERINGSOLVER_USE_CBC "Use Cbc" OFF)
 option(SETCOVERINGSOLVER_USE_HIGHS "Use HiGHS" ON)
 option(SETCOVERINGSOLVER_USE_XPRESS "Use FICO Xpress" OFF)
@@ -21,4 +25,6 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 # Add sub-directories.
 add_subdirectory(extern)
 add_subdirectory(src)
-add_subdirectory(test)
+if(SHOPSCHEDULINGSOLVER_BUILD_TEST)
+    add_subdirectory(test)
+endif()
