@@ -1230,10 +1230,13 @@ bool Reduction::reduce_vertex_cover_domination(
         neighbors.clear();
         for (ElementId element_id: set.elements) {
             const ReductionElement& element = tmp.instance.elements[element_id];
-            for (SetId neighbor_id: element.sets)
-                neighbors.add(neighbor_id);
+            if (element.sets.size() != 2)
+                continue;
+            SetId other_set_id = (set_id == element.sets[0])?
+                element.sets[1]:
+                element.sets[0];
+            neighbors.add(other_set_id);
         }
-        neighbors.remove(set_id);
 
         // For each set neighbor, check if all its set neighbors are neighbors
         // of set 'set_id' as well.
@@ -1246,7 +1249,7 @@ bool Reduction::reduce_vertex_cover_domination(
             if (fixed_sets.contains(set_2_id))
                 continue;
 
-            if (set_2.cost < set.cost)
+            if (set_2.cost > set.cost)
                 continue;
 
             bool dominates = true;
