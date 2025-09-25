@@ -1243,9 +1243,7 @@ bool Reduction::reduce_vertex_cover_domination(
 
             // Handle case where two sets have exactly the same neighbors. In
             // this case, we fix only one.
-            if (set_2.elements.size() == set.elements.size()
-                    && set_2.cost == set.cost
-                    && set_2_id < set_id)
+            if (fixed_sets.contains(set_2_id))
                 continue;
 
             if (set_2.cost < set.cost)
