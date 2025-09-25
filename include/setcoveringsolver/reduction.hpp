@@ -28,6 +28,9 @@ struct ReductionParameters
     /** Enable twin reduction. */
     bool twin = true;
 
+    /** Enable (vertex cover) domination reduction. */
+    bool vertex_cover_domination = true;
+
     /** Enable unconfined sets reduction. */
     bool unconfined_sets = true;
 
@@ -212,6 +215,19 @@ private:
      *   https://doi.org/10.1137/1.9781611975499.12
      */
     bool reduce_twin(Tmp& tmp);
+
+    /**
+     * Perform domination reduction.
+     *
+     * See:
+     * - "Branch-and-reduce exponential/FPT algorithms in practice: A case
+     *   study of vertex cover" (Akibaa et Iwata, 2016)
+     *   https://doi.org/10.1016/j.tcs.2015.09.023
+     * - "Exactly Solving the Maximum Weight Independent Set Problem on Large
+     *   Real-World Graphs" (Lamm et al., 2019)
+     *   https://doi.org/10.1137/1.9781611975499.12
+     */
+    bool reduce_vertex_cover_domination(Tmp& tmp);
 
     /**
      * Perform unconfined sets reduction.

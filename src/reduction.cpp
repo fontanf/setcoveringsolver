@@ -1194,6 +1194,151 @@ bool Reduction::reduce_twin(Tmp& tmp)
     return true;
 }
 
+bool Reduction::reduce_vertex_cover_domination(
+        Tmp& tmp)
+{
+    //std::cout << "reduce_vertex_cover_domination..." << std::endl;
+
+    optimizationtools::IndexedSet& sets_to_test = tmp.indexed_set_;
+    sets_to_test.resize_and_clear(tmp.instance.number_of_sets());
+    optimizationtools::IndexedSet& fixed_sets = tmp.indexed_set_2_;
+    fixed_sets.resize_and_clear(tmp.instance.number_of_sets());
+    optimizationtools::IndexedSet& elements_to_remove = tmp.indexed_set_3_;
+    elements_to_remove.resize_and_clear(tmp.instance.number_of_elements());
+    optimizationtools::IndexedSet& neighbors = tmp.indexed_set_4_;
+    neighbors.resize_and_clear(tmp.instance.number_of_sets());
+
+    // Retrieve all sets that cover at least one degree 2 element.
+    for (ElementId element_id = 0;
+            element_id < tmp.instance.number_of_elements();
+            ++element_id) {
+        ReductionElement& element = tmp.instance.element(element_id);
+        if (element.removed)
+            continue;
+        if (element.sets.size() != 2)
+            continue;
+        for (SetId set_id: element.sets)
+            sets_to_test.add(set_id);
+    }
+
+    for (SetId set_id: sets_to_test) {
+        // Check if set 'set_id' dominates one of its neighbors.
+        //std::cout << "set_id " << set_id << std::endl;
+        ReductionSet& set = tmp.instance.set(set_id);
+
+        // Get the set neighbors of set 'set_id'.
+        neighbors.clear();
+        for (ElementId element_id: set.elements) {
+            const ReductionElement& element = tmp.instance.elements[element_id];
+            for (SetId neighbor_id: element.sets)
+                neighbors.add(neighbor_id);
+        }
+        neighbors.remove(set_id);
+
+        // For each set neighbor, check if all its set neighbors are neighbors
+        // of set 'set_id' as well.
+        bool can_be_fixed = false;
+        for (SetId set_2_id: neighbors) {
+            ReductionSet& set_2 = tmp.instance.set(set_2_id);
+
+            // Handle case where two sets have exactly the same neighbors. In
+            // this case, we fix only one.
+            if (set_2.elements.size() == set.elements.size()
+                    && set_2.cost == set.cost
+                    && set_2_id < set_id)
+                continue;
+
+            if (set_2.cost < set.cost)
+                continue;
+
+            bool dominates = true;
+            for (ElementId element_id: set_2.elements) {
+                const ReductionElement& element = tmp.instance.elements[element_id];
+                if (element.sets.size() != 2) {
+                    dominates = false;
+                    break;
+                }
+                SetId other_set_id = (set_2_id == element.sets[0])?
+                    element.sets[1]:
+                    element.sets[0];
+                if (other_set_id != set_id
+                        && !neighbors.contains(other_set_id)) {
+                    dominates = false;
+                    break;
+                }
+            }
+            if (dominates) {
+                //std::cout << "fix " << set_id << " by " << set_2_id << std::endl;
+                fixed_sets.add(set_id);
+                for (ElementId element_id: set.elements)
+                    elements_to_remove.add(element_id);
+                break;
+            }
+        }
+    }
+
+    if (fixed_sets.size() == 0)
+        return false;
+
+    //std::cout << fixed_sets.size() << std::endl;
+
+    // Update mandatory_sets.
+    for (SetId set_id: fixed_sets)
+        for (SetId orig_set_id: unreduction_operations_[set_id].in)
+            mandatory_sets_.push_back(orig_set_id);
+    // Update sets.
+    for (SetId set_id = 0;
+            set_id < tmp.instance.number_of_sets();
+            ++set_id) {
+        ReductionSet& set = tmp.instance.set(set_id);
+        if (set.removed)
+            continue;
+        if (fixed_sets.contains(set_id)) {
+            set.removed = true;
+        } else {
+            for (ElementPos pos = 0;
+                    pos < (ElementPos)set.elements.size();
+                    ) {
+                ElementId element_id = set.elements[pos];
+                if (elements_to_remove.contains(element_id)) {
+                    set.elements[pos] = set.elements.back();
+                    set.elements.pop_back();
+                } else {
+                    pos++;
+                }
+            }
+        }
+    }
+    // Update elements.
+    for (ElementId element_id = 0;
+            element_id < tmp.instance.number_of_elements();
+            ++element_id) {
+        ReductionElement& element = tmp.instance.element(element_id);
+        if (element.removed)
+            continue;
+        if (elements_to_remove.contains(element_id)) {
+            element.removed = true;
+        } else {
+            for (ElementPos pos = 0;
+                    pos < (ElementPos)element.sets.size();
+                    ) {
+                ElementId set_id = element.sets[pos];
+                if (fixed_sets.contains(set_id)) {
+                    element.sets[pos] = element.sets.back();
+                    element.sets.pop_back();
+                } else {
+                    pos++;
+                }
+            }
+        }
+    }
+
+    //check(tmp.instance);
+    if (needs_update(tmp.instance))
+        update(tmp.instance, unreduction_operations_);
+    return true;
+}
+
 using EdgeId = int64_t;
 using VertexId = int64_t;
 
@@ -2857,6 +3002,15 @@ Reduction::Reduction(
         //    << std::endl;
         bool found = false;
         found |= reduce_mandatory_sets(tmp);
+        if (parameters.vertex_cover_domination) {
+            for (int i = 0; i < 16; ++i) {
+                bool found_cur = reduce_vertex_cover_domination(tmp);
+                if (!found_cur)
+                    break;
+                found |= found_cur;
+                found |= reduce_mandatory_sets(tmp);
+            }
+        }
         found |= reduce_dominated_sets_2(tmp, parameters);
         if (parameters.timer.needs_to_end())
             break;
