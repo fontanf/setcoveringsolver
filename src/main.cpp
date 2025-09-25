@@ -100,6 +100,10 @@ Output run(
         Parameters parameters;
         read_args(parameters, vm);
         return greedy_dual(instance, parameters);
+    } else if (algorithm == "greedy-gwmin") {
+        Parameters parameters;
+        read_args(parameters, vm);
+        return greedy_gwmin(instance, parameters);
     } else if (algorithm == "greedy-or-greedy-reverse") {
         Parameters parameters;
         read_args(parameters, vm);

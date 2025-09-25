@@ -21,6 +21,10 @@ const Output greedy_dual(
         const Instance& instance,
         const Parameters& parameters = {});
 
+const Output greedy_gwmin(
+        const Instance& instance,
+        const Parameters& parameters = {});
+
 const Output greedy_or_greedy_reverse(
         const Instance& instance,
         const Parameters& parameters = {});

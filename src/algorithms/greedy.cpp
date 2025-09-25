@@ -321,6 +321,56 @@ const Output setcoveringsolver::greedy_dual(
     return output;
 }
 
+const Output setcoveringsolver::greedy_gwmin(
+        const Instance& instance,
+        const Parameters& parameters)
+{
+    Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("Greedy");
+
+    // Reduction.
+    if (parameters.reduction_parameters.reduce)
+        return solve_reduced_instance(greedy, instance, parameters, algorithm_formatter, output);
+
+    algorithm_formatter.print_header();
+
+    Solution solution(instance);
+    solution.fill();
+
+    std::vector<double> sets_values(instance.number_of_sets(), 0);
+    for (SetId set_id = 0;
+            set_id < instance.number_of_sets();
+            ++set_id) {
+        sets_values[set_id] = (double)instance.set(set_id).cost
+            / (instance.set(set_id).elements.size() + 1);
+    }
+
+    std::vector<SetId> sorted_sets(instance.number_of_sets(), 0);
+    std::iota(sorted_sets.begin(), sorted_sets.end(), 0);
+    std::sort(sorted_sets.begin(), sorted_sets.end(),
+            [&sets_values](SetId set_id_1, SetId set_id_2) -> bool
+        {
+            return sets_values[set_id_1] > sets_values[set_id_2];
+        });
+
+    for (SetId set_id: sorted_sets) {
+        bool ok = true;
+        for (ElementId element_id: instance.set(set_id).elements) {
+            if (solution.covers(element_id) == 1) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok)
+            solution.remove(set_id);
+    }
+    algorithm_formatter.update_solution(solution, "");
+
+    algorithm_formatter.end();
+    return output;
+}
+
 const Output setcoveringsolver::greedy_or_greedy_reverse(
         const Instance& instance,
         const Parameters& parameters)
@@ -336,8 +386,17 @@ const Output setcoveringsolver::greedy_or_greedy_reverse(
     algorithm_formatter.print_header();
 
     // Estimate the number of sets in the solution.
-    auto greedy_dual_output = greedy_dual(instance, parameters);
-    algorithm_formatter.update_solution(greedy_dual_output.solution, "greedy_dual");
+    Parameters greedy_dual_parameters;
+    greedy_dual_parameters.verbosity_level = 0;
+    greedy_dual_parameters.timer = parameters.timer;
+    auto greedy_dual_output = greedy_dual(instance, greedy_dual_parameters);
+    algorithm_formatter.update_solution(greedy_dual_output.solution, "dual greedy");
+
+    Parameters greedy_gwmin_parameters;
+    greedy_gwmin_parameters.verbosity_level = 0;
+    greedy_gwmin_parameters.timer = parameters.timer;
+    auto greedy_gwmin_output = greedy_gwmin(instance, greedy_gwmin_parameters);
+    algorithm_formatter.update_solution(greedy_gwmin_output.solution, "greedy gwmin");
 
     // Check time.
     if (parameters.timer.needs_to_end()) {
@@ -346,7 +405,10 @@ const Output setcoveringsolver::greedy_or_greedy_reverse(
     }
 
     if (greedy_dual_output.solution.number_of_sets() < instance.number_of_sets() / 2) {
-        auto greedy_output = greedy(instance, parameters);
+        Parameters greedy_parameters;
+        greedy_parameters.verbosity_level = 0;
+        greedy_parameters.timer = parameters.timer;
+        auto greedy_output = greedy(instance, greedy_parameters);
         algorithm_formatter.update_solution(greedy_output.solution, "greedy");
 
         // Check time.
@@ -355,11 +417,17 @@ const Output setcoveringsolver::greedy_or_greedy_reverse(
             return output;
         }
 
-        auto greedy_lin_output = greedy_lin(instance, parameters);
-        algorithm_formatter.update_solution(greedy_lin_output.solution, "greedy_lin");
+        Parameters greedy_lin_parameters;
+        greedy_lin_parameters.verbosity_level = 0;
+        greedy_lin_parameters.timer = parameters.timer;
+        auto greedy_lin_output = greedy_lin(instance, greedy_parameters);
+        algorithm_formatter.update_solution(greedy_lin_output.solution, "greedy lin");
     } else {
-        auto greedy_reverse_output = greedy_reverse(instance, parameters);
-        algorithm_formatter.update_solution(greedy_reverse_output.solution, "greedy_reverse");
+        Parameters greedy_reverse_parameters;
+        greedy_reverse_parameters.verbosity_level = 0;
+        greedy_reverse_parameters.timer = parameters.timer;
+        auto greedy_reverse_output = greedy_reverse(instance, greedy_reverse_parameters);
+        algorithm_formatter.update_solution(greedy_reverse_output.solution, "reverse greedy");
     }
 
     algorithm_formatter.end();
