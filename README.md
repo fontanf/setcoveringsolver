@@ -1,12 +1,10 @@
 # SetCoveringSolver
 
-A solver for the (unicost) set covering and set packing problems.
+A solver for the (unicost) set covering / hitting set problem.
 
-In the set packing problem solved, elements may be covered multiple times and there might be multiple copies of a set.
+It might be used to solve special cases such as minimum(-weight) vertex cover / maximum(-weight) independent set or minimum(-weight) dominating set as well.
 
 ## Implemented algorithms
-
-### Set covering
 
 - Greedy
   - Greedy `--algorithm greedy`
