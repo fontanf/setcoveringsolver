@@ -387,12 +387,14 @@ const Output setcoveringsolver::greedy_or_greedy_reverse(
 
     // Estimate the number of sets in the solution.
     Parameters greedy_dual_parameters;
+    greedy_dual_parameters.reduction_parameters.reduce = false;
     greedy_dual_parameters.verbosity_level = 0;
     greedy_dual_parameters.timer = parameters.timer;
     auto greedy_dual_output = greedy_dual(instance, greedy_dual_parameters);
     algorithm_formatter.update_solution(greedy_dual_output.solution, "dual greedy");
 
     Parameters greedy_gwmin_parameters;
+    greedy_gwmin_parameters.reduction_parameters.reduce = false;
     greedy_gwmin_parameters.verbosity_level = 0;
     greedy_gwmin_parameters.timer = parameters.timer;
     auto greedy_gwmin_output = greedy_gwmin(instance, greedy_gwmin_parameters);
@@ -406,6 +408,7 @@ const Output setcoveringsolver::greedy_or_greedy_reverse(
 
     if (greedy_dual_output.solution.number_of_sets() < instance.number_of_sets() / 2) {
         Parameters greedy_parameters;
+        greedy_parameters.reduction_parameters.reduce = false;
         greedy_parameters.verbosity_level = 0;
         greedy_parameters.timer = parameters.timer;
         auto greedy_output = greedy(instance, greedy_parameters);
@@ -418,12 +421,14 @@ const Output setcoveringsolver::greedy_or_greedy_reverse(
         }
 
         Parameters greedy_lin_parameters;
+        greedy_lin_parameters.reduction_parameters.reduce = false;
         greedy_lin_parameters.verbosity_level = 0;
         greedy_lin_parameters.timer = parameters.timer;
         auto greedy_lin_output = greedy_lin(instance, greedy_parameters);
         algorithm_formatter.update_solution(greedy_lin_output.solution, "greedy lin");
     } else {
         Parameters greedy_reverse_parameters;
+        greedy_reverse_parameters.reduction_parameters.reduce = false;
         greedy_reverse_parameters.verbosity_level = 0;
         greedy_reverse_parameters.timer = parameters.timer;
         auto greedy_reverse_output = greedy_reverse(instance, greedy_reverse_parameters);
