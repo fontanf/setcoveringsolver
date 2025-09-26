@@ -1255,15 +1255,16 @@ bool Reduction::reduce_vertex_cover_domination(
             bool dominates = true;
             for (ElementId element_id: set_2.elements) {
                 const ReductionElement& element = tmp.instance.elements[element_id];
-                if (element.sets.size() != 2) {
-                    dominates = false;
-                    break;
+                bool ok = false;
+                for (SetId set_3_id: element.sets) {
+                    if (set_3_id == set_2_id)
+                        continue;
+                    if (set_3_id == set_id || neighbors.contains(set_3_id)) {
+                        ok = true;
+                        break;
+                    }
                 }
-                SetId other_set_id = (set_2_id == element.sets[0])?
-                    element.sets[1]:
-                    element.sets[0];
-                if (other_set_id != set_id
-                        && !neighbors.contains(other_set_id)) {
+                if (!ok) {
                     dominates = false;
                     break;
                 }
