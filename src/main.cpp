@@ -100,6 +100,10 @@ Output run(
         Parameters parameters;
         read_args(parameters, vm);
         return greedy_dual(instance, parameters);
+    } else if (algorithm == "greedy-dual-sort") {
+        Parameters parameters;
+        read_args(parameters, vm);
+        return greedy_dual_sort(instance, parameters);
     } else if (algorithm == "greedy-gwmin") {
         Parameters parameters;
         read_args(parameters, vm);

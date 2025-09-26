@@ -6,7 +6,7 @@
 
 using namespace setcoveringsolver;
 
-const Output setcoveringsolver::greedy(
+Output setcoveringsolver::greedy(
         const Instance& instance,
         const Parameters& parameters)
 {
@@ -86,7 +86,7 @@ const Output setcoveringsolver::greedy(
     return output;
 }
 
-const Output setcoveringsolver::greedy_lin(
+Output setcoveringsolver::greedy_lin(
         const Instance& instance,
         const Parameters& parameters)
 {
@@ -187,7 +187,7 @@ inline double greedy_reverse_score(
 
 }
 
-const Output setcoveringsolver::greedy_reverse(
+Output setcoveringsolver::greedy_reverse(
         const Instance& instance,
         const Parameters& parameters)
 {
@@ -246,7 +246,7 @@ const Output setcoveringsolver::greedy_reverse(
     return output;
 }
 
-const Output setcoveringsolver::greedy_dual(
+Output setcoveringsolver::greedy_dual(
         const Instance& instance,
         const Parameters& parameters)
 {
@@ -321,17 +321,100 @@ const Output setcoveringsolver::greedy_dual(
     return output;
 }
 
-const Output setcoveringsolver::greedy_gwmin(
+Output setcoveringsolver::greedy_dual_sort(
         const Instance& instance,
         const Parameters& parameters)
 {
     Output output(instance);
     AlgorithmFormatter algorithm_formatter(parameters, output);
-    algorithm_formatter.start("Greedy");
+    algorithm_formatter.start("Dual greedy with sort");
 
     // Reduction.
     if (parameters.reduction_parameters.reduce)
-        return solve_reduced_instance(greedy, instance, parameters, algorithm_formatter, output);
+        return solve_reduced_instance(greedy_dual_sort, instance, parameters, algorithm_formatter, output);
+
+    algorithm_formatter.print_header();
+
+    Solution solution(instance);
+
+    std::vector<SetId> sorted_elements(instance.number_of_elements(), 0);
+    std::iota(sorted_elements.begin(), sorted_elements.end(), 0);
+    std::sort(sorted_elements.begin(), sorted_elements.end(),
+            [&instance](ElementId element_id_1, ElementId element_id_2) -> bool
+        {
+            const Element& element_1 = instance.element(element_id_1);
+            const Element& element_2 = instance.element(element_id_2);
+            return element_1.sets.size() < element_2.sets.size();
+        });
+
+    for (ElementId element_id: sorted_elements) {
+        if (solution.covers(element_id) != 0)
+            continue;
+
+        // Check time.
+        if (parameters.timer.needs_to_end()) {
+            algorithm_formatter.end();
+            return output;
+        }
+
+        SetId set_id_best = -1;
+        double val_best;
+        for (SetId set_id: instance.element(element_id).sets) {
+            if (solution.contains(set_id))
+                continue;
+            ElementId number_of_covered_elements = 0;
+            for (ElementId element_id_2: instance.set(set_id).elements)
+                if (solution.covers(element_id_2) == 0)
+                    number_of_covered_elements++;
+            double val = (double)number_of_covered_elements / instance.set(set_id).cost;
+            if (set_id_best == -1 || val_best < val) {
+                set_id_best = set_id;
+                val_best = val;
+            }
+        }
+        solution.add(set_id_best);
+    }
+
+    // Remove redundant sets.
+    for (auto it_s = solution.sets().begin(); it_s != solution.sets().end();) {
+
+        // Check time.
+        if (parameters.timer.needs_to_end()) {
+            algorithm_formatter.end();
+            return output;
+        }
+
+        SetId set_id = *it_s;
+        bool remove = true;
+        for (ElementId element_id: instance.set(set_id).elements) {
+            if (solution.covers(element_id) == 1) {
+                remove = false;
+                break;
+            }
+        }
+        if (remove) {
+            solution.remove(set_id);
+        } else {
+            it_s++;
+        }
+    }
+
+    algorithm_formatter.update_solution(solution, "");
+    algorithm_formatter.end();
+    return output;
+}
+
+Output setcoveringsolver::greedy_gwmin(
+        const Instance& instance,
+        const Parameters& parameters)
+{
+    Output output(instance);
+    AlgorithmFormatter algorithm_formatter(parameters, output);
+    algorithm_formatter.start("Greedy GWMIN");
+
+    // Reduction.
+    if (parameters.reduction_parameters.reduce)
+        return solve_reduced_instance(greedy_gwmin, instance, parameters, algorithm_formatter, output);
 
     algorithm_formatter.print_header();
 
@@ -371,7 +454,7 @@ const Output setcoveringsolver::greedy_gwmin(
     return output;
 }
 
-const Output setcoveringsolver::greedy_or_greedy_reverse(
+Output setcoveringsolver::greedy_or_greedy_reverse(
         const Instance& instance,
         const Parameters& parameters)
 {
@@ -399,6 +482,13 @@ const Output setcoveringsolver::greedy_or_greedy_reverse(
     greedy_gwmin_parameters.timer = parameters.timer;
     auto greedy_gwmin_output = greedy_gwmin(instance, greedy_gwmin_parameters);
     algorithm_formatter.update_solution(greedy_gwmin_output.solution, "greedy gwmin");
+
+    Parameters greedy_dual_sort_parameters;
+    greedy_dual_sort_parameters.reduction_parameters.reduce = false;
+    greedy_dual_sort_parameters.verbosity_level = 0;
+    greedy_dual_sort_parameters.timer = parameters.timer;
+    auto greedy_dual_sort_output = greedy_dual_sort(instance, greedy_dual_sort_parameters);
+    algorithm_formatter.update_solution(greedy_dual_sort_output.solution, "dual greedy with sort");
 
     // Check time.
     if (parameters.timer.needs_to_end()) {

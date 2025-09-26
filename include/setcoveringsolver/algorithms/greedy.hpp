@@ -5,27 +5,31 @@
 namespace setcoveringsolver
 {
 
-const Output greedy(
+Output greedy(
         const Instance& instance,
         const Parameters& parameters = {});
 
-const Output greedy_lin(
+Output greedy_lin(
         const Instance& instance,
         const Parameters& parameters = {});
 
-const Output greedy_reverse(
+Output greedy_reverse(
         const Instance& instance,
         const Parameters& parameters = {});
 
-const Output greedy_dual(
+Output greedy_dual(
         const Instance& instance,
         const Parameters& parameters = {});
 
-const Output greedy_gwmin(
+Output greedy_dual_sort(
         const Instance& instance,
         const Parameters& parameters = {});
 
-const Output greedy_or_greedy_reverse(
+Output greedy_gwmin(
+        const Instance& instance,
+        const Parameters& parameters = {});
+
+Output greedy_or_greedy_reverse(
         const Instance& instance,
         const Parameters& parameters = {});
 

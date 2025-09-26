@@ -10,6 +10,7 @@ It might be used to solve special cases such as minimum(-weight) vertex cover / 
   - Greedy `--algorithm greedy`
   - Greedy Lin `--algorithm greedy-lin`: based on the one from "Weighting-Based Parallel Local Search for Optimal Camera Placement and Unicost Set Covering" (Lin et al., 2020) [DOI](https://doi.org/10.1145/3377929.3398184)
   - Dual greedy `--algorithm greedy-dual`
+  - Dual greedy with sort `--algorithm greedy-dual-sort`
   - Greedy GWMIN `--algorithm greedy-gwmin`: generalization of the greedy GWMIN algorithm for the maximum weight independent set problem, see "A note on greedy algorithms for the maximum weighted independent set problem" (Sakai et al., 2001) [DOI](https://doi.org/10.1016/S0166-218X(02)00205-6)
   - Reverse greedy `--algorithm greedy-reverse`
   - Greedy or reverse greedy `--algorithm greedy-or-greedy-reverse`: runs the best suited greedy algorithms for the instance
