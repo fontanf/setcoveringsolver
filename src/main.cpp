@@ -147,11 +147,11 @@ Output run(
         read_args(parameters, vm);
         if (vm.count("maximum-number-of-iterations")) {
             parameters.maximum_number_of_iterations
-                = vm["maximum-number-of-iterations"].as<int>();
+                = vm["maximum-number-of-iterations"].as<Counter>();
         }
         if (vm.count("maximum-number-of-iterations-without-improvement")) {
             parameters.maximum_number_of_iterations_without_improvement
-                = vm["maximum-number-of-iterations-without-improvement"].as<int>();
+                = vm["maximum-number-of-iterations-without-improvement"].as<Counter>();
         }
         if (vm.count("goal"))
             parameters.goal = vm["goal"].as<Cost>();
