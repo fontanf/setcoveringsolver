@@ -116,6 +116,8 @@ void Instance::write(
         //write_balas1996(file);
     } else if (format == "faster1994" || format == "faster" || format == "wedelin1995" || format == "wedelin") {
         //write_faster1994(file);
+    } else if (format == "dimacs2010_vc") {
+        write_dimacs2010_vc(file);
     } else {
         throw std::invalid_argument(
                 "Unknown instance format \"" + format + "\".");
@@ -148,6 +150,31 @@ void Instance::write_balas1980(std::ofstream& file) const
         file << element(element_id).sets.size();
         for (SetId s: element(element_id).sets)
             file << " " << (s + 1);
+        file << std::endl;
+    }
+}
+
+void Instance::write_dimacs2010_vc(std::ofstream& file) const
+{
+    file << number_of_sets() << " " << number_of_elements();
+    if (this->total_cost() != this->number_of_sets())
+        file << " 10";
+    file << std::endl;
+    for (SetId set_id = 0; set_id < this->number_of_sets(); ++set_id) {
+        const Set& set = this->set(set_id);
+        if (this->total_cost() != this->number_of_sets())
+            file << " " << set.cost;
+        for (ElementId element_id: set.elements) {
+            const Element& element = this->element(element_id);
+            if (element.sets.size() != 2) {
+                throw std::invalid_argument(
+                        "setcoveringsolver::Instance::write_dimacs2010_vc.");
+            }
+            SetId other_set_id = (set_id == element.sets[0])?
+                element.sets[1]:
+                element.sets[0];
+            file << " " << (other_set_id + 1);
+        }
         file << std::endl;
     }
 }

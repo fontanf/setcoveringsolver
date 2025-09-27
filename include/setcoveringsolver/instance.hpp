@@ -216,6 +216,9 @@ private:
     /** Write an instance in 'pace2025' format. */
     void write_pace2025(std::ofstream& file) const;
 
+    /** Write an instance in 'dimacs2010_vc' format. */
+    void write_dimacs2010_vc(std::ofstream& file) const;
+
     friend class InstanceBuilder;
 
 };
