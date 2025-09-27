@@ -119,6 +119,7 @@ void Solution::format(
             << "Number of uncovered elements:  " << optimizationtools::Ratio<SetId>(number_of_uncovered_elements(), instance().number_of_elements()) << std::endl
             << "Feasible:                      " << feasible() << std::endl
             << "Cost:                          " << cost() << std::endl
+            << "Unselected sets cost:          " << unselected_sets_cost() << std::endl
             ;
     }
 
@@ -150,5 +151,6 @@ nlohmann::json Solution::to_json() const
         {"NumberOfUncoveredElements", number_of_uncovered_elements()},
         {"Feasible", feasible()},
         {"Cost", cost()},
+        {"UnselectedSetsCost", unselected_sets_cost()},
     };
 }

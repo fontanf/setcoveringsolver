@@ -52,6 +52,9 @@ public:
     /** Get the total cost of the solution. */
     inline Cost cost() const { return cost_; }
 
+    /** Get the total cost of the sets oustide of the solution. */
+    inline Cost unselected_sets_cost() const { return instance().total_cost() - cost_; }
+
     /** Return 'true' iff a given element is covered in the solution. */
     inline SetId covers(ElementId element_id) const { return elements_[element_id]; }
 
