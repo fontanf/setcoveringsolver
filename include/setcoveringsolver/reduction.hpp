@@ -227,7 +227,9 @@ private:
      *   Real-World Graphs" (Lamm et al., 2019)
      *   https://doi.org/10.1137/1.9781611975499.12
      */
-    bool reduce_vertex_cover_domination(Tmp& tmp);
+    bool reduce_vertex_cover_domination(
+            Tmp& tmp,
+            const ReductionParameters& parameters);
 
     /**
      * Perform unconfined sets reduction.

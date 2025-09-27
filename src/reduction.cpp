@@ -1195,7 +1195,8 @@ bool Reduction::reduce_twin(Tmp& tmp)
 }
 
 bool Reduction::reduce_vertex_cover_domination(
-        Tmp& tmp)
+        Tmp& tmp,
+        const ReductionParameters& parameters)
 {
     //std::cout << "reduce_vertex_cover_domination..." << std::endl;
 
@@ -1222,11 +1223,15 @@ bool Reduction::reduce_vertex_cover_domination(
     }
 
     for (SetId set_id: sets_to_test) {
+        // Check timer.
+        if (parameters.timer.needs_to_end())
+            break;
+
         // Check if set 'set_id' dominates one of its neighbors.
         //std::cout << "set_id " << set_id << std::endl;
         ReductionSet& set = tmp.instance.set(set_id);
 
-        // Get the set neighbors of set 'set_id'.
+        // Get the 2-neighbors of set 'set_id'.
         neighbors.clear();
         for (ElementId element_id: set.elements) {
             const ReductionElement& element = tmp.instance.elements[element_id];
@@ -3003,38 +3008,50 @@ Reduction::Reduction(
         //    << " number_of_arcs " << this->instance().number_of_arcs()
         //    << std::endl;
         bool found = false;
+
         found |= reduce_mandatory_sets(tmp);
+
         if (parameters.vertex_cover_domination) {
             for (int i = 0; i < 16; ++i) {
-                bool found_cur = reduce_vertex_cover_domination(tmp);
+                bool found_cur = reduce_vertex_cover_domination(tmp, parameters);
+                if (parameters.timer.needs_to_end())
+                    break;
                 if (!found_cur)
                     break;
                 found |= found_cur;
                 found |= reduce_mandatory_sets(tmp);
             }
         }
+        if (parameters.timer.needs_to_end())
+            break;
+
         found |= reduce_dominated_sets_2(tmp, parameters);
         if (parameters.timer.needs_to_end())
             break;
+
         found |= reduce_dominated_elements_2(tmp, parameters);
         if (parameters.timer.needs_to_end())
             break;
+
         if (parameters.set_folding) {
-            for (;;) {
+            for (int i = 0; i < 16; ++i) {
                 bool found_cur = reduce_set_folding(tmp);
                 if (!found_cur)
                     break;
                 found |= found_cur;
             }
         }
+
         // Twin reduction fails if some elements are covered by only one vertex.
         // So, run the mandatory set reduction right before.
         if (parameters.twin) {
             found |= reduce_mandatory_sets(tmp);
             found |= reduce_twin(tmp);
         }
+
         found |= reduce_identical_sets(tmp);
         found |= reduce_identical_elements(tmp);
+
         if (!found || round_number >= 4) {
             if (parameters.unconfined_sets)
                 found |= reduce_unconfined_sets(tmp);
@@ -3048,7 +3065,10 @@ Reduction::Reduction(
                 if (parameters.timer.needs_to_end())
                     break;
             }
+
+            found |= reduce_crown(tmp);
         }
+
         if (found)
             continue;
         break;
