@@ -6,6 +6,7 @@
 #include "setcoveringsolver/algorithms/greedy.hpp"
 
 #include "optimizationtools/containers/indexed_set.hpp"
+#include "optimizationtools/graph/bipartite_graph.hpp"
 
 using namespace setcoveringsolver;
 
@@ -1346,166 +1347,6 @@ bool Reduction::reduce_vertex_cover_domination(
     return true;
 }
 
-using EdgeId = int64_t;
-using VertexId = int64_t;
-
-struct Edge
-{
-    VertexId vertex_id_1;
-    VertexId vertex_id_2;
-};
-
-std::vector<uint8_t> bipartite_graph_maximum_matching(
-        const std::vector<uint8_t>& vertices_side,
-        const std::vector<Edge>& edges)
-{
-    VertexId number_of_vertices = vertices_side.size();
-    std::cout << "bipartite_graph_maximum_matching " << number_of_vertices << " " << edges.size() << std::endl;
-    // Find an initial maximal matching.
-    std::vector<VertexId> vertices_matched_edge(number_of_vertices, -1);
-    std::vector<uint8_t> edges_matched(edges.size(), 0);
-    EdgeId matching_size = 0;
-    for (EdgeId edge_id = 0;
-            edge_id < (EdgeId)edges.size();
-            ++edge_id) {
-        const Edge& edge = edges[edge_id];
-        if (vertices_matched_edge[edge.vertex_id_1] != -1)
-            continue;
-        if (vertices_matched_edge[edge.vertex_id_2] != -1)
-            continue;
-        edges_matched[edge_id] = 1;
-        vertices_matched_edge[edge.vertex_id_1] = edge_id;
-        vertices_matched_edge[edge.vertex_id_2] = edge_id;
-        matching_size++;
-    }
-    std::cout << "matching_size " << matching_size << std::endl;
-    if (matching_size > edges.size()) {
-        throw std::logic_error("");
-    }
-    if (matching_size == number_of_vertices / 2)
-        return edges_matched;
-
-    std::vector<std::vector<EdgeId>> vertices_edges(number_of_vertices);
-    for (EdgeId edge_id = 0;
-            edge_id < (EdgeId)edges.size();
-            ++edge_id) {
-        const Edge& edge = edges[edge_id];
-        vertices_edges[edge.vertex_id_1].push_back(edge_id);
-        vertices_edges[edge.vertex_id_2].push_back(edge_id);
-    }
-
-    std::vector<VertexId> bfs_queue(number_of_vertices, -1);
-    std::vector<VertexId> dist(number_of_vertices, number_of_vertices + 1);
-    std::vector<EdgeId> pred(number_of_vertices, -1);
-    std::vector<VertexId> unmatched_leaves;
-    std::vector<VertexId> path;
-    std::vector<uint8_t> vertices_processed(number_of_vertices, 0);
-    for (;;) {
-        std::cout << "it matching_size " << matching_size << std::endl;
-        // Breadth first search.
-        // Find all unmatched vertices in i.
-        std::fill(dist.begin(), dist.end(), number_of_vertices + 1);
-        unmatched_leaves.clear();
-        VertexId queue_push_pos = 0;
-        for (VertexId vertex_id = 0;
-                vertex_id < number_of_vertices;
-                ++vertex_id) {
-            if (vertices_side[vertex_id] == 1)
-                continue;
-            if (vertices_matched_edge[vertex_id] == -1) {
-                dist[vertex_id] = 0;
-                bfs_queue[queue_push_pos] = vertex_id;
-                queue_push_pos++;
-            }
-        }
-        for (VertexId queue_pop_pos = 0;
-                queue_pop_pos < queue_push_pos;
-                ++queue_pop_pos) {
-            VertexId vertex_id = bfs_queue[queue_pop_pos];
-            bool has_child = false;
-            for (EdgeId edge_id: vertices_edges[vertex_id]) {
-                if (dist[vertex_id] % 2 == 0) {
-                    if (edges_matched[edge_id] == 1)
-                        continue;
-                } else {
-                    if (edges_matched[edge_id] == 0)
-                        continue;
-                }
-                const Edge& edge = edges[edge_id];
-                VertexId other_vertex_id = (edge.vertex_id_1 == vertex_id)?
-                    edge.vertex_id_2:
-                    edge.vertex_id_1;
-                if (dist[other_vertex_id] <= dist[vertex_id] + 1)
-                    continue;
-                dist[other_vertex_id] = dist[vertex_id] + 1;
-                pred[other_vertex_id] = edge_id;
-                bfs_queue[queue_push_pos] = other_vertex_id;
-                queue_push_pos++;
-                has_child = true;
-            }
-            if (vertices_matched_edge[vertex_id] == -1
-                    && dist[vertex_id] > 0
-                    && !has_child) {
-                unmatched_leaves.push_back(vertex_id);
-            }
-        }
-
-        std::cout << "retrieve paths..." << std::endl;
-        std::fill(vertices_processed.begin(), vertices_processed.end(), 0);
-        bool found = false;
-        for (VertexId leaf_vertex_id: unmatched_leaves) {
-            bool ok = true;
-            path.clear();
-            VertexId vertex_id = leaf_vertex_id;
-            while (pred[vertex_id] != -1) {
-                EdgeId edge_id = pred[vertex_id];
-                path.push_back(edge_id);
-                const Edge& edge = edges[edge_id];
-                vertex_id = (edge.vertex_id_1 == vertex_id)?
-                    edge.vertex_id_2:
-                    edge.vertex_id_1;
-                if (vertices_processed[vertex_id]) {
-                    ok = false;
-                    break;
-                }
-            }
-            if (!ok)
-                continue;
-
-            std::cout << "path";
-            for (EdgeId edge_id: path) {
-                const Edge& edge = edges[edge_id];
-                std::cout << " " << edge_id
-                    << "," << edge.vertex_id_1
-                    << "," << edge.vertex_id_2;
-            }
-            std::cout << std::endl;
-
-            // Apply path.
-            for (EdgeId edge_id: path) {
-                const Edge& edge = edges[edge_id];
-                if (edges_matched[edge_id] == 1) {
-                    edges_matched[edge_id] = 0;
-                } else {
-                    edges_matched[edge_id] = 1;
-                    vertices_matched_edge[edge.vertex_id_1] = edge_id;
-                    vertices_matched_edge[edge.vertex_id_2] = edge_id;
-                }
-                vertices_processed[edge.vertex_id_1] = 1;
-                vertices_processed[edge.vertex_id_2] = 1;
-            }
-            matching_size++;
-            if (matching_size > edges.size()) {
-                throw std::logic_error("");
-            }
-            found = true;
-        }
-        if (!found)
-            break;
-    }
-    return edges_matched;
-}
-
 bool Reduction::reduce_crown(Tmp& tmp)
 {
     std::cout << "reduce_crown..." << std::endl;
@@ -1636,41 +1477,28 @@ bool Reduction::reduce_crown(Tmp& tmp)
         std::cout << "find second matching" << std::endl;
         optimizationtools::IndexedMap<SetPos>& sets_to_bgmm = tmp.indexed_map_;
         sets_to_bgmm.clear();
-        VertexId vertex_id = 0;
-        std::vector<uint8_t> bgmm_vertices_sides;
-        for (SetId set_id: outsiders) {
-            sets_to_bgmm.set(set_id, vertex_id);
-            bgmm_vertices_sides.push_back(0);
-            vertex_id++;
-        }
-        for (SetId set_id: outsider_neighbors) {
-            sets_to_bgmm.set(set_id, vertex_id);
-            bgmm_vertices_sides.push_back(1);
-            vertex_id++;
-        }
-        std::vector<Edge> bgmm_edges;
+        optimizationtools::AdjacencyListGraphBuilder graph_builder;
         std::vector<ElementId> bgmm_edges_to_elements;
+        for (SetId set_id: outsiders)
+            graph_builder.add_vertex();
+        for (SetId set_id: outsider_neighbors)
+            graph_builder.add_vertex();
         for (SetId set_id: outsiders) {
             const ReductionSet& set = tmp.instance.set(set_id);
             for (ElementId element_id: set.elements) {
                 const ReductionElement& element = tmp.instance.element(element_id);
-                Edge bgmm_edge;
                 SetId other_set_id = (set_id == element.sets[0])?
                     element.sets[1]:
                     element.sets[0];
-                bgmm_edge.vertex_id_1 = sets_to_bgmm[set_id];
-                bgmm_edge.vertex_id_2 = sets_to_bgmm[other_set_id];
-                bgmm_edges.push_back(bgmm_edge);
-                bgmm_edges_to_elements.push_back(element_id);
+                graph_builder.add_edge(sets_to_bgmm[set_id], sets_to_bgmm[other_set_id]);
             }
         }
-        std::vector<uint8_t> bgmm_output = bipartite_graph_maximum_matching(
-                bgmm_vertices_sides,
-                bgmm_edges);
+        optimizationtools::AdjacencyListGraph graph = graph_builder.build();
+        std::vector<uint8_t> bgmm_output = optimizationtools::bipartite_graph_maximum_matching(graph);
         optimizationtools::IndexedSet& matching_2 = tmp.indexed_set_4_;
         matching_2.resize_and_clear(tmp.instance.number_of_elements());
-        for (EdgeId edge_id = 0;
-                edge_id < (EdgeId)bgmm_edges.size();
+        for (optimizationtools::EdgeId edge_id = 0;
+                edge_id < graph.number_of_edges();
                 ++edge_id) {
             if (bgmm_output[edge_id] == 0)
                 continue;
@@ -1801,6 +1629,136 @@ bool Reduction::reduce_crown(Tmp& tmp)
         return false;
 
     std::cout << sets_to_remove.size() << " " << fixed_sets.size() << " " << elements_to_remove.size() << std::endl;
+
+    // Update mandatory_sets.
+    for (SetId set_id: sets_to_remove) {
+        if (fixed_sets.contains(set_id)) {
+            for (SetId orig_set_id: unreduction_operations_[set_id].in)
+                mandatory_sets_.push_back(orig_set_id);
+        } else {
+            for (SetId orig_set_id: unreduction_operations_[set_id].out)
+                mandatory_sets_.push_back(orig_set_id);
+        }
+    }
+    // Update sets.
+    for (SetId set_id = 0;
+            set_id < tmp.instance.number_of_sets();
+            ++set_id) {
+        ReductionSet& set = tmp.instance.set(set_id);
+        if (set.removed)
+            continue;
+        if (sets_to_remove.contains(set_id)) {
+            set.removed = true;
+        } else {
+            for (ElementPos pos = 0;
+                    pos < (ElementPos)set.elements.size();
+                    ) {
+                ElementId element_id = set.elements[pos];
+                if (elements_to_remove.contains(element_id)) {
+                    set.elements[pos] = set.elements.back();
+                    set.elements.pop_back();
+                } else {
+                    pos++;
+                }
+            }
+        }
+    }
+    // Update elements.
+    for (ElementId element_id = 0;
+            element_id < tmp.instance.number_of_elements();
+            ++element_id) {
+        ReductionElement& element = tmp.instance.element(element_id);
+        if (element.removed)
+            continue;
+        if (elements_to_remove.contains(element_id)) {
+            element.removed = true;
+        } else {
+            for (SetPos pos = 0;
+                    pos < (SetPos)element.sets.size();
+                    ) {
+                SetId set_id = element.sets[pos];
+                if (sets_to_remove.contains(set_id)) {
+                    element.sets[pos] = element.sets.back();
+                    element.sets.pop_back();
+                } else {
+                    pos++;
+                }
+            }
+        }
+    }
+
+    //check(tmp.instance);
+    if (needs_update(tmp.instance))
+        update(tmp.instance, unreduction_operations_);
+    return true;
+}
+
+bool Reduction::reduce_linear_programming(
+        Tmp& tmp,
+        const ReductionParameters& parameters)
+{
+    //std::cout << "reduce_linear_programming..." << std::endl;
+
+    // Check if all elements cover 2-sets.
+    for (ElementId element_id = 0;
+            element_id < tmp.instance.number_of_elements();
+            ++element_id) {
+        ReductionElement& element = tmp.instance.element(element_id);
+        if (element.removed)
+            continue;
+        if (element.sets.size() != 2)
+            return false;
+    }
+
+    optimizationtools::IndexedSet& sets_to_remove = tmp.indexed_set_5_;
+    sets_to_remove.resize_and_clear(tmp.instance.number_of_sets());
+    optimizationtools::IndexedSet& fixed_sets = tmp.indexed_set_6_;
+    fixed_sets.resize_and_clear(tmp.instance.number_of_sets());
+    optimizationtools::IndexedSet& elements_to_remove = tmp.indexed_set_7_;
+    elements_to_remove.resize_and_clear(tmp.instance.number_of_elements());
+
+    // Find a matching.
+    optimizationtools::IndexedSet& matching_sets = tmp.indexed_set_;
+    matching_sets.resize_and_clear(tmp.instance.number_of_sets());
+    ElementId matching_number_of_elements = 0;
+    // First loop through elements with degree > 2.
+    optimizationtools::AdjacencyListGraphBuilder graph_builder;
+    for (SetId set_id = 0; set_id < 2 * tmp.instance.number_of_sets(); ++set_id)
+        graph_builder.add_vertex();
+    for (ElementId element_id = 0;
+            element_id < tmp.instance.number_of_elements();
+            ++element_id) {
+        const ReductionElement& element = tmp.instance.element(element_id);
+        if (element.removed)
+            continue;
+        graph_builder.add_edge(element.sets[0], element.sets[1] + tmp.instance.number_of_sets());
+        graph_builder.add_edge(element.sets[0] + tmp.instance.number_of_sets(), element.sets[1]);
+    }
+    optimizationtools::AdjacencyListGraph graph = graph_builder.build();
+    std::vector<uint8_t> bgmvc_output = optimizationtools::bipartite_graph_minimum_cover(graph);
+
+    for (SetId set_id = 0;
+            set_id < tmp.instance.number_of_sets();
+            ++set_id) {
+        const ReductionSet& set = tmp.instance.set(set_id);
+        if (set.removed)
+            continue;
+        if (bgmvc_output[set_id] == 1
+                && bgmvc_output[set_id + tmp.instance.number_of_sets()] == 1) {
+            sets_to_remove.add(set_id);
+            fixed_sets.add(set_id);
+            for (ElementId element_id: set.elements)
+                elements_to_remove.add(element_id);
+        } else if (bgmvc_output[set_id] == 0
+                && bgmvc_output[set_id + tmp.instance.number_of_sets()] == 0) {
+            sets_to_remove.add(set_id);
+        }
+    }
+
+    if (sets_to_remove.size() == 0 && fixed_sets.size() == 0)
+        return false;
+
+    //std::cout << sets_to_remove.size() << " " << fixed_sets.size() << " " << elements_to_remove.size() << std::endl;
 
     // Update mandatory_sets.
     for (SetId set_id: sets_to_remove) {
@@ -3066,7 +3024,8 @@ Reduction::Reduction(
                     break;
             }
 
-            found |= reduce_crown(tmp);
+            found |= reduce_mandatory_sets(tmp);
+            found |= reduce_linear_programming(tmp, parameters);
         }
 
         if (found)

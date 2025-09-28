@@ -63,10 +63,14 @@ void read_args(
         parameters.reduction_parameters.twin = vm["twin"].as<bool>();
     if (vm.count("unconfined-sets"))
         parameters.reduction_parameters.unconfined_sets = vm["unconfined-sets"].as<bool>();
-    if (vm.count("dominated-sets-removal"))
-        parameters.reduction_parameters.dominated_sets_removal = vm["dominated-sets-removal"].as<bool>();
-    if (vm.count("dominated-elements-removal"))
-        parameters.reduction_parameters.dominated_elements_removal = vm["dominated-elements-removal"].as<bool>();
+    if (vm.count("vertex-cover-domination"))
+        parameters.reduction_parameters.vertex_cover_domination = vm["vertex-cover-domination"].as<bool>();
+    if (vm.count("dominated-sets"))
+        parameters.reduction_parameters.dominated_sets_removal = vm["dominated-sets"].as<bool>();
+    if (vm.count("dominated-elements"))
+        parameters.reduction_parameters.dominated_elements_removal = vm["dominated-elements"].as<bool>();
+    if (vm.count("linear-programming"))
+        parameters.reduction_parameters.linear_programming = vm["linear-programming"].as<bool>();
     if (vm.count("reduction-time-limit"))
         parameters.reduction_parameters.timer.set_time_limit(vm["reduction-time-limit"].as<double>());
     if (vm.count("enable-new-solution-callback"))
@@ -197,9 +201,12 @@ int main(int argc, char *argv[])
         ("set-folding,", po::value<bool>(), "enable set folding reduction")
         ("twin,", po::value<bool>(), "enable twin reduction")
         ("unconfined-sets,", po::value<bool>(), "enable unconfined sets reduction")
-        ("dominated-sets-removal,", po::value<bool>(), "enable dominated sets removal")
-        ("dominated-elements-removal,", po::value<bool>(), "enable dominated elements removal")
+        ("vertex-cover-domination,", po::value<bool>(), "enable vertex cover domination reduction")
+        ("dominated-sets,", po::value<bool>(), "enable dominated sets reduction")
+        ("dominated-elements,", po::value<bool>(), "enable dominated elements reduction")
+        ("linear-programming,", po::value<bool>(), "enable linear programming reduction")
         ("reduction-time-limit,", po::value<double>(), "set reduction time limit in seconds")
+
         ("enable-new-solution-callback,", po::value<bool>(), "enable new solution callback")
 
         ("best-solution-update-frequency,", po::value<Counter>(), "set best update frequency for RWLS")

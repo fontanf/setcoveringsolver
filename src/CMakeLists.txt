@@ -13,6 +13,7 @@ target_link_libraries(SetCoveringSolver_set_covering PUBLIC
     SetCoveringSolver_trivial_bound
     OptimizationTools::utils
     OptimizationTools::containers
+    OptimizationTools::graph
     Threads::Threads)
 add_library(SetCoveringSolver::set_covering ALIAS SetCoveringSolver_set_covering)
 

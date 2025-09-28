@@ -31,6 +31,9 @@ struct ReductionParameters
     /** Enable (vertex cover) domination reduction. */
     bool vertex_cover_domination = true;
 
+    /** Enable linear programming reduction. */
+    bool linear_programming = true;
+
     /** Enable unconfined sets reduction. */
     bool unconfined_sets = true;
 
@@ -251,6 +254,13 @@ private:
      * https://doi.org/10.1016/j.dam.2011.07.001
      */
     bool reduce_unconfined_sets(Tmp& tmp);
+
+    /**
+     * Perform linear programming reduction.
+     */
+    bool reduce_linear_programming(
+            Tmp& tmp,
+            const ReductionParameters& parameters);
 
     /**
      * Perform crown reduction.
