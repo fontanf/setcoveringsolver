@@ -25,6 +25,6 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 # Add sub-directories.
 add_subdirectory(extern)
 add_subdirectory(src)
-if(SHOPSCHEDULINGSOLVER_BUILD_TEST)
+if(SETCOVERINGSOLVER_BUILD_TEST)
     add_subdirectory(test)
 endif()
