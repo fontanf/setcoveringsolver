@@ -4,6 +4,8 @@ A solver for the (unicost) set covering / hitting set problem.
 
 It might be used to solve special cases such as minimum(-weight) vertex cover / maximum(-weight) independent set or minimum(-weight) dominating set as well.
 
+Some parts of the code have been contributed by [Guillaume Verger](https://github.com/gverger) during the [PACE 2025 challenge](https://pacechallenge.org/2025/).
+
 ## Implemented algorithms
 
 - Greedy
