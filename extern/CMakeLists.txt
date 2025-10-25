@@ -35,8 +35,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(optimizationtools)
 
 # Fetch fontanf/mathoptsolverscmake.
-set(MATHOPTSOLVERSCMAKE_USE_CLP ON)
-set(MATHOPTSOLVERSCMAKE_USE_CBC ON)
+if(SETCOVERINGSOLVER_USE_CLP)
+    set(MATHOPTSOLVERSCMAKE_USE_CLP ON)
+endif()
+if(SETCOVERINGSOLVER_USE_CBC)
+    set(MATHOPTSOLVERSCMAKE_USE_CBC ON)
+endif()
 if(SETCOVERINGSOLVER_USE_HIGHS)
     set(MATHOPTSOLVERSCMAKE_USE_HIGHS ON)
 endif()
@@ -46,7 +50,7 @@ endif()
 FetchContent_Declare(
     mathoptsolverscmake
     GIT_REPOSITORY https://github.com/fontanf/mathoptsolverscmake.git
-    GIT_TAG 59fd908038906df649e121f42652a0e8f99cbc67
+    GIT_TAG f03fa63814eae3a253675ed14dd618a8a0d19a11
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../mathoptsolverscmake/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(mathoptsolverscmake)
@@ -54,10 +58,22 @@ FetchContent_MakeAvailable(mathoptsolverscmake)
 # Fetch fontanf/coloringsolver.
 set(COLORINGSOLVER_BUILD_MAIN OFF)
 set(COLORINGSOLVER_BUILD_TEST OFF)
+if(SETCOVERINGSOLVER_USE_CLP)
+    set(COLORINGSOLVER_USE_CLP ON)
+endif()
+if(SETCOVERINGSOLVER_USE_CBC)
+    set(COLORINGSOLVER_USE_CBC ON)
+endif()
+if(SETCOVERINGSOLVER_USE_HIGHS)
+    set(COLORINGSOLVER_USE_HIGHS ON)
+endif()
+if(SETCOVERINGSOLVER_USE_XPRESS)
+    set(COLORINGSOLVER_USE_XPRESS ON)
+endif()
 FetchContent_Declare(
     coloringsolver
     GIT_REPOSITORY https://github.com/fontanf/coloringsolver.git
-    GIT_TAG bc49a0ef9957380bcda00b4151e4484868aad06b
+    GIT_TAG 2f6824a3315f341a084dbd615b5e0bf6c60166c8
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../coloringsolver/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(coloringsolver)

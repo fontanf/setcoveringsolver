@@ -6,8 +6,10 @@ project(SetCoveringSolver LANGUAGES CXX)
 option(SETCOVERINGSOLVER_BUILD_MAIN "Build main" ON)
 option(SETCOVERINGSOLVER_BUILD_TEST "Build the unit tests" ON)
 
+# Solver options.
+option(SETCOVERINGSOLVER_USE_CLP "Use Clp" OFF)
 option(SETCOVERINGSOLVER_USE_CBC "Use Cbc" OFF)
-option(SETCOVERINGSOLVER_USE_HIGHS "Use HiGHS" ON)
+option(SETCOVERINGSOLVER_USE_HIGHS "Use HiGHS" OFF)
 option(SETCOVERINGSOLVER_USE_XPRESS "Use FICO Xpress" OFF)
 
 # Avoid FetchContent warning.

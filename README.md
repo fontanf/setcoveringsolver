@@ -27,7 +27,7 @@ Some parts of the code have been contributed by [Guillaume Verger](https://githu
 
 Compile:
 ```shell
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSETCOVERINGSOLVER_USE_HIGHS=ON
 cmake --build build --config Release --parallel
 cmake --install build --config Release --prefix install
 ```
