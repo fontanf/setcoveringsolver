@@ -1,8 +1,7 @@
 import argparse
 import gdown
-import os
-import shutil
 import pathlib
+import py7zr
 
 
 parser = argparse.ArgumentParser(description='')
@@ -14,25 +13,25 @@ parser.add_argument(
 args = parser.parse_args()
 
 if args.data is None:
-    gdown.download(id="12DHHyCLSM1iYSsWoU_mmytUwDADvMcve", output="data.7z")
-    os.system("7z x data.7z")
+    gdown.download(id="1TbuXAu54egtB2M9XAsmOZzhJpJ5JoN3I", output="data.7z")
+    with py7zr.SevenZipFile("data.7z", mode="r") as z:
+        z.extractall(path="data")
     pathlib.Path("data.7z").unlink()
-    shutil.copytree("set_covering", "data", dirs_exist_ok=True)
 
 if args.data is not None and "gecco2020" in args.data:
-    gdown.download(id="1PvdFc16nv0_MEs6kEDnFsy0mHRwOJ03X", output="data.7z")
-    os.system("7z x data.7z")
+    gdown.download(id="12SnK3M4va1RxxcUIZ8Lh11yQNpHB14JC", output="data.7z")
+    with py7zr.SevenZipFile("data.7z", mode="r") as z:
+        z.extractall(path="data")
     pathlib.Path("data.7z").unlink()
-    shutil.copytree("set_covering_gecco2020", "data", dirs_exist_ok=True)
 
 if args.data is not None and "pace2025" in args.data:
-    gdown.download(id="1OPaTUWeqyP3li0BmvzzyCSSdVvQSIEBd", output="data.7z")
-    os.system("7z x data.7z")
+    gdown.download(id="1XB_9uHEfBcPQ9lOWiVHiHBixHbMX9gxW", output="data.7z")
+    with py7zr.SevenZipFile("data.7z", mode="r") as z:
+        z.extractall(path="data")
     pathlib.Path("data.7z").unlink()
-    shutil.copytree("set_covering_pace2025", "data", dirs_exist_ok=True)
 
 if args.data is not None and "pace2025_ds" in args.data:
-    gdown.download(id="13pfoJSETRGAZtXCNDJzxC2Sou-EARqtA", output="data.7z")
-    os.system("7z x data.7z")
+    gdown.download(id="1V_m_PoFdgwMJRLkj2VwKsVraS30vYk0p", output="data.7z")
+    with py7zr.SevenZipFile("data.7z", mode="r") as z:
+        z.extractall(path="data")
     pathlib.Path("data.7z").unlink()
-    shutil.copytree("set_covering_pace2025_ds", "data", dirs_exist_ok=True)
