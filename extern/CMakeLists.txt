@@ -73,7 +73,7 @@ endif()
 FetchContent_Declare(
     coloringsolver
     GIT_REPOSITORY https://github.com/fontanf/coloringsolver.git
-    GIT_TAG 2f6824a3315f341a084dbd615b5e0bf6c60166c8
+    GIT_TAG 8619599c8bbafb90da72fbf85b0d7f358dd35939
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../coloringsolver/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(coloringsolver)
