@@ -2,7 +2,7 @@
 
 #include "setcoveringsolver/algorithm.hpp"
 
-#include "mathoptsolverscmake/milp.hpp"
+#include "mathoptsolverscmake/mathopt.hpp"
 
 namespace setcoveringsolver
 {

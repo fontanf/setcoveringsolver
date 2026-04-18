@@ -50,7 +50,7 @@ endif()
 FetchContent_Declare(
     mathoptsolverscmake
     GIT_REPOSITORY https://github.com/fontanf/mathoptsolverscmake.git
-    GIT_TAG f03fa63814eae3a253675ed14dd618a8a0d19a11
+    GIT_TAG c312e55d551edd57e98edfd24d4e2330abdcbbd2
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../mathoptsolverscmake/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(mathoptsolverscmake)
@@ -73,7 +73,7 @@ endif()
 FetchContent_Declare(
     coloringsolver
     GIT_REPOSITORY https://github.com/fontanf/coloringsolver.git
-    GIT_TAG 8619599c8bbafb90da72fbf85b0d7f358dd35939
+    GIT_TAG 9c6518ba62e470cf1420f77acef15e876e38d6e4
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../coloringsolver/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(coloringsolver)

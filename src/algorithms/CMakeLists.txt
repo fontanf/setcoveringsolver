@@ -23,7 +23,7 @@ target_include_directories(SetCoveringSolver_milp PUBLIC
     ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(SetCoveringSolver_milp PUBLIC
     SetCoveringSolver_set_covering
-    MathOptSolversCMake::milp)
+    MathOptSolversCMake::mathopt)
 add_library(SetCoveringSolver::milp ALIAS SetCoveringSolver_milp)
 
 if(SETCOVERINGSOLVER_USE_ORTOOLS)
