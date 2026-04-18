@@ -2,21 +2,29 @@
 
 #include "setcoveringsolver/algorithm_formatter.hpp"
 
-#include "mathoptsolverscmake/milp.hpp"
+#ifdef CBC_FOUND
+#include "mathoptsolverscmake/mathopt_cbc.hpp"
+#endif
+#ifdef HIGHS_FOUND
+#include "mathoptsolverscmake/mathopt_highs.hpp"
+#endif
+#ifdef XPRESS_FOUND
+#include "mathoptsolverscmake/mathopt_xpress.hpp"
+#endif
 
 using namespace setcoveringsolver;
 
 namespace
 {
 
-mathoptsolverscmake::MilpModel create_milp_model(
+mathoptsolverscmake::MathOptModel create_milp_model(
         const Instance& instance)
 {
     int number_of_variables = instance.number_of_sets();
     int number_of_constraints = instance.number_of_elements();
     int number_of_elements = instance.number_of_arcs();
 
-    mathoptsolverscmake::MilpModel model(
+    mathoptsolverscmake::MathOptModel model(
             number_of_variables,
             number_of_constraints,
             number_of_elements);
@@ -212,7 +220,7 @@ const Output setcoveringsolver::milp(
                 output);
     }
 
-    mathoptsolverscmake::MilpModel milp_model = create_milp_model(instance);
+    mathoptsolverscmake::MathOptModel milp_model = create_milp_model(instance);
     std::vector<double> milp_solution;
     double milp_bound = 0;
 
