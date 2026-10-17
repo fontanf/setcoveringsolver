@@ -48,6 +48,12 @@ struct LocalSearchRowWeightingComponent
 
 struct LocalSearchRowWeightingSet
 {
+    /**
+     * The set is the only one covering some element: it is always in the
+     * solution and never in 'scores_in', so it is never removed.
+     */
+    bool mandatory = false;
+
     Counter timestamp = -1;
     Counter last_addition = -1;
     Counter last_removal = -1;
@@ -110,6 +116,8 @@ void remove_set(
                     "wrong set in scores_in; "
                     "set_id: " + std::to_string(set_id) + ".");
         }
+        if (sets[set_id].mandatory)
+            continue;
         const Set& set = instance.set(set_id);
         components[set.component].scores_in.update_key(
                 sets_id_to_component_pos[set_id],
@@ -221,6 +229,8 @@ void explore_remove_add_neighborhood(
                     "wrong set in scores_in; "
                     "set_id: " + std::to_string(set_id) + ".");
         }
+        if (sets[set_id].mandatory)
+            continue;
         const Set& set = instance.set(set_id);
         components[set.component].scores_in.update_key(
                 sets_id_to_component_pos[set_id],
@@ -334,6 +344,8 @@ void explore_remove_add_neighborhood(
                         "wrong set in scores_in 2; "
                         "set_id: " + std::to_string(set_id) + ".");
             }
+            if (sets[set_id].mandatory)
+                continue;
             const Set& set = instance.set(set_id);
             components[set.component].scores_in.update_key(
                     sets_id_to_component_pos[set_id],
@@ -444,6 +456,8 @@ void explore_swap_neighborhood(
                         "wrong set in scores_in 2; "
                         "set_id: " + std::to_string(set_id) + ".");
             }
+            if (sets[set_id].mandatory)
+                continue;
             const Set& set = instance.set(set_id);
             components[set.component].scores_in.update_key(
                     sets_id_to_component_pos[set_id],
@@ -506,6 +520,8 @@ void explore_swap_neighborhood(
                         "wrong set in scores_in 2; "
                         "set_id: " + std::to_string(set_id) + ".");
             }
+            if (sets[set_id].mandatory)
+                continue;
             const Set& set = instance.set(set_id);
             components[set.component].scores_in.update_key(
                     sets_id_to_component_pos[set_id],
@@ -597,6 +613,8 @@ void explore_swap_neighborhood(
                         "wrong set in scores_in 2; "
                         "set_id: " + std::to_string(set_id) + ".");
             }
+            if (sets[set_id].mandatory)
+                continue;
             const Set& set = instance.set(set_id);
             components[set.component].scores_in.update_key(
                     sets_id_to_component_pos[set_id],
@@ -655,6 +673,148 @@ void explore_swap_neighborhood(
     //<< std::endl;
 }
 
+/**
+ * Exhaustive search for a solution of a component with fewer sets which are
+ * not mandatory: it only has to cover the elements of the component which
+ * no mandatory set covers.
+ */
+class ComponentExhaustiveSearch
+{
+
+public:
+
+    ComponentExhaustiveSearch(
+            const Instance& instance,
+            const std::vector<LocalSearchRowWeightingSet>& sets):
+        instance_(instance),
+        sets_(sets),
+        covers_(instance.number_of_elements(), 0) { }
+
+    /**
+     * Search for the smallest set of sets which are not mandatory covering
+     * the elements of component 'component_id' which no mandatory set
+     * covers, with fewer than 'number_of_sets' sets. Return 'false' if the
+     * search was stopped after 'maximum_number_of_nodes' nodes (-1: no
+     * limit); otherwise, 'sets()' is such a set of sets if one was found
+     * ('found()'), and there is none with fewer sets.
+     */
+    bool run(
+            ComponentId component_id,
+            SetId number_of_sets,
+            Counter maximum_number_of_nodes)
+    {
+        found_ = false;
+        best_sets_.clear();
+        number_of_nodes_ = 0;
+        maximum_number_of_nodes_ = maximum_number_of_nodes;
+
+        // Elements to cover.
+        elements_.clear();
+        for (ElementId element_id: instance_.component(component_id).elements) {
+            bool covered = false;
+            for (SetId set_id: instance_.element(element_id).sets) {
+                if (sets_[set_id].mandatory) {
+                    covered = true;
+                    break;
+                }
+            }
+            if (!covered)
+                elements_.push_back(element_id);
+        }
+
+        // Search with fewer and fewer sets.
+        bool complete = true;
+        for (SetId depth = number_of_sets - 1; depth >= 0; ) {
+            current_sets_.clear();
+            bool aborted = false;
+            if (!search(depth, aborted)) {
+                complete = !aborted;
+                break;
+            }
+            found_ = true;
+            best_sets_ = current_sets_;
+            for (SetId set_id: current_sets_)
+                for (ElementId element_id: instance_.set(set_id).elements)
+                    covers_[element_id]--;
+            depth = (SetId)best_sets_.size() - 1;
+        }
+        for (SetId set_id: current_sets_)
+            for (ElementId element_id: instance_.set(set_id).elements)
+                covers_[element_id] = 0;
+        return complete;
+    }
+
+    /** Return 'true' iff a set of sets with fewer sets was found. */
+    bool found() const { return found_; }
+
+    /** Get the best set of sets found. */
+    const std::vector<SetId>& sets() const { return best_sets_; }
+
+private:
+
+    /**
+     * Cover the remaining elements with at most 'depth' more sets, branching
+     * on the sets covering the uncovered element covered by the fewest sets.
+     */
+    bool search(SetId depth, bool& aborted)
+    {
+        ElementId element_id_best = -1;
+        for (ElementId element_id: elements_) {
+            if (covers_[element_id] > 0)
+                continue;
+            if (element_id_best == -1
+                    || instance_.element(element_id).sets.size()
+                    < instance_.element(element_id_best).sets.size()) {
+                element_id_best = element_id;
+            }
+        }
+        if (element_id_best == -1)
+            return true;
+        if (depth == 0)
+            return false;
+        for (SetId set_id: instance_.element(element_id_best).sets) {
+            number_of_nodes_++;
+            if (maximum_number_of_nodes_ != -1
+                    && number_of_nodes_ > maximum_number_of_nodes_) {
+                aborted = true;
+                return false;
+            }
+            current_sets_.push_back(set_id);
+            for (ElementId element_id: instance_.set(set_id).elements)
+                covers_[element_id]++;
+            if (search(depth - 1, aborted))
+                return true;
+            for (ElementId element_id: instance_.set(set_id).elements)
+                covers_[element_id]--;
+            current_sets_.pop_back();
+            if (aborted)
+                return false;
+        }
+        return false;
+    }
+
+    const Instance& instance_;
+
+    const std::vector<LocalSearchRowWeightingSet>& sets_;
+
+    /** Number of sets of 'current_sets_' covering each element. */
+    std::vector<SetId> covers_;
+
+    /** Elements to cover. */
+    std::vector<ElementId> elements_;
+
+    std::vector<SetId> current_sets_;
+
+    std::vector<SetId> best_sets_;
+
+    bool found_ = false;
+
+    Counter number_of_nodes_ = 0;
+
+    Counter maximum_number_of_nodes_ = -1;
+
+};
+
 }
 
 const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weighting(
@@ -705,6 +865,15 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
     Cost bound = trivial_bound(instance, nullptr, trivial_bound_parameters).bound;
     algorithm_formatter.update_bound(bound, "trivial bound");
 
+    // Mandatory sets.
+    std::vector<LocalSearchRowWeightingSet> sets(instance.number_of_sets());
+    for (ElementId element_id = 0;
+            element_id < instance.number_of_elements();
+            ++element_id) {
+        if (instance.element(element_id).sets.size() == 1)
+            sets[instance.element(element_id).sets.front()].mandatory = true;
+    }
+
     // Compute initial greedy solution.
     // The local search requires a feasible initial solution.
     Solution solution(instance);
@@ -719,6 +888,9 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
         algorithm_formatter.update_solution(greedy_output.solution, "initial solution");
         solution = greedy_output.solution;
     }
+    for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
+        if (sets[set_id].mandatory && !solution.contains(set_id))
+            solution.add(set_id);
 
     // Initialize local search structures.
 
@@ -753,7 +925,6 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
     }
     std::uniform_real_distribution<double> d_score(0, 1);
 
-    std::vector<LocalSearchRowWeightingSet> sets(instance.number_of_sets());
     for (SetId set_id: solution.sets())
         sets[set_id].last_addition = 0;
 
@@ -774,6 +945,8 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
 
     // Initialize scores_in.
     for (SetId set_id: solution.sets()) {
+        if (sets[set_id].mandatory)
+            continue;
         const Set& set = instance.set(set_id);
         SetPos pos = sets_id_to_component_pos[set_id];
         LocalSearchRowWeightingComponent& component = components[set.component];
@@ -781,6 +954,8 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
                 pos,
                 {sets[set_id].score, d_score(generator)});
     }
+
+    ComponentExhaustiveSearch exhaustive_search(instance, sets);
 
     ComponentId component_id = 0;
     Counter number_of_iterations_without_improvement = 0;
@@ -845,9 +1020,33 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
             if (component.iterations_without_improvment > 0)
                 component.iterations_without_improvment = 0;
 
-            if (component.scores_in.empty()) {
-                // Happens when all sets of the component which are in the
-                // solution are mandatory.
+            // With few sets which are not mandatory, search exhaustively
+            // for a solution of the component with fewer sets (the
+            // component is optimal if all its sets are mandatory). Done with
+            // up to 2 such sets, so that at least 2 sets can be removed in
+            // the neighborhoods.
+            bool component_optimal = component.scores_in.empty();
+            SetId number_of_sets = component.scores_in.size();
+            if (!component_optimal
+                    && (number_of_sets <= 2
+                        || number_of_sets <= parameters.exhaustive_search_maximum_number_of_sets)
+                    && exhaustive_search.run(
+                        component_id,
+                        number_of_sets,
+                        (number_of_sets <= 2)? -1:
+                        parameters.exhaustive_search_maximum_number_of_nodes)) {
+                component_optimal = true;
+                if (exhaustive_search.found()) {
+                    // Replace the component's sets which are not mandatory
+                    // in the best solution.
+                    for (SetId set_id: instance.component(component_id).sets)
+                        if (!sets[set_id].mandatory && solution_tmp.contains(set_id))
+                            solution_tmp.remove(set_id);
+                    for (SetId set_id: exhaustive_search.sets())
+                        solution_tmp.add(set_id);
+                }
+            }
+            if (component_optimal) {
                 component.optimal = true;
                 //std::cout << "c " << c << " optimal" << std::endl;
                 bool all_component_optimal = true;
@@ -867,6 +1066,14 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
                 }
                 // If all components are optimal, stop here.
                 if (all_component_optimal) {
+                    if (output.solution.cost() > solution_tmp.size()) {
+                        Solution solution_best(instance);
+                        for (SetId set_id: solution_tmp)
+                            solution_best.add(set_id);
+                        std::stringstream ss;
+                        ss << "it " << output.number_of_iterations;
+                        algorithm_formatter.update_solution(solution_best, ss.str());
+                    }
                     algorithm_formatter.end();
                     return output;
                 }
