@@ -90,6 +90,12 @@ private:
      * Read input file
      */
 
+    /** Read an instance file. */
+    void read(
+            const std::string& instance_path,
+            const std::string& format,
+            std::ifstream& file);
+
     /** Read an instance file in 'fulkerson1974' format. */
     void read_fulkerson1974(std::ifstream& file);
 

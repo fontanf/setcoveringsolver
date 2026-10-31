@@ -121,7 +121,7 @@ Hitting set format of the [PACE 2025 challenge](https://pacechallenge.org/2025/)
 - The problem line `p hs <number of sets> <number of elements>`.
 - Then one line per element, listing the sets covering it (from 1 to n).
 
-Each line describes one element, so the line structure is required.
+Each line describes one element, so the line structure is required. Empty lines are ignored.
 
 ```
 c S1 = {1, 2}, S2 = {2, 3}, S3 = {1, 3}
@@ -139,7 +139,7 @@ Dominating set format of the [PACE 2025 challenge](https://pacechallenge.org/202
 - The problem line `p ds <number of vertices> <number of edges>`.
 - Then one line per edge: its two endpoints (from 1 to n).
 
-The line structure is required.
+The line structure is required. Empty lines are ignored.
 
 ```
 c path 1 - 2 - 3
@@ -158,7 +158,7 @@ Graph format of the vertex cover track of the PACE 2019 challenge. Each vertex i
 - The problem line `p <descriptor> <number of vertices> <number of edges>`. The descriptor is not checked.
 - Then one line per edge: its two endpoints (from 1 to n).
 
-The line structure is required.
+The line structure is required. Empty lines are ignored.
 
 ```
 c path 1 - 2 - 3

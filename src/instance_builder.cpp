@@ -60,6 +60,119 @@ void InstanceBuilder::set_unicost()
         set_cost(set_id, 1);
 }
 
+namespace
+{
+
+/**
+ * Check that a set index read in an instance file belongs to
+ * [first_set_id, first_set_id + number_of_sets - 1].
+ */
+void check_set_index(
+        SetId set_id,
+        SetId first_set_id,
+        SetId number_of_sets)
+{
+    if (set_id < first_set_id || set_id >= first_set_id + number_of_sets) {
+        throw std::runtime_error(
+                "invalid set index " + std::to_string(set_id)
+                + "; set indices should belong to ["
+                + std::to_string(first_set_id) + ", "
+                + std::to_string(first_set_id + number_of_sets - 1) + "].");
+    }
+}
+
+/**
+ * Check that an element index read in an instance file belongs to
+ * [first_element_id, first_element_id + number_of_elements - 1].
+ */
+void check_element_index(
+        ElementId element_id,
+        ElementId first_element_id,
+        ElementId number_of_elements)
+{
+    if (element_id < first_element_id
+            || element_id >= first_element_id + number_of_elements) {
+        throw std::runtime_error(
+                "invalid element index " + std::to_string(element_id)
+                + "; element indices should belong to ["
+                + std::to_string(first_element_id) + ", "
+                + std::to_string(first_element_id + number_of_elements - 1) + "].");
+    }
+}
+
+/**
+ * Check that a vertex index read in a graph instance file belongs to
+ * [first_vertex_id, first_vertex_id + number_of_vertices - 1].
+ *
+ * In graph formats, vertices are sets.
+ */
+void check_vertex_index(
+        SetId vertex_id,
+        SetId first_vertex_id,
+        SetId number_of_vertices)
+{
+    if (vertex_id < first_vertex_id
+            || vertex_id >= first_vertex_id + number_of_vertices) {
+        throw std::runtime_error(
+                "invalid vertex index " + std::to_string(vertex_id)
+                + "; vertex indices should belong to ["
+                + std::to_string(first_vertex_id) + ", "
+                + std::to_string(first_vertex_id + number_of_vertices - 1) + "].");
+    }
+}
+
+/**
+ * Check that the number of elements read in an instance file doesn't exceed
+ * the number declared in its header.
+ */
+void check_number_of_elements(
+        ElementId number_of_elements,
+        ElementId declared_number_of_elements)
+{
+    if (number_of_elements > declared_number_of_elements) {
+        throw std::runtime_error(
+                "the file contains more elements than the "
+                + std::to_string(declared_number_of_elements)
+                + " declared in its header.");
+    }
+}
+
+/**
+ * Check that the number of edges read in a graph instance file doesn't exceed
+ * the number declared in its header.
+ *
+ * In graph formats where edges are elements, edges are counted as elements.
+ */
+void check_number_of_edges(
+        ElementId number_of_edges,
+        ElementId declared_number_of_edges)
+{
+    if (number_of_edges > declared_number_of_edges) {
+        throw std::runtime_error(
+                "the file contains more edges than the "
+                + std::to_string(declared_number_of_edges)
+                + " declared in its header.");
+    }
+}
+
+/**
+ * Check that the number of vertex lines read in a graph instance file doesn't
+ * exceed the number of vertices declared in its header.
+ */
+void check_number_of_vertex_lines(
+        SetId number_of_vertex_lines,
+        SetId declared_number_of_vertices)
+{
+    if (number_of_vertex_lines > declared_number_of_vertices) {
+        throw std::runtime_error(
+                "the file contains more vertex lines than the "
+                + std::to_string(declared_number_of_vertices)
+                + " declared in its header.");
+    }
+}
+
+}
+
 void InstanceBuilder::read(
         const std::string& instance_path,
         const std::string& format)
@@ -70,6 +183,19 @@ void InstanceBuilder::read(
                 "Unable to open file \"" + instance_path + "\".");
     }
 
+    try {
+        read(instance_path, format, file);
+    } catch (const std::runtime_error& e) {
+        throw std::runtime_error(
+                "Invalid instance file \"" + instance_path + "\": " + e.what());
+    }
+}
+
+void InstanceBuilder::read(
+        const std::string& instance_path,
+        const std::string& format,
+        std::ifstream& file)
+{
     if (format == "gecco2020" || format == "gecco") {
         read_geccod2020(file);
     } else if (format == "fulkerson1974" || format == "sts") {
@@ -122,6 +248,7 @@ void InstanceBuilder::read_geccod2020(std::ifstream& file)
         file >> element_id_tmp >> element_number_of_sets;
         for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
             file >> set_id;
+            check_set_index(set_id, 0, number_of_sets);
             add_arc(set_id, element_id);
         }
     }
@@ -145,6 +272,7 @@ void InstanceBuilder::read_fulkerson1974(std::ifstream& file)
             ++element_id) {
         for (SetPos set_pos = 0; set_pos < 3; ++set_pos) {
             file >> set_id;
+            check_set_index(set_id, 1, number_of_sets);
             add_arc(set_id - 1, element_id);
         }
     }
@@ -173,6 +301,7 @@ void InstanceBuilder::read_balas1980(std::ifstream& file)
         file >> element_number_of_sets;
         for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
             file >> set_id;
+            check_set_index(set_id, 1, number_of_sets);
             add_arc(set_id - 1, element_id);
         }
     }
@@ -201,6 +330,7 @@ void InstanceBuilder::read_balas1996(std::ifstream& file)
                 element_pos < set_number_of_elements;
                 ++element_pos) {
             file >> element_id;
+            check_element_index(element_id, 1, number_of_elements);
             add_arc(set_id, element_id - 1);
         }
     }
@@ -225,6 +355,7 @@ void InstanceBuilder::read_faster1994(std::ifstream& file)
                 element_pos < set_number_of_elements;
                 ++element_pos) {
             file >> element_id;
+            check_element_index(element_id, 1, number_of_elements);
             add_arc(set_id, element_id - 1);
         }
     }
@@ -311,6 +442,7 @@ void InstanceBuilder::read_pace2019_vc(FILE* file)
     SetId set_id_1 = -1;
     SetId set_id_2 = -1;
     ElementId element_id = 0;
+    bool header_read = false;
     while ((c = peek_char(file, buf, BUF_SIZE, buf_pos, buf_len)) != EOF) {
         if (c == 'c') {
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
@@ -322,10 +454,22 @@ void InstanceBuilder::read_pace2019_vc(FILE* file)
             add_elements(number_of_edges);
             add_sets(number_of_vertices);
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
-        } else {
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_1);
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2);
+            header_read = true;
+        } else if (c == '\n') {
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+        } else {
+            if (!header_read)
+                throw std::runtime_error("missing problem line 'p'.");
+            if (!read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_1)
+                    || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)) {
+                throw std::runtime_error(
+                        "edge " + std::to_string(element_id + 1)
+                        + " doesn't have two vertices.");
+            }
+            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+            check_number_of_edges(element_id + 1, instance_.number_of_elements());
+            check_vertex_index(set_id_1, 1, instance_.number_of_sets());
+            check_vertex_index(set_id_2, 1, instance_.number_of_sets());
             add_arc(set_id_1 - 1, element_id);
             add_arc(set_id_2 - 1, element_id);
             element_id++;
@@ -344,6 +488,7 @@ void InstanceBuilder::read_pace2025(FILE* file)
     char c;
     SetId set_id = -1;
     ElementId element_id = 0;
+    bool header_read = false;
     while ((c = peek_char(file, buf, BUF_SIZE, buf_pos, buf_len)) != EOF) {
         if (c == 'c') {
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
@@ -355,10 +500,21 @@ void InstanceBuilder::read_pace2025(FILE* file)
             add_elements(number_of_elements);
             add_sets(number_of_sets);
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+            header_read = true;
         } else {
-            while (read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id))
+            // Lines without any set (e.g. empty lines) are ignored.
+            bool empty = true;
+            while (read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id)) {
+                if (!header_read)
+                    throw std::runtime_error("missing problem line 'p'.");
+                if (empty)
+                    check_number_of_elements(element_id + 1, instance_.number_of_elements());
+                empty = false;
+                check_set_index(set_id, 1, instance_.number_of_sets());
                 add_arc(set_id - 1, element_id);
-            element_id++;
+            }
+            if (!empty)
+                element_id++;
         }
     }
 }
@@ -374,6 +530,8 @@ void InstanceBuilder::read_pace2025_ds(FILE* file)
     char c;
     SetId set_id_1 = -1;
     SetId set_id_2 = -1;
+    ElementId edge_id = 0;
+    bool header_read = false;
     while ((c = peek_char(file, buf, BUF_SIZE, buf_pos, buf_len)) != EOF) {
         if (c == 'c') {
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
@@ -387,12 +545,24 @@ void InstanceBuilder::read_pace2025_ds(FILE* file)
             for (SetId set_id = 0; set_id < number_of_vertices; ++set_id)
                 add_arc(set_id, set_id);
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
-        } else {
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_1);
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2);
+            header_read = true;
+        } else if (c == '\n') {
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+        } else {
+            if (!header_read)
+                throw std::runtime_error("missing problem line 'p'.");
+            if (!read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_1)
+                    || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)) {
+                throw std::runtime_error(
+                        "edge " + std::to_string(edge_id + 1)
+                        + " doesn't have two vertices.");
+            }
+            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+            check_vertex_index(set_id_1, 1, instance_.number_of_sets());
+            check_vertex_index(set_id_2, 1, instance_.number_of_sets());
             add_arc(set_id_1 - 1, set_id_2 - 1);
             add_arc(set_id_2 - 1, set_id_1 - 1);
+            edge_id++;
         }
     }
 }
@@ -426,7 +596,10 @@ void InstanceBuilder::read_dimacs2010_vc(FILE* file)
             while (read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, tmp)) {}
         } else {
             while (read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)) {
+                check_number_of_vertex_lines(set_id_1, instance_.number_of_sets());
+                check_vertex_index(set_id_2, 1, instance_.number_of_sets());
                 if (set_id_2 > set_id_1) {
+                    check_number_of_edges(element_id + 1, instance_.number_of_elements());
                     add_arc(set_id_1 - 1, element_id);
                     add_arc(set_id_2 - 1, element_id);
                     element_id++;
