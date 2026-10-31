@@ -1,4 +1,4 @@
-Path,Format,Options,Dataset,Unicost,Number of sets,Number of elements,Number of arcs,Coefficient of variation of cost,Arc number / Line number,Arc number / Set number,Density,Best known solution value,Best known bound
+Path,Format,Options,Dataset,Unicost,Number of elements,Number of sets,Number of arcs,Coefficient of variation of cost,Arc number / Line number,Arc number / Set number,Density,Best known solution value,Best known bound
 balas1980/scp41.txt,orlibrary,,balas1980,0,200,1000,4009,59.22,20,4,2,429,429
 balas1980/scp42.txt,orlibrary,,balas1980,0,200,1000,3982,57.29,20,4,1.99,512,512
 balas1980/scp43.txt,orlibrary,,balas1980,0,200,1000,3984,57.92,20,4,1.99,516,516
