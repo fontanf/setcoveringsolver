@@ -2,7 +2,7 @@
 
 This page describes the instance file formats read by `setcoveringsolver` (option `--format`) and the certificate file formats used to write solutions (option `--certificate`) and to read initial solutions (option `--initial-solution`).
 
-In all formats, numbers are separated by whitespace. Unless stated otherwise, the line structure shown in the examples is not required.
+In all formats, numbers are integers separated by whitespace, and a file containing an invalid value is rejected. In the line-based formats (`pace2025`, `pace2025_ds`, `pace2019_vc`, `dimacs2010_vc`), Windows line endings are accepted. Unless stated otherwise, the line structure shown in the examples is not required.
 
 A set covering instance consists of elements and of sets with a cost, each set covering some of the elements. A solution is a selection of sets such that each element is covered by at least one selected set. Its cost is the sum of the costs of the selected sets.
 
