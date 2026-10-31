@@ -159,6 +159,7 @@ void Solution::add(SetId set_id)
                 "Cannot add set " + std::to_string(set_id)
                 + " which is already in the solution");
 
+    // Sets which don't cover any element don't belong to any component.
     ComponentId component_id = instance().set(set_id).component;
     for (ElementId element_id: instance().set(set_id).elements) {
         if (covers(element_id) == 0)
@@ -166,7 +167,8 @@ void Solution::add(SetId set_id)
         elements_.set(element_id, elements_[element_id] + 1);
     }
     sets_.add(set_id);
-    component_costs_[component_id] += instance().set(set_id).cost;
+    if (component_id != -1)
+        component_costs_[component_id] += instance().set(set_id).cost;
     cost_ += instance().set(set_id).cost;
 }
 
@@ -179,6 +181,7 @@ void Solution::remove(SetId set_id)
                 "Cannot remove set " + std::to_string(set_id)
                 + " which is not in the solution");
 
+    // Sets which don't cover any element don't belong to any component.
     ComponentId component_id = instance().set(set_id).component;
     for (ElementId element_id: instance().set(set_id).elements) {
         elements_.set(element_id, elements_[element_id] - 1);
@@ -186,7 +189,8 @@ void Solution::remove(SetId set_id)
             component_number_of_elements_[component_id]--;
     }
     sets_.remove(set_id);
-    component_costs_[component_id] -= instance().set(set_id).cost;
+    if (component_id != -1)
+        component_costs_[component_id] -= instance().set(set_id).cost;
     cost_ -= instance().set(set_id).cost;
 }
 
