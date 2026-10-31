@@ -75,7 +75,13 @@ inline const AlgorithmOutput solve_reduced_instance(
         AlgorithmFormatter& algorithm_formatter,
         AlgorithmOutput& output)
 {
-    Reduction reduction(instance, parameters.reduction_parameters);
+    // The reduction must not exceed the time limit of the algorithm.
+    ReductionParameters reduction_parameters = parameters.reduction_parameters;
+    reduction_parameters.timer.reset_time();
+    reduction_parameters.timer.set_time_limit((std::min)(
+                parameters.reduction_parameters.timer.remaining_time(),
+                parameters.timer.remaining_time()));
+    Reduction reduction(instance, reduction_parameters);
     algorithm_formatter.print_reduced_instance(reduction.instance());
     algorithm_formatter.print_header();
 
