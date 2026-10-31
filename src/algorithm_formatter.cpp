@@ -54,6 +54,9 @@ void AlgorithmFormatter::print_header()
         << std::setw(24) << "-------"
         << std::endl;
     print("");
+
+    if (initial_solution_ != nullptr)
+        update_solution(*initial_solution_, "initial solution");
 }
 
 void AlgorithmFormatter::print_reduced_instance(

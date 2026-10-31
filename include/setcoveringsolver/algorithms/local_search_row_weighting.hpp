@@ -73,8 +73,8 @@ struct LocalSearchRowWeightingOutput: Output
 
 const LocalSearchRowWeightingOutput local_search_row_weighting(
         const Instance& instance,
+        const Solution* initial_solution,
         std::mt19937_64& generator,
-        Solution* initial_solution = nullptr,
         const LocalSearchRowWeightingParameters& parameters = {});
 
 }

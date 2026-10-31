@@ -35,10 +35,11 @@ struct LargeNeighborhoodSearchSet
 
 const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search(
         const Instance& instance,
+        const Solution* initial_solution,
         const LargeNeighborhoodSearchParameters& parameters)
 {
     LargeNeighborhoodSearchOutput output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Large neighborhood search");
 
     if (instance.number_of_elements() == 0) {
@@ -60,7 +61,7 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
     Parameters trivial_bound_parameters;
     trivial_bound_parameters.verbosity_level = 0;
     trivial_bound_parameters.reduction_parameters.reduce = false;
-    Cost bound = trivial_bound(instance, trivial_bound_parameters).bound;
+    Cost bound = trivial_bound(instance, nullptr, trivial_bound_parameters).bound;
     algorithm_formatter.update_bound(bound, "trivial bound");
 
     // Compute initial greedy solution.
@@ -69,7 +70,7 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
         greedy_parameters.timer = parameters.timer;
         greedy_parameters.reduction_parameters.reduce = false;
         greedy_parameters.verbosity_level = 0;
-        Output greedy_output = greedy_or_greedy_reverse(instance, greedy_parameters);
+        Output greedy_output = greedy_or_greedy_reverse(instance, nullptr, greedy_parameters);
         algorithm_formatter.update_solution(greedy_output.solution, "greedy");
     }
 

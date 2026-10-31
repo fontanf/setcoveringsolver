@@ -2761,7 +2761,7 @@ void Reduction::reduce_small_components(Tmp& tmp)
         Parameters component_trivial_bound_parameters;
         component_trivial_bound_parameters.verbosity_level = 0;
         component_trivial_bound_parameters.reduction_parameters.reduce = false;
-        auto component_trivial_bound_output = trivial_bound(component_instance, component_trivial_bound_parameters);
+        auto component_trivial_bound_output = trivial_bound(component_instance, nullptr, component_trivial_bound_parameters);
         bound = (std::max)(bound, component_trivial_bound_output.bound);
 
         //ElementPos number_of_2_elements = 0;
@@ -2844,7 +2844,7 @@ void Reduction::reduce_small_components(Tmp& tmp)
             Parameters component_greedy_parameters;
             component_greedy_parameters.verbosity_level = 0;
             component_greedy_parameters.reduction_parameters.reduce = false;
-            auto component_greedy_output = greedy(component_instance, component_greedy_parameters);
+            auto component_greedy_output = greedy(component_instance, nullptr, component_greedy_parameters);
             if (component_greedy_output.solution.cost() == bound) {
                 for (SetId set_id: component.sets) {
                     SetId new_set_id = sets_original2component[set_id];

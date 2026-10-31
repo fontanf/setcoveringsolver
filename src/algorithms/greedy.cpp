@@ -8,10 +8,11 @@ using namespace setcoveringsolver;
 
 Output setcoveringsolver::greedy(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Greedy");
 
     // Reduction.
@@ -88,10 +89,11 @@ Output setcoveringsolver::greedy(
 
 Output setcoveringsolver::greedy_lin(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Greedy Lin");
 
     // Reduction.
@@ -189,10 +191,11 @@ inline double greedy_reverse_score(
 
 Output setcoveringsolver::greedy_reverse(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Reverse greedy");
 
     // Reduction.
@@ -248,10 +251,11 @@ Output setcoveringsolver::greedy_reverse(
 
 Output setcoveringsolver::greedy_dual(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Dual greedy");
 
     // Reduction.
@@ -323,10 +327,11 @@ Output setcoveringsolver::greedy_dual(
 
 Output setcoveringsolver::greedy_dual_sort(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Dual greedy with sort");
 
     // Reduction.
@@ -406,10 +411,11 @@ Output setcoveringsolver::greedy_dual_sort(
 
 Output setcoveringsolver::greedy_gwmin(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Greedy GWMIN");
 
     // Reduction.
@@ -456,10 +462,11 @@ Output setcoveringsolver::greedy_gwmin(
 
 Output setcoveringsolver::greedy_or_greedy_reverse(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Greedy or reverse greedy");
 
     // Reduction.
@@ -473,21 +480,21 @@ Output setcoveringsolver::greedy_or_greedy_reverse(
     greedy_dual_parameters.reduction_parameters.reduce = false;
     greedy_dual_parameters.verbosity_level = 0;
     greedy_dual_parameters.timer = parameters.timer;
-    auto greedy_dual_output = greedy_dual(instance, greedy_dual_parameters);
+    auto greedy_dual_output = greedy_dual(instance, nullptr, greedy_dual_parameters);
     algorithm_formatter.update_solution(greedy_dual_output.solution, "dual greedy");
 
     Parameters greedy_gwmin_parameters;
     greedy_gwmin_parameters.reduction_parameters.reduce = false;
     greedy_gwmin_parameters.verbosity_level = 0;
     greedy_gwmin_parameters.timer = parameters.timer;
-    auto greedy_gwmin_output = greedy_gwmin(instance, greedy_gwmin_parameters);
+    auto greedy_gwmin_output = greedy_gwmin(instance, nullptr, greedy_gwmin_parameters);
     algorithm_formatter.update_solution(greedy_gwmin_output.solution, "greedy gwmin");
 
     Parameters greedy_dual_sort_parameters;
     greedy_dual_sort_parameters.reduction_parameters.reduce = false;
     greedy_dual_sort_parameters.verbosity_level = 0;
     greedy_dual_sort_parameters.timer = parameters.timer;
-    auto greedy_dual_sort_output = greedy_dual_sort(instance, greedy_dual_sort_parameters);
+    auto greedy_dual_sort_output = greedy_dual_sort(instance, nullptr, greedy_dual_sort_parameters);
     algorithm_formatter.update_solution(greedy_dual_sort_output.solution, "dual greedy with sort");
 
     // Check time.
@@ -501,7 +508,7 @@ Output setcoveringsolver::greedy_or_greedy_reverse(
         greedy_parameters.reduction_parameters.reduce = false;
         greedy_parameters.verbosity_level = 0;
         greedy_parameters.timer = parameters.timer;
-        auto greedy_output = greedy(instance, greedy_parameters);
+        auto greedy_output = greedy(instance, nullptr, greedy_parameters);
         algorithm_formatter.update_solution(greedy_output.solution, "greedy");
 
         // Check time.
@@ -514,14 +521,14 @@ Output setcoveringsolver::greedy_or_greedy_reverse(
         greedy_lin_parameters.reduction_parameters.reduce = false;
         greedy_lin_parameters.verbosity_level = 0;
         greedy_lin_parameters.timer = parameters.timer;
-        auto greedy_lin_output = greedy_lin(instance, greedy_parameters);
+        auto greedy_lin_output = greedy_lin(instance, nullptr, greedy_parameters);
         algorithm_formatter.update_solution(greedy_lin_output.solution, "greedy lin");
     } else {
         Parameters greedy_reverse_parameters;
         greedy_reverse_parameters.reduction_parameters.reduce = false;
         greedy_reverse_parameters.verbosity_level = 0;
         greedy_reverse_parameters.timer = parameters.timer;
-        auto greedy_reverse_output = greedy_reverse(instance, greedy_reverse_parameters);
+        auto greedy_reverse_output = greedy_reverse(instance, nullptr, greedy_reverse_parameters);
         algorithm_formatter.update_solution(greedy_reverse_output.solution, "reverse greedy");
     }
 

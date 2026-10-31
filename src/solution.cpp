@@ -7,6 +7,44 @@
 
 using namespace setcoveringsolver;
 
+namespace
+{
+
+/**
+ * Get the index of the first set in a certificate format.
+ *
+ * Each input format has a certificate format with the same name, which uses
+ * the same set indices.
+ */
+SetId certificate_first_set_id(
+        const std::string& format)
+{
+    if (format == ""
+            || format == "gecco2020"
+            || format == "gecco") {
+        return 0;
+    } else if (format == "fulkerson1974"
+            || format == "sts"
+            || format == "balas1980"
+            || format == "orlibrary"
+            || format == "balas1996"
+            || format == "faster1994"
+            || format == "faster"
+            || format == "wedelin1995"
+            || format == "wedelin"
+            || format == "pace2019_vc"
+            || format == "pace2025"
+            || format == "pace2025_ds"
+            || format == "dimacs2010_vc") {
+        return 1;
+    } else {
+        throw std::invalid_argument(
+                "Unknown certificate format \"" + format + "\".");
+    }
+}
+
+}
+
 Solution::Solution(const Instance& instance):
     instance_(&instance),
     elements_(instance.number_of_elements(), 0),
@@ -18,11 +56,13 @@ Solution::Solution(const Instance& instance):
 
 Solution::Solution(
         const Instance& instance,
-        std::string certificate_path):
+        const std::string& certificate_path,
+        const std::string& format):
     Solution(instance)
 {
     if (certificate_path.empty())
         return;
+    SetId first_set_id = certificate_first_set_id(format);
     std::ifstream file(certificate_path);
     if (!file.good()) {
         throw std::runtime_error(
@@ -31,10 +71,35 @@ Solution::Solution(
 
     SetId number_of_sets;
     SetId set_id;
-    file >> number_of_sets;
+    if (!(file >> number_of_sets)) {
+        throw std::runtime_error(
+                "Unable to read the number of sets of certificate file \""
+                + certificate_path + "\".");
+    }
     for (SetPos set_pos = 0; set_pos < number_of_sets; ++set_pos) {
-        file >> set_id;
-        add(set_id);
+        if (!(file >> set_id)) {
+            throw std::runtime_error(
+                    "Certificate file \"" + certificate_path + "\" contains "
+                    + std::to_string(set_pos) + " sets instead of "
+                    + std::to_string(number_of_sets) + ".");
+        }
+        if (set_id < first_set_id
+                || set_id >= instance.number_of_sets() + first_set_id) {
+            throw std::runtime_error(
+                    "Invalid set index " + std::to_string(set_id)
+                    + " in certificate file \"" + certificate_path + "\";"
+                    + " set indices should belong to ["
+                    + std::to_string(first_set_id) + ", "
+                    + std::to_string(instance.number_of_sets() - 1 + first_set_id)
+                    + "].");
+        }
+        if (contains(set_id - first_set_id)) {
+            throw std::runtime_error(
+                    "Set " + std::to_string(set_id)
+                    + " appears several times in certificate file \""
+                    + certificate_path + "\".");
+        }
+        add(set_id - first_set_id);
     }
 }
 
@@ -74,29 +139,10 @@ void Solution::write(
                 "Unable to open file \"" + certificate_path + "\".");
     }
 
-    // Each input format has a certificate format with the same name, which
-    // uses the same set indices.
-    if (format == ""
-            || format == "gecco2020"
-            || format == "gecco") {
+    if (certificate_first_set_id(format) == 0) {
         write_gecco2020(file);
-    } else if (format == "fulkerson1974"
-            || format == "sts"
-            || format == "balas1980"
-            || format == "orlibrary"
-            || format == "balas1996"
-            || format == "faster1994"
-            || format == "faster"
-            || format == "wedelin1995"
-            || format == "wedelin"
-            || format == "pace2019_vc"
-            || format == "pace2025"
-            || format == "pace2025_ds"
-            || format == "dimacs2010_vc") {
-        write_pace2025(file);
     } else {
-        throw std::invalid_argument(
-                "Unknown certificate format \"" + format + "\".");
+        write_pace2025(file);
     }
     file.close();
 }

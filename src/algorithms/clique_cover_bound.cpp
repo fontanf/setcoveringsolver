@@ -9,10 +9,11 @@ using namespace setcoveringsolver;
 
 const Output setcoveringsolver::clique_cover_bound(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Clique cover bound");
 
     if (instance.number_of_elements() == 0) {

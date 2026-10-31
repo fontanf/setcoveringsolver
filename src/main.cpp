@@ -95,40 +95,44 @@ Output run(
         const po::variables_map& vm)
 {
     std::mt19937_64 generator(vm["seed"].as<Seed>());
-    Solution solution = (vm.count("initial-solution"))?
-        Solution(instance, vm["initial-solution"].as<std::string>()):
-        Solution(instance);
+    std::unique_ptr<Solution> initial_solution;
+    if (vm.count("initial-solution")) {
+        initial_solution = std::make_unique<Solution>(
+                instance,
+                vm["initial-solution"].as<std::string>(),
+                get_certificate_format(vm));
+    }
 
     // Run algorithm.
     std::string algorithm = vm["algorithm"].as<std::string>();
     if (algorithm == "greedy") {
         Parameters parameters;
         read_args(parameters, vm);
-        return greedy(instance, parameters);
+        return greedy(instance, initial_solution.get(), parameters);
     } else if (algorithm == "greedy-lin") {
         Parameters parameters;
         read_args(parameters, vm);
-        return greedy_lin(instance, parameters);
+        return greedy_lin(instance, initial_solution.get(), parameters);
     } else if (algorithm == "greedy-reverse") {
         Parameters parameters;
         read_args(parameters, vm);
-        return greedy_reverse(instance, parameters);
+        return greedy_reverse(instance, initial_solution.get(), parameters);
     } else if (algorithm == "greedy-dual") {
         Parameters parameters;
         read_args(parameters, vm);
-        return greedy_dual(instance, parameters);
+        return greedy_dual(instance, initial_solution.get(), parameters);
     } else if (algorithm == "greedy-dual-sort") {
         Parameters parameters;
         read_args(parameters, vm);
-        return greedy_dual_sort(instance, parameters);
+        return greedy_dual_sort(instance, initial_solution.get(), parameters);
     } else if (algorithm == "greedy-gwmin") {
         Parameters parameters;
         read_args(parameters, vm);
-        return greedy_gwmin(instance, parameters);
+        return greedy_gwmin(instance, initial_solution.get(), parameters);
     } else if (algorithm == "greedy-or-greedy-reverse") {
         Parameters parameters;
         read_args(parameters, vm);
-        return greedy_or_greedy_reverse(instance, parameters);
+        return greedy_or_greedy_reverse(instance, initial_solution.get(), parameters);
     } else if (algorithm == "milp") {
 #ifdef XPRESS_FOUND
         XPRSinit(NULL);
@@ -137,7 +141,7 @@ Output run(
         read_args(parameters, vm);
         if (vm.count("solver"))
             parameters.solver = vm["solver"].as<mathoptsolverscmake::SolverName>();
-        auto output = milp(instance, nullptr, parameters);
+        auto output = milp(instance, initial_solution.get(), parameters);
 #ifdef XPRESS_FOUND
         XPRSfree();
 #endif
@@ -146,7 +150,7 @@ Output run(
     } else if (algorithm == "cp-sat-ortools") {
         CpSatOrtoolsParameters parameters;
         read_args(parameters, vm);
-        return cp_sat_ortools(instance, parameters);
+        return cp_sat_ortools(instance, initial_solution.get(), parameters);
 #endif
     } else if (algorithm == "local-search-row-weighting") {
         LocalSearchRowWeightingParameters parameters;
@@ -163,7 +167,7 @@ Output run(
             parameters.maximum_number_of_iterations_without_improvement
                 = vm["maximum-number-of-iterations-without-improvement"].as<Counter>();
         }
-        return local_search_row_weighting(instance, generator, nullptr, parameters);
+        return local_search_row_weighting(instance, initial_solution.get(), generator, parameters);
     } else if (algorithm == "large-neighborhood-search"
             || algorithm == "large-neighborhood-search-2") {
         LargeNeighborhoodSearchParameters parameters;
@@ -176,15 +180,15 @@ Output run(
             parameters.maximum_number_of_iterations_without_improvement
                 = vm["maximum-number-of-iterations-without-improvement"].as<Counter>();
         }
-        return large_neighborhood_search(instance, parameters);
+        return large_neighborhood_search(instance, initial_solution.get(), parameters);
     } else if (algorithm == "trivial-bound") {
         Parameters parameters;
         read_args(parameters, vm);
-        return trivial_bound(instance, parameters);
+        return trivial_bound(instance, initial_solution.get(), parameters);
     } else if (algorithm == "clique-cover-bound") {
         Parameters parameters;
         read_args(parameters, vm);
-        return clique_cover_bound(instance, parameters);
+        return clique_cover_bound(instance, initial_solution.get(), parameters);
 
     } else {
         throw std::invalid_argument(
@@ -204,7 +208,7 @@ int main(int argc, char *argv[])
         ("certificate-format,", po::value<std::string>()->default_value(""), "set certificate file format (default: input file format)")
         ("unicost,u", "set unicost")
         ("output,o", po::value<std::string>(), "set JSON output file")
-        ("initial-solution,", po::value<std::string>(), "")
+        ("initial-solution,", po::value<std::string>(), "set initial solution file (same format as the certificate file)")
         ("certificate,c", po::value<std::string>(), "set certificate file")
         ("goal,", po::value<Cost>(), "stop as soon as a solution of cost <= goal is found")
         ("seed,s", po::value<Seed>()->default_value(0), "set seed")
