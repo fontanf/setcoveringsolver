@@ -61,6 +61,8 @@ python3 scripts/download_data.py --data pace2025_ds
 
 Run:
 
+The options `--input` and `--format` are required. The supported instance and certificate file formats are described in [docs/formats.md](docs/formats.md). Run `./install/bin/setcoveringsolver --help` for the list of options.
+
 ```shell
 ./install/bin/setcoveringsolver  --verbosity-level 1  --input data/wedelin1995/sasd9imp2.dat --format wedelin1995  --algorithm milp --solver cbc
 ```

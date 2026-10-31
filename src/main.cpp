@@ -198,79 +198,149 @@ Output run(
 
 int main(int argc, char *argv[])
 {
-    // Parse program options
-    po::options_description desc("Allowed options");
-    desc.add_options()
-        ("help,h", "produce help message")
-        ("algorithm,a", po::value<std::string>()->default_value("large-neighborhood-search"), "set algorithm")
-        ("input,i", po::value<std::string>()->required(), "set input file (required)")
-        ("format,f", po::value<std::string>()->default_value(""), "set input file format (default: standard)")
-        ("certificate-format,", po::value<std::string>()->default_value(""), "set certificate file format (default: input file format)")
-        ("unicost,u", "set unicost")
-        ("output,o", po::value<std::string>(), "set JSON output file")
-        ("initial-solution,", po::value<std::string>(), "set initial solution file (same format as the certificate file)")
-        ("certificate,c", po::value<std::string>(), "set certificate file")
-        ("goal,", po::value<Cost>(), "stop as soon as a solution of cost <= goal is found")
-        ("seed,s", po::value<Seed>()->default_value(0), "set seed")
-        ("time-limit,t", po::value<double>(), "set time limit in seconds")
-        ("verbosity-level,v", po::value<int>(), "set verbosity level")
-        ("only-write-at-the-end,e", "only write output and certificate files at the end")
-        ("log,l", po::value<std::string>(), "set log file")
-        ("log-to-stderr", "write log to stderr")
-
-        ("reduce,", po::value<bool>(), "enable reduction")
-        ("set-folding,", po::value<bool>(), "enable set folding reduction")
-        ("twin,", po::value<bool>(), "enable twin reduction")
-        ("unconfined-sets,", po::value<bool>(), "enable unconfined sets reduction")
-        ("vertex-cover-domination,", po::value<bool>(), "enable vertex cover domination reduction")
-        ("dominated-sets,", po::value<bool>(), "enable dominated sets reduction")
-        ("dominated-elements,", po::value<bool>(), "enable dominated elements reduction")
-        ("linear-programming,", po::value<bool>(), "enable linear programming reduction")
-        ("reduction-time-limit,", po::value<double>(), "set reduction time limit in seconds")
-
-        ("enable-new-solution-callback,", po::value<bool>(), "enable new solution callback")
-
-        ("best-solution-update-frequency,", po::value<Counter>(), "set best update frequency for RWLS")
-        ("maximum-number-of-iterations,", po::value<Counter>(), "set the maximum number of iterations")
-        ("maximum-number-of-iterations-without-improvement,", po::value<Counter>(), "set the maximum number of iterations without improvement")
-        ("solver,", po::value<mathoptsolverscmake::SolverName>(), "set solver")
+    std::string algorithms =
+        "greedy, greedy-lin, greedy-reverse, greedy-dual, greedy-dual-sort, "
+        "greedy-gwmin, greedy-or-greedy-reverse, milp, "
+#if ORTOOLS_FOUND
+        "cp-sat-ortools, "
+#endif
+        "local-search-row-weighting, large-neighborhood-search, "
+        "trivial-bound, clique-cover-bound";
+    std::string formats =
+        "gecco2020 (or gecco), fulkerson1974 (or sts), "
+        "balas1980 (or orlibrary), balas1996, "
+        "faster1994 (or faster, wedelin1995, wedelin), "
+        "pace2019_vc, pace2025, pace2025_ds, dimacs2010_vc";
+    std::string solvers = ""
+#ifdef CBC_FOUND
+        "cbc, "
+#endif
+#ifdef HIGHS_FOUND
+        "highs, "
+#endif
+#ifdef XPRESS_FOUND
+        "xpress, "
+#endif
         ;
+    if (!solvers.empty())
+        solvers = solvers.substr(0, solvers.size() - 2);
+    else
+        solvers = "none, this build has no MILP solver";
+
+    // Parse program options
+    po::options_description general_options("General options");
+    general_options.add_options()
+        ("help,h", "print this help message")
+        ("algorithm,a", po::value<std::string>()->default_value("large-neighborhood-search"),
+            ("set the algorithm; one of: " + algorithms).c_str())
+        ("seed,s", po::value<Seed>()->default_value(0), "set the seed of the random number generator")
+        ("verbosity-level,v", po::value<int>(), "set the verbosity level: 0 (no output), 1, 2 or 3 (default: 1)")
+        ("log,l", po::value<std::string>(), "write the log to a file")
+        ("log-to-stderr", "write the log to the standard error")
+        ;
+
+    po::options_description io_options("Input and output options");
+    io_options.add_options()
+        ("input,i", po::value<std::string>()->required(), "set the instance file (required)")
+        ("format,f", po::value<std::string>()->required(),
+            ("set the instance file format (required); one of: " + formats + "; see docs/formats.md").c_str())
+        ("unicost,u", "set the cost of all sets to 1")
+        ("certificate,c", po::value<std::string>(), "write the solution to a certificate file")
+        ("certificate-format", po::value<std::string>()->default_value(""),
+            "set the format of the certificate file and of the initial solution file; same names as the instance file formats (default: the instance file format)")
+        ("initial-solution", po::value<std::string>(), "read an initial solution from a file in the certificate format")
+        ("output,o", po::value<std::string>(), "write the output (solution, bound, intermediary solutions, parameters) to a JSON file")
+        ("only-write-at-the-end,e", "only write the output and certificate files at the end, instead of each time a new best solution is found")
+        ;
+
+    po::options_description stop_options("Stopping criteria");
+    stop_options.add_options()
+        ("time-limit,t", po::value<double>(), "set the time limit in seconds (default: no time limit)")
+        ("goal", po::value<Cost>(), "stop as soon as a solution of cost lower than or equal to the goal is found")
+        ("maximum-number-of-iterations", po::value<Counter>(), "set the maximum number of iterations of large-neighborhood-search and local-search-row-weighting (default: no limit)")
+        ("maximum-number-of-iterations-without-improvement", po::value<Counter>(), "set the maximum number of iterations without improvement of large-neighborhood-search and local-search-row-weighting (default: no limit)")
+        ;
+
+    po::options_description reduction_options("Reduction options (0 to disable, 1 to enable; default: 1)");
+    reduction_options.add_options()
+        ("reduce", po::value<bool>(), "reduce the instance before solving it")
+        ("set-folding", po::value<bool>(), "enable the set folding reduction")
+        ("twin", po::value<bool>(), "enable the twin reduction")
+        ("unconfined-sets", po::value<bool>(), "enable the unconfined sets reduction")
+        ("vertex-cover-domination", po::value<bool>(), "enable the vertex cover domination reduction")
+        ("dominated-sets", po::value<bool>(), "enable the dominated sets removal")
+        ("dominated-elements", po::value<bool>(), "enable the dominated elements removal")
+        ("linear-programming", po::value<bool>(), "enable the linear programming reduction")
+        ("reduction-time-limit", po::value<double>(), "set the time limit of the reduction in seconds; the reduction also stops at the time limit (default: no time limit)")
+        ;
+
+    po::options_description algorithm_options("Algorithm-specific options");
+    algorithm_options.add_options()
+        ("solver", po::value<mathoptsolverscmake::SolverName>(),
+            ("set the solver of milp; one of: " + solvers + " (default: highs)").c_str())
+        ("best-solution-update-frequency", po::value<Counter>(), "set the number of iterations between two updates of the best solution of local-search-row-weighting (default: 1)")
+        ;
+
+    // Options which are accepted but not shown in the help message.
+    po::options_description hidden_options("Hidden options");
+    hidden_options.add_options()
+        ("enable-new-solution-callback", po::value<bool>(), "enable new solution callback")
+        ;
+
+    po::options_description visible_options;
+    visible_options
+        .add(general_options)
+        .add(io_options)
+        .add(stop_options)
+        .add(reduction_options)
+        .add(algorithm_options);
+    po::options_description all_options;
+    all_options.add(visible_options).add(hidden_options);
+
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    if (vm.count("help")) {
-        std::cout << desc << std::endl;;
-        return 1;
-    }
     try {
+        po::store(po::parse_command_line(argc, argv, all_options), vm);
+        if (vm.count("help")) {
+            std::cout
+                << "Usage: setcoveringsolver --input FILE --format FORMAT [options]" << std::endl
+                << visible_options << std::endl;
+            return 0;
+        }
         po::notify(vm);
-    } catch (const po::required_option& e) {
-        std::cout << desc << std::endl;;
+    } catch (const po::error& e) {
+        std::cerr << "error: " << e.what() << std::endl
+            << "Run 'setcoveringsolver --help' for the list of options." << std::endl;
         return 1;
     }
 
-    // Build instance.
-    InstanceBuilder instance_builder;
-    instance_builder.read(
-            vm["input"].as<std::string>(),
-            vm["format"].as<std::string>());
-    if (vm.count("unicost"))
-        instance_builder.set_unicost();
-    if (vm.count("goal"))
-        instance_builder.set_goal(vm["goal"].as<Cost>());
-    const Instance instance = instance_builder.build();
+    try {
+        // Build instance.
+        InstanceBuilder instance_builder;
+        instance_builder.read(
+                vm["input"].as<std::string>(),
+                vm["format"].as<std::string>());
+        if (vm.count("unicost"))
+            instance_builder.set_unicost();
+        if (vm.count("goal"))
+            instance_builder.set_goal(vm["goal"].as<Cost>());
+        const Instance instance = instance_builder.build();
 
-    // Run.
-    Output output = run(instance, vm);
+        // Run.
+        Output output = run(instance, vm);
 
-    // Write outputs.
-    if (vm.count("certificate")) {
-        std::string certificate_format = get_certificate_format(vm);
-        output.solution.write(
-                vm["certificate"].as<std::string>(),
-                certificate_format);
+        // Write outputs.
+        if (vm.count("certificate")) {
+            std::string certificate_format = get_certificate_format(vm);
+            output.solution.write(
+                    vm["certificate"].as<std::string>(),
+                    certificate_format);
+        }
+        if (vm.count("output"))
+            output.write_json_output(vm["output"].as<std::string>());
+    } catch (const std::exception& e) {
+        std::cerr << "error: " << e.what() << std::endl;
+        return 1;
     }
-    if (vm.count("output"))
-        output.write_json_output(vm["output"].as<std::string>());
 
     return 0;
 }
