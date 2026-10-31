@@ -42,6 +42,9 @@ jobs:
         cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSETCOVERINGSOLVER_USE_HIGHS=ON
         cmake --build build --config Release --parallel
         cmake --install build --config Release --prefix install
+    - name: Run unit tests
+      working-directory: build/test
+      run: ctest -C Release --output-on-failure --parallel
     - name: Run tests
       run: python3 -u scripts/run_tests.py test_results
     - name: Checkout main branch
