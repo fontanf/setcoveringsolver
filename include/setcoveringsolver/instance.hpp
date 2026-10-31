@@ -90,6 +90,14 @@ public:
     /** Get the total cost of the sets. */
     inline Cost total_cost() const { return total_cost_; }
 
+    /**
+     * Get the goal.
+     *
+     * Algorithms stop as soon as they find a solution of cost lower than or
+     * equal to the goal. A negative value means that there is no goal.
+     */
+    inline Cost goal() const { return goal_; }
+
     /** Get an element. */
     inline const Element& element(ElementId element_id) const { return elements_[element_id]; }
 
@@ -170,6 +178,9 @@ private:
     /** Total cost of the sets. */
     Cost total_cost_ = 0;
 
+    /** Goal. */
+    Cost goal_ = -1;
+
     /** Number of arcs. */
     ElementPos number_of_arcs_ = 0;
 
@@ -220,6 +231,7 @@ private:
     void write_dimacs2010_vc(std::ofstream& file) const;
 
     friend class InstanceBuilder;
+    friend class Reduction;
 
 };
 

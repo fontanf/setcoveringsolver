@@ -37,6 +37,19 @@ struct Output: optimizationtools::Output
     double time = 0.0;
 
 
+    /**
+     * Return 'true' iff the solution is known to be optimal, i.e. if its
+     * cost reaches the goal of the instance or the bound.
+     */
+    bool optimal() const
+    {
+        if (!solution.feasible())
+            return false;
+        Cost goal = solution.instance().goal();
+        return (goal >= 0 && solution.cost() <= goal)
+            || solution.cost() == bound;
+    }
+
     std::string solution_value() const
     {
         return optimizationtools::solution_value(
@@ -102,9 +115,6 @@ struct Parameters: optimizationtools::Parameters
 
     /** Reduction parameters. */
     ReductionParameters reduction_parameters;
-
-    /** Goal. */
-    Cost goal;
 
 
     virtual nlohmann::json to_json() const override

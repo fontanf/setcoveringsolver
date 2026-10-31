@@ -3,6 +3,10 @@
 #include "setcoveringsolver/algorithm_formatter.hpp"
 
 #include "ortools/sat/cp_model.h"
+#include "ortools/sat/model.h"
+#include "ortools/util/time_limit.h"
+
+#include <atomic>
 
 using namespace setcoveringsolver;
 
@@ -56,14 +60,37 @@ const Output setcoveringsolver::cp_sat_ortools(
     // Set time limit.
     cp_parameters.set_max_time_in_seconds(parameters.timer.remaining_time());
 
-    // Solve
-    operations_research::sat::CpSolverResponse resp = operations_research::sat::SolveWithParameters(cp.Build(), cp_parameters);
-    if (resp.status() == operations_research::sat::CpSolverStatus::OPTIMAL
-            || resp.status() == operations_research::sat::CpSolverStatus::FEASIBLE) {
+    operations_research::sat::Model model;
+    model.Add(operations_research::sat::NewSatParameters(cp_parameters));
+
+    // Stop the search when the solution is known to be optimal.
+    std::atomic<bool> stop = false;
+    model.GetOrCreate<operations_research::TimeLimit>()->RegisterExternalBooleanAsLimit(&stop);
+
+    // Retrieve intermediate solutions.
+    auto retrieve_solution = [&instance, &x](
+            const operations_research::sat::CpSolverResponse& resp)
+    {
         Solution solution(instance);
         for (SetId set_id = 0; set_id < instance.number_of_sets(); ++set_id)
             if (SolutionIntegerValue(resp, x[set_id]) > 0)
                 solution.add(set_id);
+        return solution;
+    };
+    model.Add(operations_research::sat::NewFeasibleSolutionObserver(
+                [&output, &algorithm_formatter, &retrieve_solution, &stop](
+                    const operations_research::sat::CpSolverResponse& resp)
+                {
+                    algorithm_formatter.update_solution(retrieve_solution(resp), "");
+                    if (output.optimal())
+                        stop = true;
+                }));
+
+    // Solve
+    operations_research::sat::CpSolverResponse resp = operations_research::sat::SolveCpModel(cp.Build(), &model);
+    if (resp.status() == operations_research::sat::CpSolverStatus::OPTIMAL
+            || resp.status() == operations_research::sat::CpSolverStatus::FEASIBLE) {
+        Solution solution = retrieve_solution(resp);
         algorithm_formatter.update_solution(solution, "");
         if (resp.status() == operations_research::sat::CpSolverStatus::OPTIMAL)
             algorithm_formatter.update_bound(solution.cost(), "");

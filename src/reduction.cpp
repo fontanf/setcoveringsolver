@@ -3038,9 +3038,21 @@ Reduction::Reduction(
     if (!parameters.timer.needs_to_end())
         reduce_small_components(tmp);
 
+    // Compute the difference between the cost of a solution of the original
+    // instance and the cost of the corresponding solution of the reduced
+    // instance: the cost of the mandatory sets plus, for each set of the
+    // reduced instance, the cost of the sets added when it is not in the
+    // solution (by construction, it is also the cost of the sets added when it
+    // is in the solution minus its own cost).
     extra_cost_ = 0;
     for (SetId orig_set_id: mandatory_sets_)
         extra_cost_ += instance.set(orig_set_id).cost;
+    for (SetId set_id = 0; set_id < instance_.number_of_sets(); ++set_id)
+        for (SetId orig_set_id: unreduction_operations_[set_id].out)
+            extra_cost_ += instance.set(orig_set_id).cost;
+
+    if (instance.goal() >= 0)
+        instance_.goal_ = (std::max)((Cost)-1, instance.goal() - extra_cost_);
 }
 
 void Reduction::unreduce_solution(

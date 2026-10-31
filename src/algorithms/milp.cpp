@@ -139,10 +139,8 @@ CbcEventHandler::CbcAction EventHandler::event(CbcEvent which_event)
     // Check end.
     if (parameters_.timer.needs_to_end())
         return stop;
-    if (parameters_.goal >= 0
-            && output_.solution.objective_value() >= parameters_.goal) {
+    if (output_.optimal())
         return stop;
-    }
 
     return noAction;
 }
@@ -181,10 +179,8 @@ void xpress_callback(
     // Check end.
     if (d.parameters.timer.needs_to_end())
         XPRSinterrupt(xpress_model, XPRS_STOP_USER);
-    if (d.parameters.goal >= 0
-            && d.output.solution.objective_value() >= d.parameters.goal) {
+    if (d.output.optimal())
         XPRSinterrupt(xpress_model, XPRS_STOP_USER);
-    }
 };
 
 #endif
@@ -275,10 +271,8 @@ const Output setcoveringsolver::milp(
                     // Check end.
                     if (parameters.timer.needs_to_end())
                         highs_input->user_interrupt = 1;
-                    if (parameters.goal >= 0
-                            && output.solution.objective_value() >= parameters.goal) {
+                    if (output.optimal())
                         highs_input->user_interrupt = 1;
-                    }
                 },
                 nullptr);
         HighsStatus highs_status;

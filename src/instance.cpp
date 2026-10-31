@@ -217,6 +217,7 @@ void Instance::format(
             << "Average number of set neighbors estimate:     " << compute_average_number_of_set_neighbors_estimate() << std::endl
             << "Average number of elt. neighbors estimate:    " << compute_average_number_of_element_neighbors_estimate() << std::endl
             << "Total cost:                                   " << total_cost() << std::endl
+            << "Goal:                                         " << goal() << std::endl
             << "Number of connected components:               " << number_of_components() << std::endl
             ;
     }
