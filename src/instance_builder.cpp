@@ -201,7 +201,6 @@ void InstanceBuilder::read_balas1996(std::ifstream& file)
                 element_pos < set_number_of_elements;
                 ++element_pos) {
             file >> element_id;
-            element_id--;
             add_arc(set_id, element_id - 1);
         }
     }
