@@ -17,6 +17,18 @@ using namespace setcoveringsolver;
 
 namespace po = boost::program_options;
 
+std::string get_certificate_format(
+        const po::variables_map& vm)
+{
+    std::string certificate_format = vm["certificate-format"].as<std::string>();
+    if (!certificate_format.empty())
+        return certificate_format;
+
+    // By default, use the certificate format corresponding to the input
+    // format.
+    return vm["format"].as<std::string>();
+}
+
 void read_args(
         Parameters& parameters,
         const po::variables_map& vm)
@@ -37,9 +49,7 @@ void read_args(
         if (vm.count("certificate"))
             certificate_path = vm["certificate"].as<std::string>();
 
-        std::string certificate_format;
-        if (vm.count("certificate-format"))
-            certificate_format = vm["certificate-format"].as<std::string>();
+        std::string certificate_format = get_certificate_format(vm);
 
         std::string json_output_path;
         if (vm.count("output"))
@@ -191,7 +201,7 @@ int main(int argc, char *argv[])
         ("algorithm,a", po::value<std::string>()->default_value("large-neighborhood-search"), "set algorithm")
         ("input,i", po::value<std::string>()->required(), "set input file (required)")
         ("format,f", po::value<std::string>()->default_value(""), "set input file format (default: standard)")
-        ("certificate-format,", po::value<std::string>()->default_value(""), "set certificate file format (default: standard)")
+        ("certificate-format,", po::value<std::string>()->default_value(""), "set certificate file format (default: input file format)")
         ("unicost,u", "set unicost")
         ("output,o", po::value<std::string>(), "set JSON output file")
         ("initial-solution,", po::value<std::string>(), "")
@@ -250,9 +260,7 @@ int main(int argc, char *argv[])
 
     // Write outputs.
     if (vm.count("certificate")) {
-        std::string certificate_format = "";
-        if (vm.count("certificate-format"))
-            certificate_format = vm["certificate-format"].as<std::string>();
+        std::string certificate_format = get_certificate_format(vm);
         output.solution.write(
                 vm["certificate"].as<std::string>(),
                 certificate_format);

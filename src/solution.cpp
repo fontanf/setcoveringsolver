@@ -74,13 +74,29 @@ void Solution::write(
                 "Unable to open file \"" + certificate_path + "\".");
     }
 
-    if (format == "" || format == "gecco2020" || format == "gecco") {
+    // Each input format has a certificate format with the same name, which
+    // uses the same set indices.
+    if (format == ""
+            || format == "gecco2020"
+            || format == "gecco") {
         write_gecco2020(file);
-    } else if (format == "pace2025") {
+    } else if (format == "fulkerson1974"
+            || format == "sts"
+            || format == "balas1980"
+            || format == "orlibrary"
+            || format == "balas1996"
+            || format == "faster1994"
+            || format == "faster"
+            || format == "wedelin1995"
+            || format == "wedelin"
+            || format == "pace2019_vc"
+            || format == "pace2025"
+            || format == "pace2025_ds"
+            || format == "dimacs2010_vc") {
         write_pace2025(file);
     } else {
         throw std::invalid_argument(
-                "Unknown instance format \"" + format + "\".");
+                "Unknown certificate format \"" + format + "\".");
     }
     file.close();
 }
