@@ -415,13 +415,15 @@ void InstanceBuilder::read_dimacs2010_vc(FILE* file)
             first = false;
             SetId number_of_sets = -1;
             ElementId number_of_elements = -1;
-            SetId tmp;
             read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_sets);
             read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_elements);
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, tmp);
             add_elements(number_of_elements);
             add_sets(number_of_sets);
-            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
+            // Skip the rest of the line (optional format field).
+            // 'read_next_int_on_line' returns 'false' once it has read the
+            // end of the line.
+            SetId tmp;
+            while (read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, tmp)) {}
         } else {
             while (read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)) {
                 if (set_id_2 > set_id_1) {
