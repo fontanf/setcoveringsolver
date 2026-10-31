@@ -659,12 +659,12 @@ void explore_swap_neighborhood(
 
 const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weighting(
         const Instance& instance,
+        const Solution* initial_solution,
         std::mt19937_64& generator,
-        Solution* initial_solution,
         const LocalSearchRowWeightingParameters& parameters)
 {
     LocalSearchRowWeightingOutput output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Row weighting local search");
 
     if (instance.number_of_elements() == 0) {
@@ -681,12 +681,13 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
         return solve_reduced_instance(
                 [&generator](
                     const Instance& instance,
+                    const Solution* initial_solution,
                     const LocalSearchRowWeightingParameters& parameters)
                 {
                     return local_search_row_weighting(
                             instance,
+                            initial_solution,
                             generator,
-                            nullptr,
                             parameters);
                 },
                 instance,
@@ -701,19 +702,20 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
     Parameters trivial_bound_parameters;
     trivial_bound_parameters.verbosity_level = 0;
     trivial_bound_parameters.reduction_parameters.reduce = false;
-    Cost bound = trivial_bound(instance, trivial_bound_parameters).bound;
+    Cost bound = trivial_bound(instance, nullptr, trivial_bound_parameters).bound;
     algorithm_formatter.update_bound(bound, "trivial bound");
 
     // Compute initial greedy solution.
+    // The local search requires a feasible initial solution.
     Solution solution(instance);
-    if (initial_solution != nullptr) {
+    if (initial_solution != nullptr && initial_solution->feasible()) {
         solution = *initial_solution;
         algorithm_formatter.update_solution(solution, "initial solution");
     } else {
         Parameters greedy_parameters;
         greedy_parameters.verbosity_level = 0;
         greedy_parameters.reduction_parameters.reduce = false;
-        Output greedy_output = greedy_or_greedy_reverse(instance, greedy_parameters);
+        Output greedy_output = greedy_or_greedy_reverse(instance, nullptr, greedy_parameters);
         algorithm_formatter.update_solution(greedy_output.solution, "initial solution");
         solution = greedy_output.solution;
     }

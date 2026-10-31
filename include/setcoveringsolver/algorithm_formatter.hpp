@@ -13,9 +13,11 @@ public:
     /** Constructor. */
     AlgorithmFormatter(
             const Parameters& parameters,
-            Output& output):
+            Output& output,
+            const Solution* initial_solution):
         parameters_(parameters),
         output_(output),
+        initial_solution_(initial_solution),
         os_(parameters.create_os()) { }
 
     /** Print the header. */
@@ -52,6 +54,13 @@ private:
 
     /** Output. */
     Output& output_;
+
+    /**
+     * Initial solution.
+     *
+     * It is used as the first solution of the output.
+     */
+    const Solution* initial_solution_;
 
     /** Output stream. */
     std::unique_ptr<optimizationtools::ComposeStream> os_;
@@ -102,7 +111,9 @@ inline const AlgorithmOutput solve_reduced_instance(
             algorithm_formatter.update_solution(unreduced_solution, s);
             algorithm_formatter.update_bound(unreduced_bound, s);
         };
-    auto new_output = algorithm(reduction.instance(), new_parameters);
+    // The initial solution is a solution of the original instance, it can't be
+    // passed to the algorithm on the reduced instance.
+    auto new_output = algorithm(reduction.instance(), nullptr, new_parameters);
 
     solution_tmp = output.solution;
     Cost bound = output.bound;

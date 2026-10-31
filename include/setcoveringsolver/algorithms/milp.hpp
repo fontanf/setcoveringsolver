@@ -35,7 +35,7 @@ struct MilpParameters: Parameters
 
 const Output milp(
         const Instance& instance,
-        const Solution* initial_solution = NULL,
+        const Solution* initial_solution = nullptr,
         const MilpParameters& parameters = {});
 
 }

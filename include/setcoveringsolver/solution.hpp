@@ -22,10 +22,16 @@ public:
     /** Create an empty solution. */
     Solution(const Instance& instance);
 
-    /** Create a solution from a certificate file. */
+    /**
+     * Create a solution from a certificate file.
+     *
+     * The set indices of the certificate file follow the certificate format
+     * (see 'write').
+     */
     Solution(
             const Instance& instance,
-            std::string certificate_path);
+            const std::string& certificate_path,
+            const std::string& format = "");
 
     /*
      * Getters

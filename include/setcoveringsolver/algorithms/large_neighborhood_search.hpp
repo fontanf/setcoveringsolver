@@ -69,6 +69,7 @@ struct LargeNeighborhoodSearchOutput: Output
 
 const LargeNeighborhoodSearchOutput large_neighborhood_search(
         const Instance& instance,
+        const Solution* initial_solution = nullptr,
         const LargeNeighborhoodSearchParameters& parameters = {});
 
 }

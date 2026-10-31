@@ -6,10 +6,11 @@ using namespace setcoveringsolver;
 
 const Output setcoveringsolver::trivial_bound(
         const Instance& instance,
+        const Solution* initial_solution,
         const Parameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("Trivial bound");
 
     // Reduction.

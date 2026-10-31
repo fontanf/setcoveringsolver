@@ -193,7 +193,7 @@ const Output setcoveringsolver::milp(
         const MilpParameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("MILP");
 
     algorithm_formatter.print_header();
@@ -201,15 +201,7 @@ const Output setcoveringsolver::milp(
     // Reduction.
     if (parameters.reduction_parameters.reduce) {
         return solve_reduced_instance(
-                [](
-                    const Instance& instance,
-                    const MilpParameters& parameters)
-                {
-                    return milp(
-                            instance,
-                            nullptr,
-                            parameters);
-                },
+                milp,
                 instance,
                 parameters,
                 algorithm_formatter,

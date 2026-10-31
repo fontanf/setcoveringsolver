@@ -12,10 +12,11 @@ using namespace setcoveringsolver;
 
 const Output setcoveringsolver::cp_sat_ortools(
         const Instance& instance,
+        const Solution* initial_solution,
         const CpSatOrtoolsParameters& parameters)
 {
     Output output(instance);
-    AlgorithmFormatter algorithm_formatter(parameters, output);
+    AlgorithmFormatter algorithm_formatter(parameters, output, initial_solution);
     algorithm_formatter.start("CP-SAT (OR-Tools)");
 
     // Reduction.
