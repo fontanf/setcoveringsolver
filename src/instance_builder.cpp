@@ -171,6 +171,64 @@ void check_number_of_vertex_lines(
     }
 }
 
+/**
+ * Read a value from an instance file, and check that it has been read.
+ *
+ * 'name' describes the value in the error message.
+ */
+template <typename T>
+void read_value(
+        std::ifstream& file,
+        T& value,
+        const char* name)
+{
+    if (!(file >> value)) {
+        throw std::runtime_error(
+                std::string("unable to read ") + name
+                + "; the file is truncated or contains an invalid value.");
+    }
+}
+
+/**
+ * Read a value from an instance file, and check that it has been read.
+ *
+ * 'name' followed by 'id' describes the value in the error message. The
+ * message is only built if the value can't be read.
+ */
+template <typename T, typename Id>
+void read_value(
+        std::ifstream& file,
+        T& value,
+        const char* name,
+        Id id)
+{
+    if (!(file >> value)) {
+        throw std::runtime_error(
+                std::string("unable to read ") + name + " " + std::to_string(id)
+                + "; the file is truncated or contains an invalid value.");
+    }
+}
+
+/** Check that the number of sets declared in the header is not negative. */
+void check_declared_number_of_sets(
+        SetId number_of_sets)
+{
+    if (number_of_sets < 0) {
+        throw std::runtime_error(
+                "invalid number of sets " + std::to_string(number_of_sets) + ".");
+    }
+}
+
+/** Check that the number of elements declared in the header is not negative. */
+void check_declared_number_of_elements(
+        ElementId number_of_elements)
+{
+    if (number_of_elements < 0) {
+        throw std::runtime_error(
+                "invalid number of elements " + std::to_string(number_of_elements) + ".");
+    }
+}
+
 }
 
 void InstanceBuilder::read(
@@ -231,7 +289,10 @@ void InstanceBuilder::read_geccod2020(std::ifstream& file)
 {
     ElementId number_of_elements;
     SetId number_of_sets;
-    file >> number_of_elements >> number_of_sets;
+    read_value(file, number_of_elements, "the number of elements");
+    read_value(file, number_of_sets, "the number of sets");
+    check_declared_number_of_elements(number_of_elements);
+    check_declared_number_of_sets(number_of_sets);
 
     add_elements(number_of_elements);
     add_sets(number_of_sets);
@@ -245,9 +306,10 @@ void InstanceBuilder::read_geccod2020(std::ifstream& file)
     for (ElementId element_id = 0;
             element_id < number_of_elements;
             ++element_id) {
-        file >> element_id_tmp >> element_number_of_sets;
+        read_value(file, element_id_tmp, "the index of element", element_id);
+        read_value(file, element_number_of_sets, "the number of sets covering element", element_id);
         for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
-            file >> set_id;
+            read_value(file, set_id, "a set covering element", element_id);
             check_set_index(set_id, 0, number_of_sets);
             add_arc(set_id, element_id);
         }
@@ -258,7 +320,10 @@ void InstanceBuilder::read_fulkerson1974(std::ifstream& file)
 {
     SetId number_of_sets;
     ElementId number_of_elements;
-    file >> number_of_sets >> number_of_elements;
+    read_value(file, number_of_sets, "the number of sets");
+    read_value(file, number_of_elements, "the number of elements");
+    check_declared_number_of_sets(number_of_sets);
+    check_declared_number_of_elements(number_of_elements);
 
     add_elements(number_of_elements);
     add_sets(number_of_sets);
@@ -271,7 +336,7 @@ void InstanceBuilder::read_fulkerson1974(std::ifstream& file)
             element_id < number_of_elements;
             ++element_id) {
         for (SetPos set_pos = 0; set_pos < 3; ++set_pos) {
-            file >> set_id;
+            read_value(file, set_id, "a set covering element", element_id + 1);
             check_set_index(set_id, 1, number_of_sets);
             add_arc(set_id - 1, element_id);
         }
@@ -282,14 +347,17 @@ void InstanceBuilder::read_balas1980(std::ifstream& file)
 {
     ElementId number_of_elements;
     SetId number_of_sets;
-    file >> number_of_elements >> number_of_sets;
+    read_value(file, number_of_elements, "the number of elements");
+    read_value(file, number_of_sets, "the number of sets");
+    check_declared_number_of_elements(number_of_elements);
+    check_declared_number_of_sets(number_of_sets);
 
     add_elements(number_of_elements);
     add_sets(number_of_sets);
 
     Cost cost;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        file >> cost;
+        read_value(file, cost, "the cost of set", set_id + 1);
         set_cost(set_id, cost);
     }
 
@@ -298,9 +366,9 @@ void InstanceBuilder::read_balas1980(std::ifstream& file)
     for (ElementId element_id = 0;
             element_id < number_of_elements;
             ++element_id) {
-        file >> element_number_of_sets;
+        read_value(file, element_number_of_sets, "the number of sets covering element", element_id + 1);
         for (SetPos set_pos = 0; set_pos < element_number_of_sets; ++set_pos) {
-            file >> set_id;
+            read_value(file, set_id, "a set covering element", element_id + 1);
             check_set_index(set_id, 1, number_of_sets);
             add_arc(set_id - 1, element_id);
         }
@@ -311,25 +379,28 @@ void InstanceBuilder::read_balas1996(std::ifstream& file)
 {
     SetId number_of_sets;
     ElementId number_of_elements;
-    file >> number_of_sets >> number_of_elements;
+    read_value(file, number_of_sets, "the number of sets");
+    read_value(file, number_of_elements, "the number of elements");
+    check_declared_number_of_sets(number_of_sets);
+    check_declared_number_of_elements(number_of_elements);
 
     add_elements(number_of_elements);
     add_sets(number_of_sets);
 
     Cost cost;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        file >> cost;
+        read_value(file, cost, "the cost of set", set_id + 1);
         set_cost(set_id, cost);
     }
 
     ElementId element_id;
     ElementId set_number_of_elements;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        file >> set_number_of_elements;
+        read_value(file, set_number_of_elements, "the number of elements covered by set", set_id + 1);
         for (ElementPos element_pos = 0;
                 element_pos < set_number_of_elements;
                 ++element_pos) {
-            file >> element_id;
+            read_value(file, element_id, "an element covered by set", set_id + 1);
             check_element_index(element_id, 1, number_of_elements);
             add_arc(set_id, element_id - 1);
         }
@@ -340,7 +411,10 @@ void InstanceBuilder::read_faster1994(std::ifstream& file)
 {
     ElementId number_of_elements;
     SetId number_of_sets;
-    file >> number_of_elements >> number_of_sets;
+    read_value(file, number_of_elements, "the number of elements");
+    read_value(file, number_of_sets, "the number of sets");
+    check_declared_number_of_elements(number_of_elements);
+    check_declared_number_of_sets(number_of_sets);
 
     add_elements(number_of_elements);
     add_sets(number_of_sets);
@@ -349,12 +423,13 @@ void InstanceBuilder::read_faster1994(std::ifstream& file)
     ElementId element_id;
     ElementId set_number_of_elements;
     for (SetId set_id = 0; set_id < number_of_sets; ++set_id) {
-        file >> cost >> set_number_of_elements;
+        read_value(file, cost, "the cost of set", set_id + 1);
+        read_value(file, set_number_of_elements, "the number of elements covered by set", set_id + 1);
         set_cost(set_id, cost);
         for (ElementPos element_pos = 0;
                 element_pos < set_number_of_elements;
                 ++element_pos) {
-            file >> element_id;
+            read_value(file, element_id, "an element covered by set", set_id + 1);
             check_element_index(element_id, 1, number_of_elements);
             add_arc(set_id, element_id - 1);
         }
