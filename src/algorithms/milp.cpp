@@ -314,8 +314,12 @@ const Output setcoveringsolver::milp(
     }
 
     // Retrieve solution.
-    Solution solution = retrieve_solution(instance, milp_solution);
-    algorithm_formatter.update_solution(solution, "");
+    // The solution is empty if the solver didn't find any feasible solution
+    // before reaching the time limit.
+    if (!milp_solution.empty()) {
+        Solution solution = retrieve_solution(instance, milp_solution);
+        algorithm_formatter.update_solution(solution, "");
+    }
 
     // Retrieve bound.
     algorithm_formatter.update_bound(milp_bound, "");
