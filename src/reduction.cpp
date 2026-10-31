@@ -1255,7 +1255,7 @@ bool Reduction::reduce_vertex_cover_domination(
             if (fixed_sets.contains(set_2_id))
                 continue;
 
-            if (set_2.cost > set.cost)
+            if (set.cost > set_2.cost)
                 continue;
 
             bool dominates = true;
