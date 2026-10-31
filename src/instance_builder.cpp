@@ -3,6 +3,7 @@
 #include "optimizationtools/utils/utils.hpp"
 
 #include <fstream>
+#include <memory>
 
 using namespace setcoveringsolver;
 
@@ -249,6 +250,26 @@ void InstanceBuilder::read(
     }
 }
 
+namespace
+{
+
+/**
+ * Open a file with 'fopen'. The file is closed when the returned pointer is
+ * destroyed.
+ */
+std::unique_ptr<FILE, int(*)(FILE*)> open_file(
+        const std::string& path)
+{
+    FILE* file = fopen(path.c_str(), "r");
+    if (file == nullptr) {
+        throw std::runtime_error(
+                "Unable to open file \"" + path + "\".");
+    }
+    return std::unique_ptr<FILE, int(*)(FILE*)>(file, &fclose);
+}
+
+}
+
 void InstanceBuilder::read(
         const std::string& instance_path,
         const std::string& format,
@@ -268,17 +289,13 @@ void InstanceBuilder::read(
             || format == "wedelin") {
         read_faster1994(file);
     } else if (format == "pace2019_vc") {
-        FILE* file = fopen(instance_path.c_str(), "r");
-        read_pace2019_vc(file);
+        read_pace2019_vc(open_file(instance_path).get());
     } else if (format == "pace2025") {
-        FILE* file = fopen(instance_path.c_str(), "r");
-        read_pace2025(file);
+        read_pace2025(open_file(instance_path).get());
     } else if (format == "pace2025_ds") {
-        FILE* file = fopen(instance_path.c_str(), "r");
-        read_pace2025_ds(file);
+        read_pace2025_ds(open_file(instance_path).get());
     } else if (format == "dimacs2010_vc") {
-        FILE* file = fopen(instance_path.c_str(), "r");
-        read_dimacs2010_vc(file);
+        read_dimacs2010_vc(open_file(instance_path).get());
     } else {
         throw std::invalid_argument(
                 "Unknown instance format \"" + format + "\".");
@@ -477,6 +494,59 @@ inline void skip_line(
     while ((c = get_char(file, buf, BUF_SIZE, buf_pos, buf_len)) != '\n' && c != EOF) {}
 }
 
+inline bool is_blank(char c)
+{
+    return c == ' ' || c == '\t' || c == '\r';
+}
+
+/**
+ * Throw an error for an unexpected character in a number.
+ */
+inline void throw_invalid_character(char c)
+{
+    throw std::runtime_error(
+            std::string("invalid character '") + c
+            + "'; only non-negative integers separated by spaces are expected.");
+}
+
+/**
+ * Skip a word (a sequence of non-blank characters) on the current line.
+ *
+ * Return 'false' if the end of the line is reached before the word; the end
+ * of the line is then consumed.
+ */
+inline bool skip_word(
+        FILE* file,
+        char* buf,
+        size_t BUF_SIZE,
+        size_t& buf_pos,
+        size_t& buf_len)
+{
+    char c;
+
+    // Skip blank characters.
+    do {
+        c = get_char(file, buf, BUF_SIZE, buf_pos, buf_len);
+        if (c == '\n' || c == EOF) return false;
+    } while (is_blank(c));
+
+    // Skip the word.
+    do {
+        c = get_char(file, buf, BUF_SIZE, buf_pos, buf_len);
+    } while (c != '\n' && c != EOF && !is_blank(c));
+
+    // If we hit newline, we’ve reached the end of the line
+    if (c == '\n') buf_pos--; // allow outer loop to see the newline
+    return true;
+}
+
+/**
+ * Read the next integer of the current line.
+ *
+ * Return 'false' if the end of the line is reached before an integer; the end
+ * of the line is then consumed. Throw an error if the line contains anything
+ * else than non-negative integers separated by blank characters.
+ */
 inline bool read_next_int_on_line(
         FILE* file,
         char* buf,
@@ -488,21 +558,49 @@ inline bool read_next_int_on_line(
     x = 0;
     char c;
 
-    // Skip non-digit characters
+    // Skip blank characters.
     do {
         c = get_char(file, buf, BUF_SIZE, buf_pos, buf_len);
         if (c == '\n' || c == EOF) return false;
-    } while (c < '0' || c > '9');
+    } while (is_blank(c));
+    if (c < '0' || c > '9')
+        throw_invalid_character(c);
 
     // Parse integer
     do {
         x = x * 10 + (c - '0');
         c = get_char(file, buf, BUF_SIZE, buf_pos, buf_len);
     } while (c >= '0' && c <= '9');
+    if (c != '\n' && c != EOF && !is_blank(c))
+        throw_invalid_character(c);
 
     // If we hit newline, we’ve reached the end of the line
     if (c == '\n') buf_pos--; // allow outer loop to see the newline
     return true;
+}
+
+/**
+ * Read the problem line 'p <descriptor> <value 1> <value 2>' of a PACE
+ * instance file.
+ */
+inline void read_problem_line(
+        FILE* file,
+        char* buf,
+        size_t BUF_SIZE,
+        size_t& buf_pos,
+        size_t& buf_len,
+        int64_t& value_1,
+        int64_t& value_2)
+{
+    if (!skip_word(file, buf, BUF_SIZE, buf_pos, buf_len)
+            || !skip_word(file, buf, BUF_SIZE, buf_pos, buf_len)
+            || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, value_1)
+            || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, value_2)) {
+        throw std::runtime_error(
+                "invalid problem line; "
+                "expected 'p <descriptor> <number> <number>'.");
+    }
+    skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
 }
 
 void InstanceBuilder::read_pace2019_vc(FILE* file)
@@ -524,24 +622,25 @@ void InstanceBuilder::read_pace2019_vc(FILE* file)
         } else if (c == 'p') {
             SetId number_of_vertices = -1;
             SetId number_of_edges = -1;
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_vertices);
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_edges);
+            read_problem_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_vertices, number_of_edges);
             add_elements(number_of_edges);
             add_sets(number_of_vertices);
-            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
             header_read = true;
         } else if (c == '\n') {
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
         } else {
             if (!header_read)
                 throw std::runtime_error("missing problem line 'p'.");
+            // 'read_next_int_on_line' consumes the end of the line when it
+            // returns 'false'.
+            SetId set_id_3 = -1;
             if (!read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_1)
-                    || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)) {
+                    || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)
+                    || read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_3)) {
                 throw std::runtime_error(
                         "edge " + std::to_string(element_id + 1)
                         + " doesn't have two vertices.");
             }
-            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
             check_number_of_edges(element_id + 1, instance_.number_of_elements());
             check_vertex_index(set_id_1, 1, instance_.number_of_sets());
             check_vertex_index(set_id_2, 1, instance_.number_of_sets());
@@ -570,11 +669,9 @@ void InstanceBuilder::read_pace2025(FILE* file)
         } else if (c == 'p') {
             SetId number_of_sets = -1;
             SetId number_of_elements = -1;
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_sets);
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_elements);
+            read_problem_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_sets, number_of_elements);
             add_elements(number_of_elements);
             add_sets(number_of_sets);
-            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
             header_read = true;
         } else {
             // Lines without any set (e.g. empty lines) are ignored.
@@ -613,26 +710,27 @@ void InstanceBuilder::read_pace2025_ds(FILE* file)
         } else if (c == 'p') {
             SetId number_of_vertices = -1;
             SetId number_of_edges = -1;
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_vertices);
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_edges);
+            read_problem_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_vertices, number_of_edges);
             add_elements(number_of_vertices);
             add_sets(number_of_vertices);
             for (SetId set_id = 0; set_id < number_of_vertices; ++set_id)
                 add_arc(set_id, set_id);
-            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
             header_read = true;
         } else if (c == '\n') {
             skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
         } else {
             if (!header_read)
                 throw std::runtime_error("missing problem line 'p'.");
+            // 'read_next_int_on_line' consumes the end of the line when it
+            // returns 'false'.
+            SetId set_id_3 = -1;
             if (!read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_1)
-                    || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)) {
+                    || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_2)
+                    || read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, set_id_3)) {
                 throw std::runtime_error(
                         "edge " + std::to_string(edge_id + 1)
                         + " doesn't have two vertices.");
             }
-            skip_line(file, buf, BUF_SIZE, buf_pos, buf_len);
             check_vertex_index(set_id_1, 1, instance_.number_of_sets());
             check_vertex_index(set_id_2, 1, instance_.number_of_sets());
             add_arc(set_id_1 - 1, set_id_2 - 1);
@@ -660,8 +758,12 @@ void InstanceBuilder::read_dimacs2010_vc(FILE* file)
             first = false;
             SetId number_of_sets = -1;
             ElementId number_of_elements = -1;
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_sets);
-            read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_elements);
+            if (!read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_sets)
+                    || !read_next_int_on_line(file, buf, BUF_SIZE, buf_pos, buf_len, number_of_elements)) {
+                throw std::runtime_error(
+                        "invalid header; expected "
+                        "'<number of vertices> <number of edges> [<format>]'.");
+            }
             add_elements(number_of_elements);
             add_sets(number_of_sets);
             // Skip the rest of the line (optional format field).
