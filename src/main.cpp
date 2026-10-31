@@ -166,8 +166,6 @@ Output run(
             parameters.maximum_number_of_iterations_without_improvement
                 = vm["maximum-number-of-iterations-without-improvement"].as<Counter>();
         }
-        if (vm.count("goal"))
-            parameters.goal = vm["goal"].as<Cost>();
         return large_neighborhood_search(instance, parameters);
     } else if (algorithm == "trivial-bound") {
         Parameters parameters;
@@ -198,7 +196,7 @@ int main(int argc, char *argv[])
         ("output,o", po::value<std::string>(), "set JSON output file")
         ("initial-solution,", po::value<std::string>(), "")
         ("certificate,c", po::value<std::string>(), "set certificate file")
-        ("goal,", po::value<Cost>(), "")
+        ("goal,", po::value<Cost>(), "stop as soon as a solution of cost <= goal is found")
         ("seed,s", po::value<Seed>()->default_value(0), "set seed")
         ("time-limit,t", po::value<double>(), "set time limit in seconds")
         ("verbosity-level,v", po::value<int>(), "set verbosity level")
@@ -243,6 +241,8 @@ int main(int argc, char *argv[])
             vm["format"].as<std::string>());
     if (vm.count("unicost"))
         instance_builder.set_unicost();
+    if (vm.count("goal"))
+        instance_builder.set_goal(vm["goal"].as<Cost>());
     const Instance instance = instance_builder.build();
 
     // Run.

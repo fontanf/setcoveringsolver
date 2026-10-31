@@ -106,9 +106,10 @@ const LargeNeighborhoodSearchOutput setcoveringsolver::large_neighborhood_search
         if (parameters.maximum_number_of_iterations_without_improvement != -1
                 && iterations_without_improvment >= parameters.maximum_number_of_iterations_without_improvement)
             break;
-        if (output.solution.cost() == parameters.goal)
-            break;
-        if (output.solution.cost() == output.bound)
+        // The best solution is only written to the output at the end, so the
+        // goal and the bound are checked against its cost.
+        if ((instance.goal() >= 0 && best_cost <= instance.goal())
+                || best_cost == output.bound)
             break;
         //std::cout
         //    << "it " << output.number_of_iterations

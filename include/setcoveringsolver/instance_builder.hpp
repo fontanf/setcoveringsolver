@@ -44,6 +44,9 @@ public:
     /** Set the cost of all sets to 1. */
     void set_unicost();
 
+    /** Set the goal. */
+    void set_goal(Cost goal) { instance_.goal_ = goal; }
+
     /** Read an instance from a file. */
     void read(
             const std::string& instance_path,

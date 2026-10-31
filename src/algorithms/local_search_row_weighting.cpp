@@ -793,9 +793,7 @@ const LocalSearchRowWeightingOutput setcoveringsolver::local_search_row_weightin
         if (parameters.maximum_number_of_iterations_without_improvement != -1
                 && number_of_iterations_without_improvement >= parameters.maximum_number_of_iterations_without_improvement)
             break;
-        if (output.solution.cost() == parameters.goal)
-            break;
-        if (output.solution.cost() == output.bound)
+        if (output.optimal())
             break;
 
         // Compute component
