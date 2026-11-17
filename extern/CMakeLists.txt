@@ -29,7 +29,7 @@ set(OPTIMIZATIONTOOLS_BUILD_TEST OFF)
 FetchContent_Declare(
     optimizationtools
     GIT_REPOSITORY https://github.com/fontanf/optimizationtools.git
-    GIT_TAG e8c379203792fcad764cce239986b325619475fd
+    GIT_TAG cf0e77052f300ca90eb533d59526955e6f8c8858
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../optimizationtools/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(optimizationtools)
@@ -73,7 +73,7 @@ endif()
 FetchContent_Declare(
     coloringsolver
     GIT_REPOSITORY https://github.com/fontanf/coloringsolver.git
-    GIT_TAG 9c6518ba62e470cf1420f77acef15e876e38d6e4
+    GIT_TAG 7618535b68c0a83de183f58fe38adc98a0f899c9
     #SOURCE_DIR "${PROJECT_SOURCE_DIR}/../coloringsolver/"
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(coloringsolver)
