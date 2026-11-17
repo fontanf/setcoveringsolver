@@ -56,7 +56,7 @@ const Output setcoveringsolver::clique_cover_bound(
                 continue;
             graph_builder.add_edge(element.sets[0], element.sets[1]);
         }
-        auto graph = std::shared_ptr<const optimizationtools::AbstractGraph>(
+        auto graph = std::shared_ptr<const optimizationtools::AdjacencyListGraph>(
                 new optimizationtools::AdjacencyListGraph(graph_builder.build().complementary()));
 
         // Build graph coloring instance.
