@@ -214,13 +214,12 @@ const Output setcoveringsolver::milp(
 
     if (parameters.solver == mathoptsolverscmake::SolverName::Cbc) {
 #ifdef CBC_FOUND
-        OsiCbcSolverInterface osi_solver;
-        CbcModel cbc_model(osi_solver);
+        mathoptsolverscmake::CbcModel cbc_model;
         mathoptsolverscmake::reduce_printout(cbc_model);
         mathoptsolverscmake::set_time_limit(cbc_model, parameters.timer.remaining_time());
         mathoptsolverscmake::load(cbc_model, milp_model);
         EventHandler cbc_event_handler(instance, parameters, output, algorithm_formatter);
-        cbc_model.passInEventHandler(&cbc_event_handler);
+        cbc_model.model.passInEventHandler(&cbc_event_handler);
         mathoptsolverscmake::solve(cbc_model);
         milp_solution = mathoptsolverscmake::get_solution(cbc_model);
         milp_bound = mathoptsolverscmake::get_bound(cbc_model);
