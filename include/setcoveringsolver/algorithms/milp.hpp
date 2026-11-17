@@ -38,4 +38,8 @@ const Output milp(
         const Solution* initial_solution = nullptr,
         const MilpParameters& parameters = {});
 
+void write_mps(
+        const Instance& instance,
+        const std::string& output_path);
+
 }

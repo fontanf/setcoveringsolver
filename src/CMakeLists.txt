@@ -38,4 +38,17 @@ if(SETCOVERINGSOLVER_BUILD_MAIN)
     endif()
     set_target_properties(SetCoveringSolver_main PROPERTIES OUTPUT_NAME "setcoveringsolver")
     install(TARGETS SetCoveringSolver_main)
+
+    add_executable(SetCoveringSolver_mps_writer_main)
+    target_sources(SetCoveringSolver_mps_writer_main PRIVATE
+        mps_writer_main.cpp)
+    # SetCoveringSolver_greedy must come after SetCoveringSolver_set_covering
+    # since the reduction calls the greedy algorithm.
+    target_link_libraries(SetCoveringSolver_mps_writer_main PUBLIC
+        SetCoveringSolver_milp
+        SetCoveringSolver_set_covering
+        SetCoveringSolver_greedy
+        Boost::program_options)
+    set_target_properties(SetCoveringSolver_mps_writer_main PROPERTIES OUTPUT_NAME "setcoveringsolver_mps_writer")
+    install(TARGETS SetCoveringSolver_mps_writer_main)
 endif()
