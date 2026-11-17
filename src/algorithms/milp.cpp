@@ -129,8 +129,10 @@ CbcEventHandler::CbcAction EventHandler::event(CbcEvent which_event)
     double milp_objective_value = mathoptsolverscmake::get_solution_value(cbc_model);
     if (output_.solution.cost() > milp_objective_value) {
         std::vector<double> milp_solution = mathoptsolverscmake::get_solution(cbc_model);
-        Solution solution = retrieve_solution(instance_, milp_solution);
-        algorithm_formatter_.update_solution(solution, "node " + std::to_string(number_of_nodes));
+        if (!milp_solution.empty()) {
+            Solution solution = retrieve_solution(instance_, milp_solution);
+            algorithm_formatter_.update_solution(solution, "node " + std::to_string(number_of_nodes));
+        }
     }
 
     // Retrieve bound.
