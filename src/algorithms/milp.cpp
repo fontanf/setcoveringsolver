@@ -11,6 +11,7 @@
 #ifdef XPRESS_FOUND
 #include "mathoptsolverscmake/mathopt_xpress.hpp"
 #endif
+#include "mathoptsolverscmake/mathopt_mps.hpp"
 
 using namespace setcoveringsolver;
 
@@ -311,4 +312,12 @@ const Output setcoveringsolver::milp(
 
     algorithm_formatter.end();
     return output;
+}
+
+void setcoveringsolver::write_mps(
+        const Instance& instance,
+        const std::string& output_path)
+{
+    mathoptsolverscmake::MathOptModel milp_model = create_milp_model(instance);
+    mathoptsolverscmake::write_mps(milp_model, output_path);
 }
