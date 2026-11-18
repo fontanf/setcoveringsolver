@@ -44,6 +44,9 @@ jobs:
         # 'make -j', which makes the runners run out of memory.
         cmake --build build --config Release --parallel ${{ runner.os == 'macOS' && 3 || 4 }}
         cmake --install build --config Release --prefix install
+    - name: Run unit tests
+      working-directory: build/test
+      run: ctest -C Release --output-on-failure --parallel
     - name: Run tests
       run: python3 -u scripts/run_tests.py test_results
     - name: Checkout main branch
