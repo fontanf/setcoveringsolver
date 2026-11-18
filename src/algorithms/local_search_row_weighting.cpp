@@ -126,21 +126,16 @@ void remove_set(
     // Update penalties.
     for (ElementId element_id: instance.set(set_id_best).elements) {
         if (solution.covers(element_id) == 0) {
-            for (SetId set_id: instance.element(element_id).sets) {
-                solution_penalty -= solution_penalties[element_id];
-                component.penalty -= solution_penalties[element_id];
-                sets[set_id].score -= solution_penalties[element_id];
-            }
-
-            solution_penalties[element_id] += (std::max)(
+            // The element is uncovered, so its penalty is counted once in the
+            // solution penalty and in the score of each set covering it.
+            Penalty increment = (std::max)(
                     (Penalty)1,
                     (Penalty)(1e4 / instance.element(element_id).sets.size()));
-
-            for (SetId set_id: instance.element(element_id).sets) {
-                solution_penalty += solution_penalties[element_id];
-                component.penalty += solution_penalties[element_id];
-                sets[set_id].score += solution_penalties[element_id];
-            }
+            solution_penalties[element_id] += increment;
+            solution_penalty += increment;
+            component.penalty += increment;
+            for (SetId set_id: instance.element(element_id).sets)
+                sets[set_id].score += increment;
         }
     }
 }
@@ -237,21 +232,16 @@ void explore_remove_add_neighborhood(
     // Update penalties.
     for (ElementId element_id: instance.set(set_id_1_best).elements) {
         if (solution.covers(element_id) == 0) {
-            for (SetId set_id: instance.element(element_id).sets) {
-                solution_penalty -= solution_penalties[element_id];
-                component.penalty -= solution_penalties[element_id];
-                sets[set_id].score -= solution_penalties[element_id];
-            }
-
-            solution_penalties[element_id] += (std::max)(
+            // The element is uncovered, so its penalty is counted once in the
+            // solution penalty and in the score of each set covering it.
+            Penalty increment = (std::max)(
                     (Penalty)1,
                     (Penalty)(1e4 / instance.element(element_id).sets.size()));
-
-            for (SetId set_id: instance.element(element_id).sets) {
-                solution_penalty += solution_penalties[element_id];
-                component.penalty += solution_penalties[element_id];
-                sets[set_id].score += solution_penalties[element_id];
-            }
+            solution_penalties[element_id] += increment;
+            solution_penalty += increment;
+            component.penalty += increment;
+            for (SetId set_id: instance.element(element_id).sets)
+                sets[set_id].score += increment;
         }
     }
 
@@ -357,21 +347,16 @@ void explore_remove_add_neighborhood(
         // Update penalties.
         for (ElementId element_id: instance.set(set_id_2_best).elements) {
             if (solution.covers(element_id) == 0) {
-                for (SetId set_id: instance.element(element_id).sets) {
-                    solution_penalty -= solution_penalties[element_id];
-                    component.penalty -= solution_penalties[element_id];
-                    sets[set_id].score -= solution_penalties[element_id];
-                }
-
-                solution_penalties[element_id] += (std::max)(
+                // The element is uncovered, so its penalty is counted once in the
+                // solution penalty and in the score of each set covering it.
+                Penalty increment = (std::max)(
                         (Penalty)1,
                         (Penalty)(1e4 / instance.element(element_id).sets.size()));
-
-                for (SetId set_id: instance.element(element_id).sets) {
-                    solution_penalty += solution_penalties[element_id];
-                    component.penalty += solution_penalties[element_id];
-                    sets[set_id].score += solution_penalties[element_id];
-                }
+                solution_penalties[element_id] += increment;
+                solution_penalty += increment;
+                component.penalty += increment;
+                for (SetId set_id: instance.element(element_id).sets)
+                    sets[set_id].score += increment;
             }
         }
     }
@@ -624,21 +609,16 @@ void explore_swap_neighborhood(
         // Update penalties.
         for (ElementId element_id: instance.set(set_id_2_best).elements) {
             if (solution.covers(element_id) == 0) {
-                for (SetId set_id: instance.element(element_id).sets) {
-                    solution_penalty -= solution_penalties[element_id];
-                    component.penalty -= solution_penalties[element_id];
-                    sets[set_id].score -= solution_penalties[element_id];
-                }
-
-                solution_penalties[element_id] += (std::max)(
+                // The element is uncovered, so its penalty is counted once in the
+                // solution penalty and in the score of each set covering it.
+                Penalty increment = (std::max)(
                         (Penalty)1,
                         (Penalty)(1e4 / instance.element(element_id).sets.size()));
-
-                for (SetId set_id: instance.element(element_id).sets) {
-                    solution_penalty += solution_penalties[element_id];
-                    component.penalty += solution_penalties[element_id];
-                    sets[set_id].score += solution_penalties[element_id];
-                }
+                solution_penalties[element_id] += increment;
+                solution_penalty += increment;
+                component.penalty += increment;
+                for (SetId set_id: instance.element(element_id).sets)
+                    sets[set_id].score += increment;
             }
         }
     }
