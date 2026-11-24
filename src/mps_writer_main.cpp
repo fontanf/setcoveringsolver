@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
         ("input,i", po::value<std::string>()->required(), "set input path")
         ("format,f", po::value<std::string>()->required(), "set input format")
         ("output,o", po::value<std::string>()->required(), "set output path")
+        ("unicost,u", "set unicost")
         ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -37,6 +38,8 @@ int main(int argc, char *argv[])
     instance_builder.read(
             vm["input"].as<std::string>(),
             vm["format"].as<std::string>());
+    if (vm.count("unicost"))
+        instance_builder.set_unicost();
     Instance instance = instance_builder.build();
 
     write_mps(
